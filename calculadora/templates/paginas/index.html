@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +10,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/css/sci-fi.css">
     <script src="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/js/retrosci-fi.js" defer></script>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href='{% static "css/style.css" %}'>
 
 </head>
 
@@ -16,7 +18,7 @@
     <nav class="navbar bg-secondary estilo-brillo border rounded border-white hover-neon p-1">
         <div class="navbar-header">
             <div class="navbar-brand">
-                <img src="/static/img/logo.png" alt="" style="width: 50px; height: 50px;">Forja Solver
+                <img src="/static/img/logo.png" alt="" style="width: 50px; height: 50px" />Forja Solver
             </div>
             <button class="navbar-toggle">
                 <div class="img-menu-white"></div>
@@ -29,7 +31,48 @@
     </nav>
 
     <div class="main-grid">
-        <div class="bg-success text-white border-3 border-success rounded"></div>
+        <div class="bg-success text-white border-3 border-success rounded variables-grid">
+            <div class="text-content list-calculadora">
+                <span class="info-text">Calculadora:</span>
+                <select name="modelos" id="models">
+                    <option value="seleccion" disabled>Seleccione un modelo</option>
+                    <option value="grafico">Modelo Grafico</option>
+                    <option value="simplex">Modelo Simplex</option>
+                    <option value="GranM">Modelo de la Gran M</option>
+                    <option value="punto-fijo">Modelo Punto Fijo</option>
+                    <option value="trasadores-cubicos">
+                        Modelo Trasadores Cubicos
+                    </option>
+                </select>
+            </div>
+            <div class="text-content cont-variables">
+                <span class="info-text">Cantidad de Varibles:</span>
+                <input type="number" name="cant-variables" id="cant-variables" min="2" max="50" value="2" />
+            </div>
+            <div class="text-content const-restricciones">
+                <span class="info-text">Cantidad de Restricciones:</span>
+                <input type="number" name="cant-restricciones" id="cant-restricciones" min="1" max="50" value="1" />
+            </div>
+            <div class="text-content objetivo">
+                <span class="info-text">Objetivo:</span>
+                <select name="objetivos" id="objetivos">
+                    <option value="max">Maximizar</option>
+                    <option value="min">Minimizar</option>
+                </select>
+            </div>
+            <div class="text-content funcion-objetivo">
+                <span class="info-text">Funcion Objetivo:</span>
+            </div>
+            <div class="text-content restricciones">
+                <span class="info-text">Restricciones:</span>
+            </div>
+            <div class="esp-botones">
+                <div class="layout-btn">
+                    <a class="btn-custom limpiar" href="#"><img src='{% static "img/limpiar.png" %}' alt=""><span>Limpiar</span></a>
+                    <a class="btn-custom resolver" href="#"><img src='{% static "img/guardar.png" %}' alt=""><span>Resolver</span></a>
+                </div>
+            </div>
+        </div>
         <div class="bg-secondary text-white border-0"></div>
     </div>
 </body>
