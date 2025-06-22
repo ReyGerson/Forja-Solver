@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block nombre %} Solver {% endblock %}
+
+{% block contenido %}
+
+<div class="bg-success text-white border-3 border-success rounded variables-grid">
+    <div class="text-content list-calculadora">
+        <span class="info-text">Calculadora:</span>
+        <select name="modelos" id="models">
+            <option value="seleccion" disabled>Seleccione un modelo</option>
+            <option value="grafico">Modelo Grafico</option>
+            <option value="simplex">Modelo Simplex</option>
+            <option value="GranM">Modelo de la Gran M</option>
+            <option value="punto-fijo">Modelo Punto Fijo</option>
+            <option value="trasadores-cubicos">
+                Modelo Trasadores Cubicos
+            </option>
+        </select>
+    </div>
+    <div class="text-content cont-variables">
+        <span class="info-text">Funcion iterativa:</span>
+        <input type="text" name="funcionPuntoFijo" id="funcionPuntoFijo">
+    </div>
+    <div class="text-content cont-variables">
+        <span class="info-text">Valor inicial:</span>
+        <input type="text" name="funcionPuntoFijo" id="funcionPuntoFijo">
+    </div>
+    <div class="text-content cont-variables">
+        <span class="info-text">Precision (en %):</span>
+        <input type="text" name="funcionPuntoFijo" id="funcionPuntoFijo">
+    </div>
+        <div class="text-content const-restricciones">
+        <span class="info-text">Dijitos despues del punto decimal:</span>
+        <input type="number" name="cant-restricciones" id="cant-restricciones" min="1" max="20" value="1" />
+    </div>
+    <div class="esp-botones">
+        <div class="layout-btn">
+            <a class="btn-custom limpiar" href="#"><img src='{% static "img/limpiar.png" %}'
+                    alt=""><span>Limpiar</span></a>
+            <a class="btn-custom resolver" href="#"><img src='{% static "img/guardar.png" %}'
+                    alt=""><span>Resolver</span></a>
+        </div>
+    </div>
+</div>
+<div class="bg-secondary text-white border-0"></div>
+
+{% endblock %}
