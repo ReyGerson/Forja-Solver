@@ -5,8 +5,8 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import static
 
 urlpatterns = [
-    path('punto', views.punto_fijo_view, name='puntoFijo'),
-    path('', views.spline_view, name='trazador'),
+    path('', views.punto_fijo_view, name='puntoFijo'),
+    path('trazador', views.spline_view, name='trazador'),
     path('historial/', views.historial_view, name='historial'),
     path('punto/historial/', views.historial_punto_fijo, name='historialPuntoFijo'),
 
