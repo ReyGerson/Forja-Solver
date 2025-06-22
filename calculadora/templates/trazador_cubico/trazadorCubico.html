@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Interpolación por Trazador Cúbico Natural</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            background-color: #f9f9f9;
+        }
+        form {
+            background: #fff;
+            padding: 1em;
+            margin-bottom: 2em;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+            background: #fff;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #aaa;
+            text-align: center;
+        }
+        .box {
+            background: #fff;
+            padding: 1em;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #ccc;
+            margin-bottom: 2em;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        h2 {
+            margin-top: 1.5em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Interpolación por Trazador Cúbico Natural</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label><strong>Puntos:</strong></label><br>
+            {{ form.points }}<br>
+            <small>{{ form.points.help_text }}</small>
+        </p>
+        <p>
+            <label><strong>Valor de x:</strong></label><br>
+            {{ form.x_value }}
+        </p>
+        <button type="submit">Calcular</button>
+    </form>
+
+    {% if result %}
+    <div class="box">
+        <h2>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h2>
+        {{ result.tabla_hm.to_html|safe }}
+    </div>
+
+    <div class="box">
+        <h2>Paso 3: Coeficientes C<sub>i</sub></h2>
+        <ul>
+            {% for c in result.coef_c %}
+                <li><strong>C{{ forloop.counter0 }}</strong> = {{ c }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h2>
+        <ul>
+            <li><strong>a:</strong> {{ result.coef_a|join:", " }}</li>
+            <li><strong>b:</strong> {{ result.coef_b|join:", " }}</li>
+            <li><strong>d:</strong> {{ result.coef_d|join:", " }}</li>
+        </ul>
+    </div>
+
+    <div class="box">
+        <h2>Polinomios por intervalos</h2>
+        <ol>
+            {% for poly in result.polinomios %}
+                <li>
+                    <strong>{{ poly.intervalo }}:</strong><br>
+                    <code>p(x) = {{ poly.formula }}</code>
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <div class="box">
+        <h2>Razonamiento para elegir el polinomio</h2>
+        <p>{{ result.razonamiento }}</p>
+
+        <h3>Polinomio usado</h3>
+        <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
+
+        <h3>Resultado final</h3>
+        <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
+        <p><strong>Resultado:</strong> {{ result.resultado }}</p>
+    </div>
+    {% endif %}
+    <p><a href="{% url 'historial' %}">Ver historial de ejecuciones anteriores</a></p>
+</body>
+</html>

@@ -1,50 +1,77 @@
-{% extends "base.html" %}
+<!-- metodo/templates/metodo/punto_fijo.html -->
 
-{% load static %}
+<!DOCTYPE html>
+<html lang="es">
 
-{% block nombre %} Solver {% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <title>Método de Punto Fijo</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+    </style>
+</head>
 
-{% block contenido %}
+<body>
+    <h1>Método de Punto Fijo</h1>
 
-<div class="bg-success text-white border-3 border-success rounded variables-grid">
-    <div class="text-content list-calculadora">
-        <span class="info-text">Calculadora:</span>
-        <select name="modelos" id="models">
-            <option value="seleccion" disabled>Seleccione un modelo</option>
-            <option value="grafico">Modelo Grafico</option>
-            <option value="simplex">Modelo Simplex</option>
-            <option value="GranM">Modelo de la Gran M</option>
-            <option value="punto-fijo">Modelo Punto Fijo</option>
-            <option value="trasadores-cubicos">
-                Modelo Trasadores Cubicos
-            </option>
-        </select>
-    </div>
-    <div class="text-content cont-variables">
-        <span class="info-text">Funcion iterativa:</span>
-        <input type="text" name="funcionPuntoFijo" id="funcionPuntoFijo">
-    </div>
-    <div class="text-content cont-variables">
-        <span class="info-text">Valor inicial:</span>
-        <input type="text" name="funcionPuntoFijo" id="funcionPuntoFijo">
-    </div>
-    <div class="text-content cont-variables">
-        <span class="info-text">Precision (en %):</span>
-        <input type="text" name="funcionPuntoFijo" id="funcionPuntoFijo">
-    </div>
-        <div class="text-content const-restricciones">
-        <span class="info-text">Dijitos despues del punto decimal:</span>
-        <input type="number" name="cant-restricciones" id="cant-restricciones" min="1" max="20" value="1" />
-    </div>
-    <div class="esp-botones">
-        <div class="layout-btn">
-            <a class="btn-custom limpiar" href="#"><img src='{% static "img/limpiar.png" %}'
-                    alt=""><span>Limpiar</span></a>
-            <a class="btn-custom resolver" href="#"><img src='{% static "img/guardar.png" %}'
-                    alt=""><span>Resolver</span></a>
-        </div>
-    </div>
-</div>
-<div class="bg-secondary text-white border-0"></div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Calcular</button>
+    </form>
 
-{% endblock %}
+
+    {% if resultado %}
+    <h2>Resultados</h2>
+    <p><strong>Función:</strong> F(x) = {{ fx }}</p>
+    <p><strong>Despeje:</strong> x = {{ gx }}</p>
+    <p><strong>Fórmula de error:</strong> εₐ = |(xₙ₊₁ - xₙ) / xₙ₊₁| × 100%</p>
+
+    <h3>Iteraciones paso a paso:</h3>
+    <ul>
+        <li><strong>Valor inicial:</strong> {{ form.cleaned_data.valor_inicial }}</li>
+        {% for r in resultado %}
+        <li>Iteración {{ r.iteracion }}: {{ r.detalle }}<br>{{ r.error_detalle }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Tabla final</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Iteración</th>
+                <th>Xi</th>
+                <th>Error %</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>v.i</td>
+                <td>{{ form.cleaned_data.valor_inicial }}</td>
+                <td>-</td>
+            </tr>
+            {% for r in resultado %}
+            <tr>
+                <td>{{ r.iteracion }}</td>
+                <td>{{ r.x }}</td>
+                <td>{{ r.error }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Solución aproximada:</strong> x = {{ solucion }}</p>
+    <p><strong>Comprobación:</strong> F({{ solucion }}) = {{ comprobacion }}</p>
+    {% endif %}
+
+    <p><a href="{% url 'historialPuntoFijo' %}">Ver historial de ejecuciones anteriores</a></p>
+
+</body>
+
+</html>

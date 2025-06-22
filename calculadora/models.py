@@ -1,24 +1,29 @@
 from django.db import models
 
-# Create your models here.
+from django.db import models
 
-class PuntoFijo(models.Model):
-    id = models.AutoField(primary_key=True)
-    funcion = models.CharField(verbose_name="Funcion", max_length=255)
-    valorInicial = models.CharField(verbose_name="Valor Inicial", max_length=255)
-    pricision = models.CharField(verbose_name="Precicion", max_length=255)
-    decimales = models.CharField(verbose_name="Decimales", max_length=255)
-    creado = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación") 
+class SplineHistory(models.Model):
+    puntos = models.TextField() 
+    x_valor = models.FloatField()
+    resultado = models.FloatField()
+    razonamiento = models.TextField()
+    polinomio_usado = models.TextField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        punto = (
-            "Creado: " + self.creado +
-            " - Funcion: " + self.funcion +
-            " - Valor Inicial: " + self.valorInicial +
-            " - Precision: " + self.pricision +
-            " - Decimales: " + self.decimales
-        )
-        return punto
-    
-    def delete(self, using = None, keep_parents = False):
-        return super().delete()
+        return f"x = {self.x_valor} → {self.resultado:.4f} ({self.fecha_creacion.strftime('%Y-%m-%d %H:%M')})"
+
+class PuntoFijoHistorial(models.Model):
+    funcion = models.TextField()
+    despeje = models.TextField()
+    valor_inicial = models.FloatField()
+    tolerancia = models.FloatField()
+    decimales = models.IntegerField()
+    solucion = models.FloatField()
+    error = models.FloatField()
+    comprobacion = models.TextField()
+    iteraciones = models.TextField()  # guardamos resumen como texto plano
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.funcion} (x0={self.valor_inicial}) → {self.solucion} [{self.fecha.strftime('%Y-%m-%d %H:%M')}]"

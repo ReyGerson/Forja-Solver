@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial Punto Fijo</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { padding: 6px; border: 1px solid #ccc; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Historial de Ejecuciones – Punto Fijo</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>F(x)</th>
+                <th>g(x)</th>
+                <th>x₀</th>
+                <th>Tolerancia</th>
+                <th>Iteraciones</th>
+                <th>Solución</th>
+                <th>Error</th>
+                <th>F(sol)</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in historial %}
+            <tr>
+                <td>{{ h.fecha|date:"Y-m-d H:i" }}</td>
+                <td>{{ h.funcion }}</td>
+                <td>{{ h.despeje }}</td>
+                <td>{{ h.valor_inicial }}</td>
+                <td>{{ h.tolerancia }}</td>
+                <td><pre>{{ h.iteraciones }}</pre></td>
+                <td>{{ h.solucion }}</td>
+                <td>{{ h.error }}%</td>
+                <td>{{ h.comprobacion }}</td>
+                <td>
+                    <a href="{% url 'pdfPuntoFijo' h.id %}">📄 PDF</a> |
+                    <a href="{% url 'repetirPuntoFijo' h.id %}">🔁 Repetir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">No hay registros aún.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

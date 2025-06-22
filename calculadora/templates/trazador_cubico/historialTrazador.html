@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Trazadores Cúbicos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 1em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Historial de Interpolaciones</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Puntos</th>
+                <th>x</th>
+                <th>Resultado</th>
+                <th>Polinomio usado</th>
+                <th>Razonamiento</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in historial %}
+            <tr>
+                <td>{{ h.fecha_creacion|date:"Y-m-d H:i" }}</td>
+                <td>{{ h.puntos }}</td>
+                <td>{{ h.x_valor }}</td>
+                <td>{{ h.resultado }}</td>
+                <td><code>{{ h.polinomio_usado }}</code></td>
+                <td>{{ h.razonamiento }}</td>
+                <td>
+                    <a href="{% url 'pdfTrazador' h.id %}">📄 PDF</a> |
+                    <a href="{% url 'repetirTrazador' h.id %}">🔁 Repetir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No hay historial registrado aún.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
