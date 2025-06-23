@@ -1,266 +1,74 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <title>Método de Punto Fijo</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #1A1A1A;
-            background-color: #F9F2F2;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
 
-        h1 {
-            color: #4B848A;
-            border-bottom: 2px solid #DCC9A9;
-            padding-bottom: 10px;
-        }
-
-        h2, h3 {
-            color: #4E6851;
-        }
-
-        form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        button {
-            background-color: #4B848A;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #3A6A70;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        th {
-            background-color: #4B848A;
-            color: white;
-            text-align: left;
-            padding: 12px;
-        }
-
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #DCC9A9;
-        }
-
-        tr:nth-child(even) {
-            background-color: #F9F2F2;
-        }
-
-        tr:hover {
-            background-color: #DCC9A9;
-        }
-
-        ul {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        li {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-left: 3px solid #FBC359;
-        }
-
-        strong {
-            color: #1A1A1A;
-        }
-
-        a {
-            color: #4B848A;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-            color: #3A6A70;
-        }
-
-        .error {
-            color: #E70103;
-        }
-
-        .warning {
-            color: #FBC359;
-        }
-
-        .success {
-            color: #4E6851;
-            font-weight: bold;
-        }
-
-        .alert {
-            color: #BB3A2D;
-        }
-
-        .form-container {
-            background-color: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        .form-title {
-            color: #4B848A;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.5em;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #1A1A1A;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #DCC9A9;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input[type="text"]:focus,
-        .form-group input[type="number"]:focus {
-            border-color: #4B848A;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(75, 132, 138, 0.2);
-        }
-        
-        .form-hint {
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-top: 5px;
-            font-style: italic;
-        }
-
-        .submit-btn {
-            background-color: #4B848A;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: block;
-            width: 100%;
-            max-width: 200px;
-            margin: 30px auto 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-         .submit-btn:hover {
-            background-color: #3A6A70;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-         .example {
-            background-color: #F9F2F2;
-            border-left: 3px solid #FBC359;
-            padding: 10px 15px;
-            margin: 10px 0;
-            border-radius: 0 4px 4px 0;
-        }
-        
-        .example-title {
-            font-weight: 600;
-            color: #4E6851;
-            margin-bottom: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href='{% static "css/puntoFijo.css" %}'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.css" />
 </head>
 
 <body>
     <h1>Método de Punto Fijo</h1>
 
-     <div class="form-container">
+    <div class="form-container">
         <h2 class="form-title">Ingrese los datos para el cálculo</h2>
 
-    <form method="post">
-        {% csrf_token %}
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                <p class="text-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <div class="form-group">
-                <label for="id_funcion">Función F(x):</label>
-                <input type="text" id="id_funcion" name="funcion" value="exp(-x)-x" required>
-                <div class="example">
-                    <div class="example-title">Ejemplo:</div>
-                    <div>exp(-x)-x. Usa funciones como: exp(), log(), sin(), cos(), sqrt(), x**2</div>
-                </div>
+                <label for="math_fx">Función F(x):</label>
+                <math-field id="math_fx"></math-field>
+                <input type="hidden" id="id_fx" name="funcion" value="{{ fx|default:'' }}">
+                <input type="hidden" id="id_fx_latex" name="funcion_latex" value="{{ fx_latex|default:'' }}">
             </div>
 
             <div class="form-group">
-                <label for="id_despeje">Despeje g(x):</label>
-                <input type="text" id="id_despeje" name="despeje" value="exp(-x)" required>
-                <div class="example">
-                    <div class="example-title">Ejemplo:</div>
-                    <div>exp(-x). Usa operaciones como: ** para potencias, exp(), log(), etc.</div>
-                </div>
+                <label for="math_gx">Despeje g(x):</label>
+                <math-field id="math_gx"></math-field>
+                <input type="hidden" id="id_gx" name="despeje" value="{{ gx|default:'' }}">
+                <input type="hidden" id="id_gx_latex" name="despeje_latex" value="{{ gx_latex|default:'' }}">
             </div>
 
-             <div class="form-group">
+            <div class="form-group">
                 <label for="id_valor_inicial">Valor inicial:</label>
-                <input type="number" id="id_valor_inicial" name="valor_inicial" step="any" value="1" required>
-                <div class="form-hint">Ingrese el valor inicial para comenzar las iteraciones</div>
+                <input type="number" id="id_valor_inicial" name="valor_inicial" step="any"
+                    value="{{ form.data.valor_inicial|default:1 }}" required>
             </div>
 
-             <div class="form-group">
+            <div class="form-group">
                 <label for="id_tolerancia">Tolerancia (%):</label>
-                <input type="number" id="id_tolerancia" name="tolerancia" step="any" min="0" value="0.001" required>
-                <div class="form-hint">Porcentaje de error aceptable (ej: 0.001 para 0.001%)</div>
+                <input type="number" id="id_tolerancia" name="tolerancia" step="any" min="0"
+                    value="{{ form.data.tolerancia|default:0.001 }}" required>
             </div>
 
-             <div class="form-group">
+            <div class="form-group">
                 <label for="id_decimales">Número de decimales:</label>
-                <input type="number" id="id_decimales" name="decimales" min="1" max="15" value="6" required>
-                <div class="form-hint">Precisión decimal para los resultados (1-15)</div>
+                <input type="number" id="id_decimales" name="decimales" min="1" max="15"
+                    value="{{ form.data.decimales|default:6 }}" required>
             </div>
-         <button type="submit" class="submit-btn">Calcular</button>
+
+            <button type="submit" class="submit-btn">Calcular</button>
         </form>
     </div>
 
     {% if resultado %}
-    <div class="results-container">
-        <h2>Resultados</h2>
-        <p><strong>Función:</strong> F(x) = <span class="success">{{ fx }}</span></p>
-        <p><strong>Despeje:</strong> x = <span class="success">{{ gx }}</span></p>
-        <p><strong>Fórmula de error:</strong> εₐ = |(xₙ₊₁ - xₙ) / xₙ₊₁| × 100%</p>
+    <div class="resultado">
+        <h2>Resultado</h2>
+        <p>Solución aproximada: <strong>{{ solucion }}</strong></p>
+        <p>Error: <strong>{{ error }}%</strong></p>
+        <p>Comprobación: F(x) = <strong>{{ comprobacion }}</strong></p>
 
         <h3>Iteraciones paso a paso:</h3>
         <ul>
@@ -270,7 +78,7 @@
             {% endfor %}
         </ul>
 
-        <h3>Tabla final</h3>
+        <h3>Iteraciones</h3>
         <table>
             <thead>
                 <tr>
@@ -282,25 +90,86 @@
             <tbody>
                 <tr>
                     <td>v.i</td>
-                    <td class="alert">{{ form.cleaned_data.valor_inicial }}</td>
+                    <td class="alert">{{ form.data.valor_inicial }}</td>
                     <td>-</td>
                 </tr>
                 {% for r in resultado %}
                 <tr>
                     <td>{{ r.iteracion }}</td>
                     <td>{{ r.x }}</td>
-                    <td class="{% if r.error|stringformat:'s' == '0.0' %}success{% else %}warning{% endif %}">{{ r.error }}</td>
+                    <td>{{ r.error }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <p><strong>Solución aproximada:</strong> x = <span class="success">{{ solucion }}</span></p>
-        <p><strong>Comprobación:</strong> F(<span class="success">{{ solucion }}</span>) = {{ comprobacion }}</p>
     </div>
     {% endif %}
 
     <p><a href="{% url 'historialPuntoFijo' %}">Ver historial de ejecuciones anteriores</a></p>
+
+    <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
+    <script>
+        function latexToNumExpr(latex) {
+            return latex
+                .replace(/\\left\(/g, "(")
+                .replace(/\\right\)/g, ")")
+                .replace(/\\cdot/g, "*")
+                .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "($1)/($2)")
+                .replace(/\\sqrt\{([^}]*)\}/g, "sqrt($1)")
+                .replace(/exponentialE\*\*\{([^}]*)\}/g, "exp($1)")
+                .replace(/exponentialE\^\{([^}]*)\}/g, "exp($1)")
+                .replace(/exponentialE\^\(([^)]*)\)/g, "exp($1)")
+                .replace(/exponentialE\^([^\s]+)/g, (match, p1) => `exp(${p1})`)
+                .replace(/\\exp/g, "exp")
+                .replace(/\\log/g, "log")
+                .replace(/\\sin/g, "sin")
+                .replace(/\\cos/g, "cos")
+                .replace(/\\tan/g, "tan")
+                .replace(/\\pi/g, "pi")
+                .replace(/\\\^/g, "^")
+                .replace(/\^/g, "**");
+        }
+
+        const mathFx = document.getElementById("math_fx");
+        const inputFx = document.getElementById("id_fx");
+        const inputFxLatex = document.getElementById("id_fx_latex");
+
+        const mathGx = document.getElementById("math_gx");
+        const inputGx = document.getElementById("id_gx");
+        const inputGxLatex = document.getElementById("id_gx_latex");
+
+        // Cargar valores iniciales
+        window.addEventListener('load', () => {
+            if (inputFxLatex.value) {
+                mathFx.value = inputFxLatex.value;
+            }
+            if (inputGxLatex.value) {
+                mathGx.value = inputGxLatex.value;
+            }
+        });
+
+        // Escucha cambios en los campos
+        mathFx.addEventListener("input", () => {
+            inputFxLatex.value = mathFx.value;
+            inputFx.value = latexToNumExpr(mathFx.value);
+        });
+
+        mathGx.addEventListener("input", () => {
+            inputGxLatex.value = mathGx.value;
+            inputGx.value = latexToNumExpr(mathGx.value);
+        });
+
+        // Antes de enviar el formulario, fuerza la actualización
+        const form = document.querySelector("form");
+        form.addEventListener("submit", (e) => {
+            inputFxLatex.value = mathFx.value;
+            inputFx.value = latexToNumExpr(mathFx.value);
+
+            inputGxLatex.value = mathGx.value;
+            inputGx.value = latexToNumExpr(mathGx.value);
+        });
+    </script>
+
 
 </body>
 

@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>solver</title>
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/css/sci-fi.css">
+        <script src="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/js/retrosci-fi.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js" defer></script>
+</head>
+<body>
+    <nav class="navbar bg-secondary estilo-brillo border rounded border-white hover-neon p-1">
+        <div class="navbar-header">
+            <div class="navbar-brand">
+                <img src="/static/img/logo.png" alt="" style="width: 50px; height: 50px" />Forja Solver
+            </div>
+            <button class="navbar-toggle">
+                <div class="img-menu-white"></div>
+            </button>
+        </div>
+        <div class="navbar-nav">
+            <a class="nav-item rounded-pill" href="#">Registrarse</a>
+            <a class="nav-item rounded-pill" href="#">Documentación</a>
+        </div>
+    </nav>
+
+    <div class="flex justify-center items-center min-h-screen mt-8 ">
+       <div class="p-6 w-full max-w-md bg-white rounded-lg shadow-xl dark:bg-gray-800 min-h-[500px] flex flex-col justify-center">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-5 flex justify-center">
+                Login
+            </h2>
+
+            <form class="space-y-7" method="post">
+                <a href="{% url 'inicio_sesion' %}"
+                    class="block text-center w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Inicio de sesion
+                </a>
+                <a href="{% url 'registro' %}"
+                    class="block text-center w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Registrarse
+                </a>
+            </form>
+         </div>
+    </div>
+</body>
+</html>
