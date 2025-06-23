@@ -296,3 +296,6 @@ def registro(request):
         form = UserCreationForm()
 
     return render(request, "paginas/registro.html")
+
+def documentacion_trazadores(request):
+    return render(request, 'trazador_cubico/documentacion_trazador.html')

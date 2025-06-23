@@ -9,6 +9,7 @@ urlpatterns = [
     path('trazador/', views.spline_view, name='trazador'),
     path('historial/', views.historial_view, name='historial'),
     path('punto/historial/', views.historial_punto_fijo, name='historialPuntoFijo'),
+    path('documentacion_trazadores', views.documentacion_trazadores, name='documentacionTrazadores'),
 
 
     path('punto/historial/pdf/<int:id>/', views.punto_fijo_pdf, name='pdfPuntoFijo'),
