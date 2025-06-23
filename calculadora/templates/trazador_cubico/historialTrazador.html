@@ -1,25 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial de Trazadores Cúbicos</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2em;
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
         }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            background-color: var(--light);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        h1 {
+            color: var(--info);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        .historial-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
+            min-width: 800px;
             border-collapse: collapse;
-            background: #fff;
+            margin: 20px 0;
+            border: 1px solid var(--primary);
         }
-        th, td {
-            border: 1px solid #aaa;
-            padding: 8px;
+
+        th {
+            background-color: var(--info);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--primary);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--light);
+        }
+
+        tr:hover {
+            background-color: rgba(220, 201, 169, 0.3);
+        }
+
+        code {
+            background-color: var(--light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--danger);
+            border-left: 3px solid var(--warning);
+            font-size: 0.9em;
+            display: inline-block;
+            margin: 2px 0;
+        }
+
+        .action-links {
+            white-space: nowrap;
+        }
+
+        .action-links a {
+            color: var(--info);
+            text-decoration: none;
+            margin: 0 5px;
+            font-weight: 600;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: inline-block;
+            border: 1px solid var(--primary);
+        }
+
+        .action-links a:hover {
+            color: white;
+            background-color: var(--info);
+            text-decoration: none;
+        }
+
+        .empty-message {
             text-align: center;
+            padding: 20px;
+            color: var(--danger);
+            font-style: italic;
+            font-size: 1.1em;
         }
-        h1 {
-            margin-bottom: 1em;
+
+        @media (max-width: 992px) {
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .historial-container {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            .action-links a {
+                margin: 0 3px;
+                padding: 3px 6px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                padding-bottom: 8px;
+            }
+            
+            .historial-container {
+                padding: 10px;
+                border-radius: 8px;
+            }
+            
+            table {
+                min-width: 600px;
+            }
+            
+            th, td {
+                padding: 6px 8px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -74,4 +223,5 @@
         <div class="alert alert-info mt-3">¿Quieres ver el historial completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
     {% endif %}
 </body>
+
 </html>
