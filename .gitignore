@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+env/
+venv/
+ENV/
+VENV/
+
+# Archivos de configuración del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de SQLite (si usas base de datos local)
+*.sqlite3
+
+# Archivos de log
+*.log
+
+# Archivos de migraciones automáticas innecesarios (opcional)
+*/migrations/*.pyc
+*/migrations/__pycache__/
+
+# Archivos de VSCode o IDEs
+.vscode/
+.idea/
