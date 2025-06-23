@@ -1,5 +1,3 @@
-<!-- metodo/templates/metodo/punto_fijo.html -->
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -7,12 +5,205 @@
     <meta charset="UTF-8">
     <title>Método de Punto Fijo</title>
     <style>
-        table,
-        th,
-        td {
-            border: 1px solid black;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background-color: #F9F2F2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4B848A;
+            border-bottom: 2px solid #DCC9A9;
+            padding-bottom: 10px;
+        }
+
+        h2, h3 {
+            color: #4E6851;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #4B848A;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3A6A70;
+        }
+
+        table {
+            width: 100%;
             border-collapse: collapse;
-            padding: 5px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background-color: #4B848A;
+            color: white;
+            text-align: left;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #DCC9A9;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F9F2F2;
+        }
+
+        tr:hover {
+            background-color: #DCC9A9;
+        }
+
+        ul {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #FBC359;
+        }
+
+        strong {
+            color: #1A1A1A;
+        }
+
+        a {
+            color: #4B848A;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: #3A6A70;
+        }
+
+        .error {
+            color: #E70103;
+        }
+
+        .warning {
+            color: #FBC359;
+        }
+
+        .success {
+            color: #4E6851;
+            font-weight: bold;
+        }
+
+        .alert {
+            color: #BB3A2D;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .form-title {
+            color: #4B848A;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1A1A1A;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #DCC9A9;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus {
+            border-color: #4B848A;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 132, 138, 0.2);
+        }
+        
+        .form-hint {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            background-color: #4B848A;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 30px auto 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+         .submit-btn:hover {
+            background-color: #3A6A70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+         .example {
+            background-color: #F9F2F2;
+            border-left: 3px solid #FBC359;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #4E6851;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -20,54 +211,95 @@
 <body>
     <h1>Método de Punto Fijo</h1>
 
+     <div class="form-container">
+        <h2 class="form-title">Ingrese los datos para el cálculo</h2>
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Calcular</button>
-    </form>
 
+        <div class="form-group">
+                <label for="id_fx">Función F(x):</label>
+                <input type="text" id="id_fx" name="fx" value="exp(-x)-x" required>
+                <div class="example">
+                    <div class="example-title">Ejemplo:</div>
+                    <div>exp(-x)-x. Usa funciones como: exp(), log(), sin(), cos(), sqrt(), x**2</div>
+                </div>
+            </div>
+
+              
+            <div class="form-group">
+                <label for="id_gx">Despeje g(x):</label>
+                <input type="text" id="id_gx" name="gx" value="exp(-x)" required>
+                <div class="example">
+                    <div class="example-title">Ejemplo:</div>
+                    <div>exp(-x). Usa operaciones como: ** para potencias, exp(), log(), etc.</div>
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label for="id_valor_inicial">Valor inicial:</label>
+                <input type="number" id="id_valor_inicial" name="valor_inicial" step="any" value="1" required>
+                <div class="form-hint">Ingrese el valor inicial para comenzar las iteraciones</div>
+            </div>
+
+             <div class="form-group">
+                <label for="id_tolerancia">Tolerancia (%):</label>
+                <input type="number" id="id_tolerancia" name="tolerancia" step="any" min="0" value="0.001" required>
+                <div class="form-hint">Porcentaje de error aceptable (ej: 0.001 para 0.001%)</div>
+            </div>
+
+             <div class="form-group">
+                <label for="id_decimales">Número de decimales:</label>
+                <input type="number" id="id_decimales" name="decimales" min="1" max="15" value="6" required>
+                <div class="form-hint">Precisión decimal para los resultados (1-15)</div>
+            </div>
+         <button type="submit" class="submit-btn">Calcular</button>
+        </form>
+    </div>
 
     {% if resultado %}
-    <h2>Resultados</h2>
-    <p><strong>Función:</strong> F(x) = {{ fx }}</p>
-    <p><strong>Despeje:</strong> x = {{ gx }}</p>
-    <p><strong>Fórmula de error:</strong> εₐ = |(xₙ₊₁ - xₙ) / xₙ₊₁| × 100%</p>
+    <div class="results-container">
+        <h2>Resultados</h2>
+        <p><strong>Función:</strong> F(x) = <span class="success">{{ fx }}</span></p>
+        <p><strong>Despeje:</strong> x = <span class="success">{{ gx }}</span></p>
+        <p><strong>Fórmula de error:</strong> εₐ = |(xₙ₊₁ - xₙ) / xₙ₊₁| × 100%</p>
 
-    <h3>Iteraciones paso a paso:</h3>
-    <ul>
-        <li><strong>Valor inicial:</strong> {{ form.cleaned_data.valor_inicial }}</li>
-        {% for r in resultado %}
-        <li>Iteración {{ r.iteracion }}: {{ r.detalle }}<br>{{ r.error_detalle }}</li>
-        {% endfor %}
-    </ul>
-
-    <h3>Tabla final</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Iteración</th>
-                <th>Xi</th>
-                <th>Error %</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>v.i</td>
-                <td>{{ form.cleaned_data.valor_inicial }}</td>
-                <td>-</td>
-            </tr>
+        <h3>Iteraciones paso a paso:</h3>
+        <ul>
+            <li><strong>Valor inicial:</strong> <span class="alert">{{ form.cleaned_data.valor_inicial }}</span></li>
             {% for r in resultado %}
-            <tr>
-                <td>{{ r.iteracion }}</td>
-                <td>{{ r.x }}</td>
-                <td>{{ r.error }}</td>
-            </tr>
+            <li>Iteración {{ r.iteracion }}: {{ r.detalle }}<br>{{ r.error_detalle }}</li>
             {% endfor %}
-        </tbody>
-    </table>
+        </ul>
 
-    <p><strong>Solución aproximada:</strong> x = {{ solucion }}</p>
-    <p><strong>Comprobación:</strong> F({{ solucion }}) = {{ comprobacion }}</p>
+        <h3>Tabla final</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Iteración</th>
+                    <th>Xi</th>
+                    <th>Error %</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>v.i</td>
+                    <td class="alert">{{ form.cleaned_data.valor_inicial }}</td>
+                    <td>-</td>
+                </tr>
+                {% for r in resultado %}
+                <tr>
+                    <td>{{ r.iteracion }}</td>
+                    <td>{{ r.x }}</td>
+                    <td class="{% if r.error|stringformat:'s' == '0.0' %}success{% else %}warning{% endif %}">{{ r.error }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p><strong>Solución aproximada:</strong> x = <span class="success">{{ solucion }}</span></p>
+        <p><strong>Comprobación:</strong> F(<span class="success">{{ solucion }}</span>) = {{ comprobacion }}</p>
+    </div>
     {% endif %}
 
     <p><a href="{% url 'historialPuntoFijo' %}">Ver historial de ejecuciones anteriores</a></p>
