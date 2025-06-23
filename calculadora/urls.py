@@ -5,9 +5,8 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import static
 
 urlpatterns = [
-<<<<<<< HEAD
-    path('', views.punto_fijo_view, name='puntoFijo'),
-    path('trazador', views.spline_view, name='trazador'),
+    path('punto/', views.punto_fijo_view, name='puntoFijo'),
+    path('trazador/', views.spline_view, name='trazador'),
     path('historial/', views.historial_view, name='historial'),
     path('punto/historial/', views.historial_punto_fijo, name='historialPuntoFijo'),
 
@@ -18,11 +17,9 @@ urlpatterns = [
 
     path('trazador/historial/pdf/<int:id>/', views.trazador_pdf, name='pdfTrazador'),
     path('trazador/repetir/<int:id>/', views.repetir_trazador, name='repetirTrazador'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-=======
+
     path('', views.index, name='index'),
     path('login', views.login_view, name='login' ),
     path('sign_in', views.inicio_sesion, name='inicio_sesion'),
     path('sign_up', views.registro, name='registro'),
-]
->>>>>>> juli
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
