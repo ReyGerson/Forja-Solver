@@ -216,20 +216,18 @@
 
     <form method="post">
         {% csrf_token %}
-
-        <div class="form-group">
-                <label for="id_fx">Función F(x):</label>
-                <input type="text" id="id_fx" name="fx" value="exp(-x)-x" required>
+            <div class="form-group">
+                <label for="id_funcion">Función F(x):</label>
+                <input type="text" id="id_funcion" name="funcion" value="exp(-x)-x" required>
                 <div class="example">
                     <div class="example-title">Ejemplo:</div>
                     <div>exp(-x)-x. Usa funciones como: exp(), log(), sin(), cos(), sqrt(), x**2</div>
                 </div>
             </div>
 
-              
             <div class="form-group">
-                <label for="id_gx">Despeje g(x):</label>
-                <input type="text" id="id_gx" name="gx" value="exp(-x)" required>
+                <label for="id_despeje">Despeje g(x):</label>
+                <input type="text" id="id_despeje" name="despeje" value="exp(-x)" required>
                 <div class="example">
                     <div class="example-title">Ejemplo:</div>
                     <div>exp(-x). Usa operaciones como: ** para potencias, exp(), log(), etc.</div>
