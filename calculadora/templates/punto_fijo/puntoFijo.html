@@ -71,7 +71,7 @@
         </form>
     </div>
 
-    {% if resultado %}
+    {% if resultado or mostrar_resultado_minimo %}
     <div class="resultado">
         {% if is_premium %}
         <h2>Resultado</h2>
@@ -81,7 +81,7 @@
 
         <h3>Iteraciones paso a paso:</h3>
         <ul>
-            <li><strong>Valor inicial:</strong> <span class="alert">{{ form.cleaned_data.valor_inicial }}</span></li>
+            <li><strong>Valor inicial:</strong> <span class="alert">{{ valor_inicial_val }}</span></li>
             {% for r in resultado %}
             <li>Iteración {{ r.iteracion }}: {{ r.detalle }}<br>{{ r.error_detalle }}</li>
             {% endfor %}
@@ -99,7 +99,7 @@
             <tbody>
                 <tr>
                     <td>v.i</td>
-                    <td class="alert">{{ form.data.valor_inicial }}</td>
+                    <td class="alert">{{ valor_inicial_val }}</td>
                     <td>-</td>
                 </tr>
                 {% for r in resultado %}

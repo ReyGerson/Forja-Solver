@@ -299,6 +299,7 @@ def repetir_punto_fijo(request, id):
 
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
+        # Mostrar solo el resultado mínimo para no premium, igual que en trazador cubico
         'resultado': resultado if hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium else None,
         'solucion': solucion,
         'error': error,
@@ -312,6 +313,7 @@ def repetir_punto_fijo(request, id):
         'tolerancia_val': obj.tolerancia,
         'decimales_val': obj.decimales,
         'modo_repetir': True,
+        'mostrar_resultado_minimo': True,  # Forzar mostrar el bloque de resultado mínimo
     })
 
 
