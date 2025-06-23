@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 import json
 from django.http import HttpResponse
-<<<<<<< HEAD
 from .forms import PuntoFijoForm, SplineInputForm
 from .models import SplineHistory, PuntoFijoHistorial
 from .utils import parse_points, natural_cubic_spline
@@ -261,13 +260,11 @@ def repetir_trazador(request, id):
         'form': form,
         'result': None
     })
-=======
+
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login
 
 # Create your views here.
-def index(request):
-    return render(request, 'paginas/index.html')
 
 def login_view(request):
     return render(request, 'paginas/login.html')
@@ -277,7 +274,7 @@ def inicio_sesion(request):
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect( 'index')
+            return redirect( 'puntoFijo')
         else:
             return render(request, "paginas/inicio_sesion.html", {'form': form, 'error': 'credenciales incorrectas'})
     else:
@@ -297,4 +294,3 @@ def registro(request):
         form = UserCreationForm()
 
     return render(request, "paginas/registro.html")
->>>>>>> juli

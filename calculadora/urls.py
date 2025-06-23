@@ -18,8 +18,9 @@ urlpatterns = [
     path('trazador/historial/pdf/<int:id>/', views.trazador_pdf, name='pdfTrazador'),
     path('trazador/repetir/<int:id>/', views.repetir_trazador, name='repetirTrazador'),
 
-    path('', views.index, name='index'),
-    path('login', views.login_view, name='login' ),
+
+    path('', views.login_view, name='login' ),
     path('sign_in', views.inicio_sesion, name='inicio_sesion'),
     path('sign_up', views.registro, name='registro'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
