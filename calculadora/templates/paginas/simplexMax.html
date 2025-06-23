@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block nombre %} Solver {% endblock %}
+{% if user.is_authenticated %}
 
 {% block contenido %}
 <div class="bg-success text-white border-3 border-success rounded variables-grid">

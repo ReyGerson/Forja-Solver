@@ -6,8 +6,9 @@ from .models import SplineHistory, PuntoFijoHistorial
 from .utils import parse_points, natural_cubic_spline
 import numexpr as ne
 from reportlab.pdfgen import canvas
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def punto_fijo_view(request):
     resultado = []
     solucion = None
@@ -111,7 +112,7 @@ def punto_fijo_view(request):
         'gx': formula_despeje,
     })
 
-
+@login_required
 def spline_view(request):
     result = None
     if request.method == 'POST':
@@ -141,16 +142,17 @@ def spline_view(request):
         'result': result
     })
 
-
+@login_required
 def historial_view(request):
     historial = SplineHistory.objects.all().order_by('-fecha_creacion')
     return render(request, 'trazador_cubico/historialTrazador.html', {'historial': historial})
 
-
+@login_required
 def historial_punto_fijo(request):
     historial = PuntoFijoHistorial.objects.all().order_by('-fecha')
     return render(request, 'punto_fijo/historial_punto_fijo.html', {'historial': historial})
 
+@login_required
 def punto_fijo_pdf(request, id):
     obj = PuntoFijoHistorial.objects.get(id=id)
     response = HttpResponse(content_type='application/pdf')
@@ -186,7 +188,7 @@ def punto_fijo_pdf(request, id):
     p.save()
     return response
 
-
+@login_required
 def repetir_punto_fijo(request, id):
     obj = PuntoFijoHistorial.objects.get(id=id)
     data = {
@@ -207,7 +209,7 @@ def repetir_punto_fijo(request, id):
         'gx': obj.despeje
     })
 
-
+@login_required
 def trazador_pdf(request, id):
     obj = SplineHistory.objects.get(id=id)
     response = HttpResponse(content_type='application/pdf')
@@ -249,7 +251,7 @@ def trazador_pdf(request, id):
     p.save()
     return response
 
-
+@login_required
 def repetir_trazador(request, id):
     obj = SplineHistory.objects.get(id=id)
     form = SplineInputForm(initial={
@@ -262,9 +264,11 @@ def repetir_trazador(request, id):
     })
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+
 
 # Create your views here.
+
 
 def login_view(request):
     return render(request, 'paginas/login.html')
@@ -294,3 +298,7 @@ def registro(request):
         form = UserCreationForm()
 
     return render(request, "paginas/registro.html")
+
+def cerrar_sesion(request):
+    logout(request)
+    return redirect('login') 

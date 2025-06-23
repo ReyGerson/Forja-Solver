@@ -207,9 +207,14 @@
         }
     </style>
 </head>
-
+{% if user.is_authenticated %}
+  <p>Bienvenido, {{ user.username }}</p>
+{% else %}
+  <p>No estás logueado</p>
+  {% endif %}
 <body>
     {% csrf_token %} 
+    <a href="{% url 'logout' %}">Cerrar sesión</a>
     <h1>Método de Punto Fijo</h1>
 
      <div class="form-container">
