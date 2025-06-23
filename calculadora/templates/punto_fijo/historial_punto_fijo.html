@@ -9,9 +9,14 @@
         th, td { padding: 6px; border: 1px solid #ccc; text-align: center; }
     </style>
 </head>
+{% if user.is_authenticated %}
+
+{% else %}
+
+  {% endif %}
 <body>
     {% csrf_token %}
-    <a class="" href="{% url 'puntoFijo' %}">Trazador Cubico</a> 
+    <a class="" href="{% url 'puntoFijo' %}">Punto Fijo</a> 
     <h1>Historial de Ejecuciones – Punto Fijo</h1>
 
     <table>
@@ -22,7 +27,9 @@
                 <th>g(x)</th>
                 <th>x₀</th>
                 <th>Tolerancia</th>
-                <th>Iteraciones</th>
+                {% if is_premium %}
+                    <th>Iteraciones</th>
+                {% endif %}
                 <th>Solución</th>
                 <th>Error</th>
                 <th>F(sol)</th>
@@ -37,7 +44,9 @@
                 <td>{{ h.despeje }}</td>
                 <td>{{ h.valor_inicial }}</td>
                 <td>{{ h.tolerancia }}</td>
-                <td><pre>{{ h.iteraciones }}</pre></td>
+                {% if is_premium %}
+                    <td><pre>{{ h.iteraciones }}</pre></td>
+                {% endif %}
                 <td>{{ h.solucion }}</td>
                 <td>{{ h.error }}%</td>
                 <td>{{ h.comprobacion }}</td>
@@ -53,5 +62,8 @@
             {% endfor %}
         </tbody>
     </table>
+    {% if not is_premium %}
+        <div class="alert alert-info mt-3">¿Quieres ver el historial completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
+    {% endif %}
 </body>
 </html>

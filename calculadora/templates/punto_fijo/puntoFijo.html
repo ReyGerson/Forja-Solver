@@ -10,14 +10,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.css" />
 </head>
 {% if user.is_authenticated %}
-  <p>Bienvenido, {{ user.username }}</p>
+
 {% else %}
-  <p>No estás logueado</p>
+
   {% endif %}
 <body>
     <a class="" href="{% url 'index' %}">Inicio</a>
     {% csrf_token %} 
-    <a href="{% url 'logout' %}">Cerrar sesión</a>
 
     <h1>Método de Punto Fijo</h1>
 
@@ -51,31 +50,30 @@
 
             <div class="form-group">
                 <label for="id_valor_inicial">Valor inicial:</label>
-                <input type="number" id="id_valor_inicial" name="valor_inicial" step="any"
-                    value="{{ form.initial.valor_inicial|default:1 }}" required>
-
+                <input type="number" id="id_valor_inicial" name="valor_inicial" step="any" value="{{ valor_inicial_val }}" required>
             </div>
 
             <div class="form-group">
                 <label for="id_tolerancia">Tolerancia (%):</label>
-                <input type="number" id="id_tolerancia" name="tolerancia" step="any" min="0"
-                    value="{{ form.initial.tolerancia|default:0.001 }}" required>
-
+                <input type="number" id="id_tolerancia" name="tolerancia" step="any" min="0" value="{{ tolerancia_val }}" required>
             </div>
 
             <div class="form-group">
                 <label for="id_decimales">Número de decimales:</label>
-                <input type="number" id="id_decimales" name="decimales" min="1" max="15"
-                    value="{{ form.initial.decimales|default:6 }}" required>
-
+                <input type="number" id="id_decimales" name="decimales" min="1" max="15" value="{{ decimales_val }}" required>
             </div>
 
+            {% if not modo_repetir %}
             <button type="submit" class="submit-btn">Calcular</button>
+            {% else %}
+            <a href="{% url 'puntoFijo' %}" class="btn btn-primary">Volver al modelo</a>
+            {% endif %}
         </form>
     </div>
 
     {% if resultado %}
     <div class="resultado">
+        {% if is_premium %}
         <h2>Resultado</h2>
         <p>Solución aproximada: <strong>{{ solucion }}</strong></p>
         <p>Error: <strong>{{ error }}%</strong></p>
@@ -113,6 +111,13 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <h2>Resultado</h2>
+        <p>Solución aproximada: <strong>{{ solucion }}</strong></p>
+        <p>Error: <strong>{{ error }}%</strong></p>
+        <p>Comprobación: F(x) = <strong>{{ comprobacion }}</strong></p>
+        <div class="alert alert-info mt-3">¿Quieres ver el proceso completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
+        {% endif %}
     </div>
     {% endif %}
 

@@ -44,6 +44,11 @@
         }
     </style>
 </head>
+{% if user.is_authenticated %}
+
+{% else %}
+
+  {% endif %}
 <body>
     {% csrf_token %} 
     <a class="" href="{% url 'index' %}">Inicio</a>
@@ -60,56 +65,59 @@
             <label><strong>Valor de x:</strong></label><br>
             {{ form.x_value }}
         </p>
-        <button type="submit">Calcular</button>
+        {% if not modo_repetir %}
+            <button type="submit">Calcular</button>
+        {% else %}
+            <a href="{% url 'trazador' %}" class="btn btn-primary">Volver al modelo</a>
+        {% endif %}
     </form>
 
     {% if result %}
-    <div class="box">
-        <h2>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h2>
-        {{ result.tabla_hm.to_html|safe }}
-    </div>
-
-    <div class="box">
-        <h2>Paso 3: Coeficientes C<sub>i</sub></h2>
-        <ul>
-            {% for c in result.coef_c %}
-                <li><strong>C{{ forloop.counter0 }}</strong> = {{ c }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="box">
-        <h2>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h2>
-        <ul>
-            <li><strong>a:</strong> {{ result.coef_a|join:", " }}</li>
-            <li><strong>b:</strong> {{ result.coef_b|join:", " }}</li>
-            <li><strong>d:</strong> {{ result.coef_d|join:", " }}</li>
-        </ul>
-    </div>
-
-    <div class="box">
-        <h2>Polinomios por intervalos</h2>
-        <ol>
-            {% for poly in result.polinomios %}
-                <li>
-                    <strong>{{ poly.intervalo }}:</strong><br>
-                    <code>p(x) = {{ poly.formula }}</code>
-                </li>
-            {% endfor %}
-        </ol>
-    </div>
-
-    <div class="box">
-        <h2>Razonamiento para elegir el polinomio</h2>
-        <p>{{ result.razonamiento }}</p>
-
-        <h3>Polinomio usado</h3>
-        <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
-
-        <h3>Resultado final</h3>
-        <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
-        <p><strong>Resultado:</strong> {{ result.resultado }}</p>
-    </div>
+        {% if is_premium %}
+            <div class="box">
+                <h2>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h2>
+                {{ result.tabla_hm.to_html|safe }}
+            </div>
+            <div class="box">
+                <h2>Paso 3: Coeficientes C<sub>i</sub></h2>
+                <ul>
+                    {% for c in result.coef_c %}
+                        <li><strong>C{{ forloop.counter0 }}</strong> = {{ c }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="box">
+                <h2>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h2>
+                <ul>
+                    <li><strong>a:</strong> {{ result.coef_a|join:", " }}</li>
+                    <li><strong>b:</strong> {{ result.coef_b|join:", " }}</li>
+                    <li><strong>d:</strong> {{ result.coef_d|join:", " }}</li>
+                </ul>
+            </div>
+            <div class="box">
+                <h2>Polinomios por intervalos</h2>
+                <ol>
+                    {% for poly in result.polinomios %}
+                        <li>
+                            <strong>{{ poly.intervalo }}:</strong><br>
+                            <code>p(x) = {{ poly.formula }}</code>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        {% endif %}
+        <div class="box">
+            <h2>Razonamiento para elegir el polinomio</h2>
+            <p>{{ result.razonamiento }}</p>
+            <h3>Polinomio usado</h3>
+            <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
+            <h3>Resultado final</h3>
+            <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
+            <p><strong>Resultado:</strong> {{ result.resultado }}</p>
+            {% if not is_premium %}
+                <div class="alert alert-info mt-3">¿Quieres ver el proceso completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
+            {% endif %}
+        </div>
     {% endif %}
     <p><a href="{% url 'historial' %}">Ver historial de ejecuciones anteriores</a></p>
 </body>

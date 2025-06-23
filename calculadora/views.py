@@ -8,6 +8,7 @@ import numexpr as ne
 from reportlab.pdfgen import canvas
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from .user_profile import UserProfile
 
 @login_required
 def punto_fijo_view(request):
@@ -104,7 +105,33 @@ def punto_fijo_view(request):
                 )
 
     else:
-        form = PuntoFijoForm()
+        # Set initial values for the form so form.initial always has the keys
+        form = PuntoFijoForm(initial={
+            'valor_inicial': 1,
+            'tolerancia': 0.001,
+            'decimales': 6,
+        })
+
+    # --- Fix: ensure form.data always has the needed keys for template ---
+    # Use try/except to avoid errors if form.data is not a dict (e.g., QueryDict)
+    try:
+        if 'valor_inicial' not in form.data or not form.data['valor_inicial']:
+            form.data = form.data.copy()
+            form.data['valor_inicial'] = form.initial.get('valor_inicial', 1)
+        if 'tolerancia' not in form.data or not form.data['tolerancia']:
+            form.data['tolerancia'] = form.initial.get('tolerancia', 0.001)
+        if 'decimales' not in form.data or not form.data['decimales']:
+            form.data['decimales'] = form.initial.get('decimales', 6)
+    except Exception:
+        pass
+    # --- end fix ---
+
+    # --- Definir valores seguros para los campos del formulario ---
+    valor_inicial = form.data.get('valor_inicial') or form.initial.get('valor_inicial', 1)
+    tolerancia = form.data.get('tolerancia') or form.initial.get('tolerancia', 0.001)
+    decimales = form.data.get('decimales') or form.initial.get('decimales', 6)
+    # --- end fix ---
+
     print("POST recibido:", request.POST)
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
@@ -116,6 +143,10 @@ def punto_fijo_view(request):
         'gx': formula_despeje,
         'fx_latex': request.POST.get('funcion_latex', ''), 
         'gx_latex': request.POST.get('despeje_latex', ''),
+        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
+        'valor_inicial_val': valor_inicial,
+        'tolerancia_val': tolerancia,
+        'decimales_val': decimales,
     })
 
 @login_required
@@ -146,7 +177,8 @@ def spline_view(request):
 
     return render(request, 'trazador_cubico/trazadorCubico.html', {
         'form': form,
-        'result': result
+        'result': result,
+        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
     })
 
 @login_required
@@ -267,7 +299,7 @@ def repetir_punto_fijo(request, id):
 
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
-        'resultado': resultado,
+        'resultado': resultado if hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium else None,
         'solucion': solucion,
         'error': error,
         'comprobacion': comprobacion,
@@ -275,6 +307,11 @@ def repetir_punto_fijo(request, id):
         'gx': obj.despeje,
         'fx_latex': obj.funcion_latex or obj.funcion,
         'gx_latex': obj.despeje_latex or obj.despeje,
+        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
+        'valor_inicial_val': obj.valor_inicial,
+        'tolerancia_val': obj.tolerancia,
+        'decimales_val': obj.decimales,
+        'modo_repetir': True,
     })
 
 
@@ -339,7 +376,14 @@ def repetir_trazador(request, id):
 
     return render(request, 'trazador_cubico/trazadorCubico.html', {
         'form': form,
-        'result': result
+        'result': result if hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium else {
+            'razonamiento': result['razonamiento'] if result else '',
+            'polinomio_usado': result['polinomio_usado'] if result else '',
+            'x_query': result['x_query'] if result and 'x_query' in result else '',
+            'resultado': result['resultado'] if result else '',
+        },
+        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
+        'modo_repetir': True,
     })
 
 
@@ -387,4 +431,18 @@ def index(request):
     return render(request,'paginas/index.html') 
 
 def tienda(request):
-    return render(request,'paginas/tienda.html') 
+    is_premium = False
+    if request.user.is_authenticated:
+        try:
+            is_premium = request.user.userprofile.is_premium
+        except Exception:
+            is_premium = False
+    return render(request,'paginas/tienda.html', {'is_premium': is_premium})
+
+@login_required
+def comprar_premium(request):
+    profile = UserProfile.objects.get(user=request.user)
+    if not profile.is_premium:
+        profile.is_premium = True
+        profile.save()
+    return redirect('tienda')

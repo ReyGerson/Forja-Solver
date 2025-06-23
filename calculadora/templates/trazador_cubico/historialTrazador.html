@@ -23,9 +23,14 @@
         }
     </style>
 </head>
+{% if user.is_authenticated %}
+
+{% else %}
+
+  {% endif %}
 <body>
     {% csrf_token %} 
-    <a class="" href="{% url 'trazador' %}">Punto Fijo</a>
+    <a class="" href="{% url 'trazador' %}">Trazador Cubico</a>
     <h1>Historial de Interpolaciones</h1>
 
     <table>
@@ -35,8 +40,10 @@
                 <th>Puntos</th>
                 <th>x</th>
                 <th>Resultado</th>
-                <th>Polinomio usado</th>
-                <th>Razonamiento</th>
+                {% if is_premium %}
+                    <th>Polinomio usado</th>
+                    <th>Razonamiento</th>
+                {% endif %}
                 <th>Accion</th>
             </tr>
         </thead>
@@ -47,8 +54,10 @@
                 <td>{{ h.puntos }}</td>
                 <td>{{ h.x_valor }}</td>
                 <td>{{ h.resultado }}</td>
-                <td><code>{{ h.polinomio_usado }}</code></td>
-                <td>{{ h.razonamiento }}</td>
+                {% if is_premium %}
+                    <td><code>{{ h.polinomio_usado }}</code></td>
+                    <td>{{ h.razonamiento }}</td>
+                {% endif %}
                 <td>
                     <a href="{% url 'pdfTrazador' h.id %}">📄 PDF</a> |
                     <a href="{% url 'repetirTrazador' h.id %}">🔁 Repetir</a>
@@ -61,5 +70,8 @@
             {% endfor %}
         </tbody>
     </table>
+    {% if not is_premium %}
+        <div class="alert alert-info mt-3">¿Quieres ver el historial completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
+    {% endif %}
 </body>
 </html>

@@ -12,6 +12,13 @@
             <p class="card-text">
                 Con el modo premiun podra ver todos los procesos de los modelos matetmaticos.
             </p>
-            <a href="#" class="btn btn-warning">Comprar!</a>
+            {% if user.is_authenticated and user.userprofile.is_premium %}
+                <div class="alert alert-success">¡Ya tienes modo premium!</div>
+            {% else %}
+                <form method="post" action="{% url 'comprar_premium' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">Comprar!</button>
+                </form>
+            {% endif %}
         </div>
 {% endblock %}
