@@ -6,6 +6,8 @@ from .models import SplineHistory, PuntoFijoHistorial
 from .utils import parse_points, natural_cubic_spline
 import numexpr as ne
 from reportlab.pdfgen import canvas
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
 
 def punto_fijo_view(request):
@@ -87,6 +89,7 @@ def punto_fijo_view(request):
                 )
 
                 PuntoFijoHistorial.objects.create(
+                    user=request.user,
                     funcion=fx_input,
                     despeje=gx_input,
                     valor_inicial=form.cleaned_data['valor_inicial'],
@@ -127,6 +130,7 @@ def spline_view(request):
 
                 # Guardar en base de datos
                 SplineHistory.objects.create(
+                    user=request.user,         
                     puntos=points_str,
                     x_valor=x_val,
                     resultado=result['resultado'],
@@ -143,14 +147,14 @@ def spline_view(request):
         'result': result
     })
 
-
+@login_required
 def historial_view(request):
-    historial = SplineHistory.objects.all().order_by('-fecha_creacion')
+    historial = SplineHistory.objects.filter(user=request.user).order_by('-fecha_creacion')
     return render(request, 'trazador_cubico/historialTrazador.html', {'historial': historial})
 
-
+@login_required
 def historial_punto_fijo(request):
-    historial = PuntoFijoHistorial.objects.all().order_by('-fecha')
+    historial = PuntoFijoHistorial.objects.filter(user=request.user).order_by('-fecha')
     return render(request, 'punto_fijo/historial_punto_fijo.html', {'historial': historial})
 
 def punto_fijo_pdf(request, id):
@@ -253,15 +257,26 @@ def trazador_pdf(request, id):
 
 
 def repetir_trazador(request, id):
-    obj = SplineHistory.objects.get(id=id)
+    obj = get_object_or_404(SplineHistory, id=id)
+
     form = SplineInputForm(initial={
         'points': obj.puntos,
         'x_value': obj.x_valor
     })
+
+    result = None
+    try:
+        points = parse_points(obj.puntos)
+        result = natural_cubic_spline(points, obj.x_valor)
+
+    except Exception as e:
+        form.add_error(None, f"Error en los datos: {e}")
+
     return render(request, 'trazador_cubico/trazadorCubico.html', {
         'form': form,
-        'result': None
+        'result': result
     })
+
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login

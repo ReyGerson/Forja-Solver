@@ -1,8 +1,9 @@
 from django.db import models
 
-from django.db import models
+from django.contrib.auth.models import User
 
 class SplineHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     puntos = models.TextField() 
     x_valor = models.FloatField()
     resultado = models.FloatField()
@@ -14,6 +15,7 @@ class SplineHistory(models.Model):
         return f"x = {self.x_valor} → {self.resultado:.4f} ({self.fecha_creacion.strftime('%Y-%m-%d %H:%M')})"
 
 class PuntoFijoHistorial(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     funcion = models.TextField()
     despeje = models.TextField()
     valor_inicial = models.FloatField()
@@ -22,7 +24,7 @@ class PuntoFijoHistorial(models.Model):
     solucion = models.FloatField()
     error = models.FloatField()
     comprobacion = models.TextField()
-    iteraciones = models.TextField()  # guardamos resumen como texto plano
+    iteraciones = models.TextField()
     fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
