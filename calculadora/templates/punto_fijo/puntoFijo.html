@@ -15,11 +15,10 @@
   <p>No estás logueado</p>
   {% endif %}
 <body>
-<<<<<<< HEAD
-=======
+    <a class="" href="{% url 'index' %}">Inicio</a>
     {% csrf_token %} 
     <a href="{% url 'logout' %}">Cerrar sesión</a>
->>>>>>> juli
+
     <h1>Método de Punto Fijo</h1>
 
     <div class="form-container">

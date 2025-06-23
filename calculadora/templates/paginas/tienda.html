@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block nombre %} Tienda {% endblock %}
+
+{% block contenido %}
+<a class="" href="{% url 'index' %}">Inicio</a>
+        <div class="card-header">Modo Premiun</div>
+        <div class="card-body">
+            <h5 class="card-title">Comprar modo premiun?</h5>
+            <p class="card-text">
+                Con el modo premiun podra ver todos los procesos de los modelos matetmaticos.
+            </p>
+            <a href="#" class="btn btn-warning">Comprar!</a>
+        </div>
+{% endblock %}

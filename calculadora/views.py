@@ -358,7 +358,7 @@ def inicio_sesion(request):
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect( 'puntoFijo')
+            return redirect( 'index')
         else:
             return render(request, "paginas/inicio_sesion.html", {'form': form, 'error': 'credenciales incorrectas'})
     else:
@@ -382,3 +382,9 @@ def registro(request):
 def cerrar_sesion(request):
     logout(request)
     return redirect('login') 
+
+def index(request):
+    return render(request,'paginas/index.html') 
+
+def tienda(request):
+    return render(request,'paginas/tienda.html') 

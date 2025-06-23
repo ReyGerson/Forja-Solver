@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block nombre %} Index {% endblock %}
+
+{% block contenido %}
+<a class="" href="{% url 'puntoFijo' %}">Punto Fijo</a>
+<a class="" href="{% url 'trazador' %}">Trazador Cubico</a>
+<a class="" href="{% url 'tienda' %}">Tienda</a>
+{% endblock %}

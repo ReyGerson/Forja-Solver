@@ -8,8 +8,8 @@ body {
 }
 
 .main-grid {
-  display: grid;
-  grid-template-columns: 3fr 9fr;
+  display: flex;
+
   height: 100%;
 }
 
@@ -110,4 +110,3 @@ option {
   background-color: #2d2d41;
   color: white;
 }
-

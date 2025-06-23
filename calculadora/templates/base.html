@@ -13,8 +13,13 @@
     <link rel="stylesheet" href='{% static "css/style.css" %}'>
 
 </head>
+{% if user.is_authenticated %}
 
+{% else %}
+
+  {% endif %}
 <body>
+    {% csrf_token %} 
     <nav class="navbar bg-secondary estilo-brillo border rounded border-white hover-neon p-1">
         <div class="navbar-header">
             <div class="navbar-brand">
@@ -25,11 +30,10 @@
             </button>
         </div>
         <div class="navbar-nav">
-            <a class="nav-item rounded-pill" href="#">Solver</a>
-            <a class="nav-item rounded-pill" href="#">Documentación</a>
+            <a class="nav-item rounded-pill" href="{% url 'index' %}">Inicio</a>
+            <a class="nav-item rounded-pill" href="{% url 'logout' %}">Logout</a>
         </div>
     </nav>
-
     <div class="main-grid">
         {% block contenido %} {% endblock %}
     </div>
