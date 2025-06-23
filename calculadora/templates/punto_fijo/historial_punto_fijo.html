@@ -179,7 +179,6 @@
     <a class="" href="{% url 'puntoFijo' %}">Punto Fijo</a> 
     <h1>Historial de Ejecuciones – Punto Fijo</h1>
 
-<<<<<<< HEAD
     <table>
         <thead>
             <tr>
@@ -228,54 +227,3 @@
     {% endif %}
 </body>
 </html>
-=======
-<body>
-    <div class="container">
-        <div class="historial-container">
-            <h1>Historial de Ejecuciones – Punto Fijo</h1>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>F(x)</th>
-                            <th>g(x)</th>
-                            <th>x₀</th>
-                            <th>Tolerancia</th>
-                            <th>Iteraciones</th>
-                            <th>Solución</th>
-                            <th>Error</th>
-                            <th>F(sol)</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for h in historial %}
-                        <tr>
-                            <td>{{ h.fecha|date:"Y-m-d H:i" }}</td>
-                            <td><pre>{{ h.funcion }}</pre></td>
-                            <td><pre>{{ h.despeje }}</pre></td>
-                            <td>{{ h.valor_inicial }}</td>
-                            <td>{{ h.tolerancia }}%</td>
-                            <td><pre>{{ h.iteraciones }}</pre></td>
-                            <td>{{ h.solucion }}</td>
-                            <td>{{ h.error }}%</td>
-                            <td>{{ h.comprobacion }}</td>
-                            <td class="action-links">
-                                <a href="{% url 'pdfPuntoFijo' h.id %}" title="Generar PDF">📄 PDF</a>
-                                <a href="{% url 'repetirPuntoFijo' h.id %}" title="Repetir cálculo">🔁 Repetir</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="10" class="empty-message">No hay registros en el historial aún.</td>
-                        </tr> 
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</body>
->>>>>>> 542b91d63321ff0c4d8f9e5e2e2c7b1dfcba91c7

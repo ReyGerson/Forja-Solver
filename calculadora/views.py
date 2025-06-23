@@ -425,7 +425,6 @@ def registro(request):
 
     return render(request, "paginas/registro.html")
 
-<<<<<<< HEAD
 def cerrar_sesion(request):
     logout(request)
     return redirect('login') 
@@ -449,7 +448,3 @@ def comprar_premium(request):
         profile.is_premium = True
         profile.save()
     return redirect('tienda')
-=======
-def documentacion_trazadores(request):
-    return render(request, 'trazador_cubico/documentacion_trazador.html')
->>>>>>> 542b91d63321ff0c4d8f9e5e2e2c7b1dfcba91c7
