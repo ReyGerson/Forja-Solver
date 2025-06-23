@@ -100,7 +100,7 @@ def punto_fijo_view(request):
 
     else:
         form = PuntoFijoForm()
-
+    print("POST recibido:", request.POST)
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
         'resultado': resultado,
@@ -109,6 +109,8 @@ def punto_fijo_view(request):
         'comprobacion': comprobacion,
         'fx': formula_funcion,
         'gx': formula_despeje,
+        'fx_latex': request.POST.get('funcion_latex', ''), 
+        'gx_latex': request.POST.get('despeje_latex', ''),
     })
 
 
