@@ -1,115 +1,323 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interpolación por Trazador Cúbico Natural</title>
     <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 2em;
-            background-color: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            background-color: var(--light);
+            margin: 0;
+            padding: 20px;
         }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        h1 {
+            color: var(--info);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        h2, h3 {
+            color: var(--success);
+            margin-top: 1.5em;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+
+        .form-container, .result-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
         form {
-            background: #fff;
-            padding: 1em;
-            margin-bottom: 2em;
-            border-radius: 8px;
-            box-shadow: 0 0 10px #ccc;
+            margin: 0;
         }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: border-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--info);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 132, 138, 0.2);
+        }
+
+        small {
+            font-size: 0.85em;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        button {
+            background-color: var(--info);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 20px auto 0;
+        }
+
+        button:hover {
+            background-color: #3A6A70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            -webkit-overflow-scrolling: touch;
+        }
+
         table {
             width: 100%;
+            min-width: 600px;
             border-collapse: collapse;
-            margin-top: 1em;
-            background: #fff;
+            background: white;
         }
-        th, td {
-            padding: 8px;
-            border: 1px solid #aaa;
-            text-align: center;
+
+        th {
+            background-color: var(--info);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
         }
-        .box {
-            background: #fff;
-            padding: 1em;
-            border-radius: 8px;
-            box-shadow: 0 0 10px #ccc;
-            margin-bottom: 2em;
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--primary);
+            text-align: left;
         }
+
+        tr:nth-child(even) {
+            background-color: var(--light);
+        }
+
+        tr:hover {
+            background-color: rgba(220, 201, 169, 0.3);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
         code {
-            background: #f0f0f0;
-            padding: 2px 4px;
+            background-color: var(--light);
+            padding: 4px 8px;
             border-radius: 4px;
+            font-family: monospace;
+            color: var(--danger);
+            border-left: 3px solid var(--warning);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            display: inline-block;
+            margin: 3px 0;
         }
-        h2 {
-            margin-top: 1.5em;
+
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 5px;
+        }
+
+        a:hover {
+            color: var(--success);
+            text-decoration: underline;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--danger);
+            font-style: italic;
+        }
+
+        input-group {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 480px) {
+        .input-group {
+            max-width: 100%;
+        }
+    }
+
+        @media (max-width: 768px) {
+            .form-container, .result-box {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            input[type="text"],
+            input[type="number"] {
+                padding: 10px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                max-width: 100%;
+            }
+            
+            code {
+                white-space: pre-wrap;
+                word-break: break-all;
+            }
         }
     </style>
 </head>
+
 <body>
-    {% csrf_token %} 
-    <h1>Interpolación por Trazador Cúbico Natural</h1>
+    <div class="container">
+        <h1>Interpolación por Trazador Cúbico Natural</h1>
 
-    <form method="post">
-        {% csrf_token %}
-        <p>
-            <label><strong>Puntos:</strong></label><br>
-            {{ form.points }}<br>
-            <small>{{ form.points.help_text }}</small>
-        </p>
-        <p>
-            <label><strong>Valor de x:</strong></label><br>
-            {{ form.x_value }}
-        </p>
-        <button type="submit">Calcular</button>
-    </form>
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+                <div>
+                    <label for="id_points"><strong>Puntos:</strong></label>
+                    {{ form.points }}
+                    <small>{{ form.points.help_text }}</small>
+                </div>
+                <div class="input-group"> 
+                    <label for="id_x_value"><strong>Valor de x:</strong></label>
+                    {{ form.x_value }}
+                </div>
+                <button type="submit">Calcular</button>
+            </form>
+        </div>
 
-    {% if result %}
-    <div class="box">
-        <h2>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h2>
-        {{ result.tabla_hm.to_html|safe }}
-    </div>
+        {% if result %}
+        <div class="result-box">
+            <h2>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h2>
+            <div class="table-responsive">
+                {{ result.tabla_hm.to_html|safe }}
+            </div>
+        </div>
 
-    <div class="box">
-        <h2>Paso 3: Coeficientes C<sub>i</sub></h2>
-        <ul>
-            {% for c in result.coef_c %}
-                <li><strong>C{{ forloop.counter0 }}</strong> = {{ c }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+        <div class="result-box">
+            <h2>Paso 3: Coeficientes C<sub>i</sub></h2>
+            <ul>
+                {% for c in result.coef_c %}
+                <li><strong>C{{ forloop.counter0 }}</strong> = <code>{{ c }}</code></li>
+                {% endfor %}
+            </ul>
+        </div>
 
-    <div class="box">
-        <h2>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h2>
-        <ul>
-            <li><strong>a:</strong> {{ result.coef_a|join:", " }}</li>
-            <li><strong>b:</strong> {{ result.coef_b|join:", " }}</li>
-            <li><strong>d:</strong> {{ result.coef_d|join:", " }}</li>
-        </ul>
-    </div>
+        <div class="result-box">
+            <h2>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h2>
+            <ul>
+                <li><strong>a:</strong> {% for a in result.coef_a %}<code>{{ a }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                <li><strong>b:</strong> {% for b in result.coef_b %}<code>{{ b }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+                <li><strong>d:</strong> {% for d in result.coef_d %}<code>{{ d }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+            </ul>
+        </div>
 
-    <div class="box">
-        <h2>Polinomios por intervalos</h2>
-        <ol>
-            {% for poly in result.polinomios %}
+        <div class="result-box">
+            <h2>Polinomios por intervalos</h2>
+            <ol>
+                {% for poly in result.polinomios %}
                 <li>
                     <strong>{{ poly.intervalo }}:</strong><br>
                     <code>p(x) = {{ poly.formula }}</code>
                 </li>
-            {% endfor %}
-        </ol>
+                {% endfor %}
+            </ol>
+        </div>
+
+        <div class="result-box">
+            <h2>Razonamiento para elegir el polinomio</h2>
+            <p>{{ result.razonamiento }}</p>
+
+            <h3>Polinomio usado</h3>
+            <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
+
+            <h3>Resultado final</h3>
+            <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
+            <p><strong>Resultado:</strong> <code>{{ result.resultado }}</code></p>
+        </div>
+        {% endif %}
+
+        <p><a href="{% url 'historial' %}">Ver historial de ejecuciones anteriores</a></p>
     </div>
-
-    <div class="box">
-        <h2>Razonamiento para elegir el polinomio</h2>
-        <p>{{ result.razonamiento }}</p>
-
-        <h3>Polinomio usado</h3>
-        <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
-
-        <h3>Resultado final</h3>
-        <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
-        <p><strong>Resultado:</strong> {{ result.resultado }}</p>
-    </div>
-    {% endif %}
-    <p><a href="{% url 'historial' %}">Ver historial de ejecuciones anteriores</a></p>
 </body>
+
 </html>
