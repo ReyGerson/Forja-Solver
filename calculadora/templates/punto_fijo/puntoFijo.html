@@ -9,8 +9,17 @@
     <link rel="stylesheet" href='{% static "css/puntoFijo.css" %}'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.css" />
 </head>
-
+{% if user.is_authenticated %}
+  <p>Bienvenido, {{ user.username }}</p>
+{% else %}
+  <p>No estás logueado</p>
+  {% endif %}
 <body>
+<<<<<<< HEAD
+=======
+    {% csrf_token %} 
+    <a href="{% url 'logout' %}">Cerrar sesión</a>
+>>>>>>> juli
     <h1>Método de Punto Fijo</h1>
 
     <div class="form-container">

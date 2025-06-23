@@ -29,13 +29,6 @@
                         placeholder="maria de todos los angeles" required />
                 </div>
                 <div>
-                    <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo electrónico</label>
-                    <input type="email" name="email" id="email"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                        placeholder="tucorreo@ejemplo.com" required />
-                </div>
-
-                <div>
                 <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
                     <input type="password" name="password1" id="password1"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
@@ -52,7 +45,10 @@
                         class="w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                 Registrarse 
                 </button>
-            
+                 <a href="{% url 'login' %}"
+                    class="mb-4 inline-block text-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full">
+                    Regresar
+                </a>
              </form>
         </div>
     </div>

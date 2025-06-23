@@ -9,7 +9,7 @@ from reportlab.pdfgen import canvas
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 
-
+@login_required
 def punto_fijo_view(request):
     resultado = []
     solucion = None
@@ -118,7 +118,7 @@ def punto_fijo_view(request):
         'gx_latex': request.POST.get('despeje_latex', ''),
     })
 
-
+@login_required
 def spline_view(request):
     result = None
     if request.method == 'POST':
@@ -159,6 +159,7 @@ def historial_punto_fijo(request):
     historial = PuntoFijoHistorial.objects.filter(user=request.user).order_by('-fecha')
     return render(request, 'punto_fijo/historial_punto_fijo.html', {'historial': historial})
 
+@login_required
 def punto_fijo_pdf(request, id):
     obj = PuntoFijoHistorial.objects.get(id=id)
     response = HttpResponse(content_type='application/pdf')
@@ -194,7 +195,7 @@ def punto_fijo_pdf(request, id):
     p.save()
     return response
 
-
+@login_required
 def repetir_punto_fijo(request, id):
     obj = get_object_or_404(PuntoFijoHistorial, id=id)
 
@@ -277,7 +278,7 @@ def repetir_punto_fijo(request, id):
     })
 
 
-
+@login_required
 def trazador_pdf(request, id):
     obj = SplineHistory.objects.get(id=id)
     response = HttpResponse(content_type='application/pdf')
@@ -319,7 +320,7 @@ def trazador_pdf(request, id):
     p.save()
     return response
 
-
+@login_required
 def repetir_trazador(request, id):
     obj = get_object_or_404(SplineHistory, id=id)
 
@@ -343,9 +344,11 @@ def repetir_trazador(request, id):
 
 
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
+
 
 # Create your views here.
+
 
 def login_view(request):
     return render(request, 'paginas/login.html')
@@ -375,3 +378,7 @@ def registro(request):
         form = UserCreationForm()
 
     return render(request, "paginas/registro.html")
+
+def cerrar_sesion(request):
+    logout(request)
+    return redirect('login') 

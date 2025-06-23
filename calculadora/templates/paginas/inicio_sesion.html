@@ -52,7 +52,10 @@
                     class="w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             Iniciar sesión
             </button>
-
+             <a href="{% url 'login' %}"
+                    class="mb-4 inline-block text-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full">
+                    cancelar
+                </a>
             <p class="text-sm text-gray-500 dark:text-gray-300">
             ¿No tienes una cuenta? <a href="{% url 'registro' %}" class="text-blue-600 hover:underline dark:text-blue-500">Regístrate</a>
             </p>
