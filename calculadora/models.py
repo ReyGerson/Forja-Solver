@@ -18,6 +18,8 @@ class PuntoFijoHistorial(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     funcion = models.TextField()
     despeje = models.TextField()
+    funcion_latex = models.TextField(blank=True, null=True)
+    despeje_latex = models.TextField(blank=True, null=True)
     valor_inicial = models.FloatField()
     tolerancia = models.FloatField()
     decimales = models.IntegerField()

@@ -44,19 +44,22 @@
             <div class="form-group">
                 <label for="id_valor_inicial">Valor inicial:</label>
                 <input type="number" id="id_valor_inicial" name="valor_inicial" step="any"
-                    value="{{ form.data.valor_inicial|default:1 }}" required>
+                    value="{{ form.initial.valor_inicial|default:1 }}" required>
+
             </div>
 
             <div class="form-group">
                 <label for="id_tolerancia">Tolerancia (%):</label>
                 <input type="number" id="id_tolerancia" name="tolerancia" step="any" min="0"
-                    value="{{ form.data.tolerancia|default:0.001 }}" required>
+                    value="{{ form.initial.tolerancia|default:0.001 }}" required>
+
             </div>
 
             <div class="form-group">
                 <label for="id_decimales">Número de decimales:</label>
                 <input type="number" id="id_decimales" name="decimales" min="1" max="15"
-                    value="{{ form.data.decimales|default:6 }}" required>
+                    value="{{ form.initial.decimales|default:6 }}" required>
+
             </div>
 
             <button type="submit" class="submit-btn">Calcular</button>
@@ -116,18 +119,18 @@
                 .replace(/\\cdot/g, "*")
                 .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "($1)/($2)")
                 .replace(/\\sqrt\{([^}]*)\}/g, "sqrt($1)")
-                .replace(/exponentialE\*\*\{([^}]*)\}/g, "exp($1)")
                 .replace(/exponentialE\^\{([^}]*)\}/g, "exp($1)")
                 .replace(/exponentialE\^\(([^)]*)\)/g, "exp($1)")
-                .replace(/exponentialE\^([^\s]+)/g, (match, p1) => `exp(${p1})`)
+                .replace(/exponentialE\^([^\s]+)/g, "exp($1)")
                 .replace(/\\exp/g, "exp")
                 .replace(/\\log/g, "log")
                 .replace(/\\sin/g, "sin")
                 .replace(/\\cos/g, "cos")
                 .replace(/\\tan/g, "tan")
                 .replace(/\\pi/g, "pi")
-                .replace(/\\\^/g, "^")
-                .replace(/\^/g, "**");
+                .replace(/\^\{([^}]*)\}/g, "**$1")
+                .replace(/\^([a-zA-Z0-9\+\-\*\/]+)/g, "**$1")
+                .replace(/\{([^{}]+)\}/g, "$1");
         }
 
         const mathFx = document.getElementById("math_fx");

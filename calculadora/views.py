@@ -98,7 +98,9 @@ def punto_fijo_view(request):
                     solucion=solucion,
                     error=error,
                     comprobacion=str(comprobacion),
-                    iteraciones=iteraciones_texto
+                    iteraciones=iteraciones_texto,
+                    funcion_latex=request.POST.get('funcion_latex', ''),
+                    despeje_latex=request.POST.get('despeje_latex', ''),
                 )
 
     else:
@@ -194,24 +196,86 @@ def punto_fijo_pdf(request, id):
 
 
 def repetir_punto_fijo(request, id):
-    obj = PuntoFijoHistorial.objects.get(id=id)
-    data = {
+    obj = get_object_or_404(PuntoFijoHistorial, id=id)
+
+    form = PuntoFijoForm(initial={
         'funcion': obj.funcion,
         'despeje': obj.despeje,
         'valor_inicial': obj.valor_inicial,
         'tolerancia': obj.tolerancia,
         'decimales': obj.decimales,
-    }
-    form = PuntoFijoForm(initial=data)
+    })
+
+    resultado = []
+    solucion = None
+    error = None
+    comprobacion = None
+
+    try:
+        fx_input = obj.funcion
+        gx_input = obj.despeje
+        x0 = obj.valor_inicial
+        tolerancia = obj.tolerancia
+        decimales = obj.decimales
+
+        i = 0
+        ea = 100
+        x1 = None
+
+        while True:
+            i += 1
+            x1 = float(ne.evaluate(gx_input, local_dict={'x': x0}))
+            fxi = float(ne.evaluate(fx_input, local_dict={'x': x1}))
+
+            if i > 1:
+                ea = abs((x1 - x0) / x1) * 100
+            else:
+                ea = None
+
+            valor_x0 = round(x0, decimales)
+            valor_x1 = round(x1, decimales)
+            detalle = f"x{i} = {gx_input.replace('x', str(valor_x0))} = {valor_x1}"
+            if ea is not None:
+                error_detalle = f"ε{i} = |({valor_x1} - {valor_x0}) / {valor_x1}| × 100% = {round(ea, 2)}%"
+            else:
+                error_detalle = "ε1 = -"
+
+            resultado.append({
+                'iteracion': i,
+                'detalle': detalle,
+                'error_detalle': error_detalle,
+                'x': valor_x1,
+                'error': round(ea, 2) if ea is not None else '-',
+            })
+
+            if ea is not None and ea <= tolerancia:
+                break
+
+            x0 = x1
+
+        if resultado and x1 is not None:
+            solucion = round(x1, decimales)
+            error = round(ea, 5)
+            try:
+                comprobacion = round(float(ne.evaluate(fx_input, local_dict={'x': solucion})), 8)
+            except:
+                comprobacion = "Error al comprobar"
+
+    except Exception as e:
+        form.add_error(None, f"Error al evaluar la función o el despeje: {e}")
+
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
-        'resultado': None,
-        'solucion': None,
-        'error': None,
-        'comprobacion': None,
+        'resultado': resultado,
+        'solucion': solucion,
+        'error': error,
+        'comprobacion': comprobacion,
         'fx': obj.funcion,
-        'gx': obj.despeje
+        'gx': obj.despeje,
+        'fx_latex': obj.funcion_latex or obj.funcion,
+        'gx_latex': obj.despeje_latex or obj.despeje,
     })
+
 
 
 def trazador_pdf(request, id):
