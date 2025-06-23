@@ -67,6 +67,7 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  padding: 10px;
 }
 
 .text-content{
@@ -109,3 +110,4 @@ option {
   background-color: #2d2d41;
   color: white;
 }
+
