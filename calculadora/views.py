@@ -132,6 +132,16 @@ def punto_fijo_view(request):
     decimales = form.data.get('decimales') or form.initial.get('decimales', 6)
     # --- end fix ---
 
+    # --- Datos para gráfica Punto Fijo ---
+    grafica_punto_fijo = None
+    if resultado:
+        grafica_punto_fijo = {
+            'x': [r['iteracion'] for r in resultado],
+            'y': [r['x'] for r in resultado],
+            'error': [r['error'] for r in resultado],
+        }
+    # --- end datos gráfica ---
+
     print("POST recibido:", request.POST)
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
@@ -147,6 +157,7 @@ def punto_fijo_view(request):
         'valor_inicial_val': valor_inicial,
         'tolerancia_val': tolerancia,
         'decimales_val': decimales,
+        'grafica_punto_fijo': grafica_punto_fijo,
     })
 
 @login_required
@@ -175,10 +186,36 @@ def spline_view(request):
     else:
         form = SplineInputForm()
 
+    # --- Datos para gráfica Trazador Cúbico ---
+    grafica_trazador = None
+    if result and 'tabla_hm' in result:
+        try:
+            # Extraer puntos para graficar la curva y los puntos originales
+            puntos = []
+            if hasattr(form, 'cleaned_data') and 'points' in form.cleaned_data:
+                puntos = parse_points(form.cleaned_data['points'])
+            elif hasattr(form, 'initial') and 'points' in form.initial:
+                puntos = parse_points(form.initial['points'])
+            x_vals = [p[0] for p in puntos]
+            y_vals = [p[1] for p in puntos]
+            # Si hay polinomios, graficar la curva
+            polinomios = result.get('polinomios', [])
+            grafica_trazador = {
+                'x': x_vals,
+                'y': y_vals,
+                'polinomios': polinomios,
+                'x_query': result.get('x_query'),
+                'y_query': result.get('resultado'),
+            }
+        except Exception:
+            grafica_trazador = None
+    # --- end datos gráfica ---
+
     return render(request, 'trazador_cubico/trazadorCubico.html', {
         'form': form,
         'result': result,
         'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
+        'grafica_trazador': grafica_trazador,
     })
 
 @login_required
@@ -297,10 +334,31 @@ def repetir_punto_fijo(request, id):
     except Exception as e:
         form.add_error(None, f"Error al evaluar la función o el despeje: {e}")
 
+    # --- Datos para gráfica Punto Fijo en modo repetir ---
+    is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False
+    if resultado:
+        if is_premium:
+            grafica_punto_fijo = {
+                'x': [r['iteracion'] for r in resultado],
+                'y': [r['x'] for r in resultado],
+                'error': [r['error'] for r in resultado],
+            }
+        else:
+            # Solo el último punto para no premium
+            last = resultado[-1]
+            grafica_punto_fijo = {
+                'x': [last['iteracion']],
+                'y': [last['x']],
+                'error': [last['error']],
+            }
+    else:
+        grafica_punto_fijo = None
+    # --- end datos gráfica ---
+
     return render(request, 'punto_fijo/puntoFijo.html', {
         'form': form,
         # Mostrar solo el resultado mínimo para no premium, igual que en trazador cubico
-        'resultado': resultado if hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium else None,
+        'resultado': resultado if is_premium else None,
         'solucion': solucion,
         'error': error,
         'comprobacion': comprobacion,
@@ -308,12 +366,13 @@ def repetir_punto_fijo(request, id):
         'gx': obj.despeje,
         'fx_latex': obj.funcion_latex or obj.funcion,
         'gx_latex': obj.despeje_latex or obj.despeje,
-        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
+        'is_premium': is_premium,
         'valor_inicial_val': obj.valor_inicial,
         'tolerancia_val': obj.tolerancia,
         'decimales_val': obj.decimales,
         'modo_repetir': True,
         'mostrar_resultado_minimo': True,  # Forzar mostrar el bloque de resultado mínimo
+        'grafica_punto_fijo': grafica_punto_fijo,
     })
 
 
@@ -369,23 +428,49 @@ def repetir_trazador(request, id):
     })
 
     result = None
+    grafica_trazador = None
     try:
         points = parse_points(obj.puntos)
         result = natural_cubic_spline(points, obj.x_valor)
-
+        # --- Datos para gráfica Trazador Cúbico en modo repetir ---
+        is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False
+        if result and 'tabla_hm' in result:
+            x_vals = [p[0] for p in points]
+            y_vals = [p[1] for p in points]
+            polinomios = result.get('polinomios', [])
+            if is_premium:
+                grafica_trazador = {
+                    'x': x_vals,
+                    'y': y_vals,
+                    'polinomios': polinomios,
+                    'x_query': result.get('x_query'),
+                    'y_query': result.get('resultado'),
+                }
+            else:
+                # Solo el punto evaluado para no premium
+                grafica_trazador = {
+                    'x': [result.get('x_query')],
+                    'y': [result.get('resultado')],
+                    'polinomios': [],
+                    'x_query': result.get('x_query'),
+                    'y_query': result.get('resultado'),
+                }
+        # --- end datos gráfica ---
     except Exception as e:
         form.add_error(None, f"Error en los datos: {e}")
 
+    is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False
     return render(request, 'trazador_cubico/trazadorCubico.html', {
         'form': form,
-        'result': result if hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium else {
+        'result': result if is_premium else {
             'razonamiento': result['razonamiento'] if result else '',
             'polinomio_usado': result['polinomio_usado'] if result else '',
             'x_query': result['x_query'] if result and 'x_query' in result else '',
             'resultado': result['resultado'] if result else '',
         },
-        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False,
+        'is_premium': is_premium,
         'modo_repetir': True,
+        'grafica_trazador': grafica_trazador,
     })
 
 

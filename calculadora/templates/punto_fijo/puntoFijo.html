@@ -121,6 +121,41 @@
     </div>
     {% endif %}
 
+    {% if grafica_punto_fijo %}
+    <div id="grafica-punto-fijo" style="width:100%;max-width:700px;height:400px;"></div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        var trace1 = {
+            x: {{ grafica_punto_fijo.x|safe }},
+            y: {{ grafica_punto_fijo.y|safe }},
+            mode: 'lines+markers',
+            name: 'Xi',
+            line: {color: 'blue'}
+        };
+        var trace2 = {
+            x: {{ grafica_punto_fijo.x|safe }},
+            y: {{ grafica_punto_fijo.error|safe }},
+            mode: 'lines+markers',
+            name: 'Error %',
+            yaxis: 'y2',
+            line: {color: 'red', dash: 'dot'}
+        };
+        var layout = {
+            title: 'Convergencia del método de Punto Fijo',
+            xaxis: {title: 'Iteración'},
+            yaxis: {title: 'Xi'},
+            yaxis2: {
+                title: 'Error %',
+                overlaying: 'y',
+                side: 'right',
+                showgrid: false
+            },
+            legend: {x: 0, y: 1.2, orientation: 'h'}
+        };
+        Plotly.newPlot('grafica-punto-fijo', [trace1, trace2], layout);
+    </script>
+    {% endif %}
+
     <p><a href="{% url 'historialPuntoFijo' %}">Ver historial de ejecuciones anteriores</a></p>
 
     <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>

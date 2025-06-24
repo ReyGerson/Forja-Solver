@@ -250,75 +250,113 @@
 
   {% endif %}
 <body>
-    {% csrf_token %} 
     <a class="" href="{% url 'index' %}">Inicio</a>
+    {% csrf_token %} 
     <h1>Interpolación por Trazador Cúbico Natural</h1>
 
-    <form method="post">
-        {% csrf_token %}
-        <p>
-            <label><strong>Puntos:</strong></label><br>
-            {{ form.points }}<br>
-            <small>{{ form.points.help_text }}</small>
-        </p>
-        <p>
-            <label><strong>Valor de x:</strong></label><br>
-            {{ form.x_value }}
-        </p>
-        {% if not modo_repetir %}
-            <button type="submit">Calcular</button>
-        {% else %}
+    <div class="form-container">
+        <h2 class="form-title">Ingrese los datos para el cálculo</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                <p class="text-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <label for="id_points">Puntos:</label>
+                {{ form.points }}
+                <small>{{ form.points.help_text }}</small>
+            </div>
+            <div class="form-group">
+                <label for="id_x_value">Valor de x:</label>
+                {{ form.x_value }}
+            </div>
+            {% if not modo_repetir %}
+            <button type="submit" class="submit-btn">Calcular</button>
+            {% else %}
             <a href="{% url 'trazador' %}" class="btn btn-primary">Volver al modelo</a>
-        {% endif %}
-    </form>
+            {% endif %}
+        </form>
+    </div>
 
     {% if result %}
+    <div class="resultado">
         {% if is_premium %}
-            <div class="box">
-                <h2>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h2>
-                {{ result.tabla_hm.to_html|safe }}
-            </div>
-            <div class="box">
-                <h2>Paso 3: Coeficientes C<sub>i</sub></h2>
-                <ul>
-                    {% for c in result.coef_c %}
-                        <li><strong>C{{ forloop.counter0 }}</strong> = {{ c }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="box">
-                <h2>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h2>
-                <ul>
-                    <li><strong>a:</strong> {{ result.coef_a|join:", " }}</li>
-                    <li><strong>b:</strong> {{ result.coef_b|join:", " }}</li>
-                    <li><strong>d:</strong> {{ result.coef_d|join:", " }}</li>
-                </ul>
-            </div>
-            <div class="box">
-                <h2>Polinomios por intervalos</h2>
-                <ol>
-                    {% for poly in result.polinomios %}
-                        <li>
-                            <strong>{{ poly.intervalo }}:</strong><br>
-                            <code>p(x) = {{ poly.formula }}</code>
-                        </li>
-                    {% endfor %}
-                </ol>
-            </div>
+        <h2>Resultado</h2>
+        <h3>Paso 1 y 2: Tabla de puntos, h<sub>i</sub> y m<sub>i</sub></h3>
+        {{ result.tabla_hm.to_html|safe }}
+        <h3>Paso 3: Coeficientes C<sub>i</sub></h3>
+        <ul>
+            {% for c in result.coef_c %}
+            <li><strong>C{{ forloop.counter0 }}</strong> = {{ c }}</li>
+            {% endfor %}
+        </ul>
+        <h3>Paso 4: Coeficientes a<sub>i</sub>, b<sub>i</sub> y d<sub>i</sub></h3>
+        <ul>
+            <li><strong>a:</strong> {{ result.coef_a|join:", " }}</li>
+            <li><strong>b:</strong> {{ result.coef_b|join:", " }}</li>
+            <li><strong>d:</strong> {{ result.coef_d|join:", " }}</li>
+        </ul>
+        <h3>Polinomios por intervalos</h3>
+        <ol>
+            {% for poly in result.polinomios %}
+            <li><strong>{{ poly.intervalo }}:</strong><br><code>p(x) = {{ poly.formula }}</code></li>
+            {% endfor %}
+        </ol>
         {% endif %}
-        <div class="box">
-            <h2>Razonamiento para elegir el polinomio</h2>
-            <p>{{ result.razonamiento }}</p>
-            <h3>Polinomio usado</h3>
-            <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
-            <h3>Resultado final</h3>
-            <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
-            <p><strong>Resultado:</strong> {{ result.resultado }}</p>
-            {% if not is_premium %}
-                <div class="alert alert-info mt-3">¿Quieres ver el proceso completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
-            {% endif %}
-        </div>
+        <h2>Razonamiento para elegir el polinomio</h2>
+        <p>{{ result.razonamiento }}</p>
+        <h3>Polinomio usado</h3>
+        <p><code>p(x) = {{ result.polinomio_usado }}</code></p>
+        <h3>Resultado final</h3>
+        <p>Evaluación de <code>p(x)</code> en <strong>x = {{ result.x_query }}</strong>:</p>
+        <p><strong>Resultado:</strong> {{ result.resultado }}</p>
+        {% if not is_premium %}
+        <div class="alert alert-info mt-3">¿Quieres ver el proceso completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
+        {% endif %}
+    </div>
     {% endif %}
+
+    {% if grafica_trazador %}
+    <div id="grafica-trazador" style="width:100%;max-width:700px;height:400px;"></div>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    {{ grafica_trazador.x|json_script:"grafica_trazador_x" }}
+    {{ grafica_trazador.y|json_script:"grafica_trazador_y" }}
+    {{ grafica_trazador.x_query|json_script:"grafica_trazador_x_query" }}
+    {{ grafica_trazador.y_query|json_script:"grafica_trazador_y_query" }}
+    <script>
+        var x = JSON.parse(document.getElementById('grafica_trazador_x').textContent);
+        var y = JSON.parse(document.getElementById('grafica_trazador_y').textContent);
+        var x_query = JSON.parse(document.getElementById('grafica_trazador_x_query').textContent);
+        var y_query = JSON.parse(document.getElementById('grafica_trazador_y_query').textContent);
+        var trace_puntos = {
+            x: x,
+            y: y,
+            mode: 'markers',
+            name: 'Puntos',
+            marker: {color: 'blue', size: 10}
+        };
+        var trace_query = {
+            x: [x_query],
+            y: [y_query],
+            mode: 'markers',
+            name: 'x evaluado',
+            marker: {color: 'red', size: 12, symbol: 'star'}
+        };
+        var data = [trace_puntos, trace_query];
+        var layout = {
+            title: 'Interpolación por Trazador Cúbico',
+            xaxis: {title: 'x'},
+            yaxis: {title: 'y'},
+            legend: {x: 0, y: 1.2, orientation: 'h'}
+        };
+        Plotly.newPlot('grafica-trazador', data, layout);
+    </script>
+    {% endif %}
+
     <p><a href="{% url 'historial' %}">Ver historial de ejecuciones anteriores</a></p>
 </body>
 
