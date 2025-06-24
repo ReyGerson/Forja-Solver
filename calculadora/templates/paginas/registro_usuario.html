@@ -1,9 +1,306 @@
-{% extends 'base.html' %}
-{% block contenido  %}
-<h2>Registro de Usuario</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Registrarse</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primario: #DCC9A9;
+            --secundario: #1A1A1A;
+            --info: #4B848A;
+            --info-oscuro: #3a6d73;
+            --claro: #F9F2F2;
+            --peligro: #E70103;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .contenedor-registro {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .tarjeta-registro {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid var(--primario);
+            transition: transform 0.3s ease;
+        }
+
+        .tarjeta-registro:hover {
+            transform: translateY(-5px);
+        }
+
+        .encabezado-registro {
+            background: linear-gradient(135deg, var(--info), var(--info-oscuro));
+            padding: 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .titulo-registro {
+            margin: 0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .subtitulo-registro {
+            margin: 0.5rem 0 0;
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .formulario-registro {
+            padding: 2rem;
+        }
+
+        .cuadricula-formulario {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grupo-formulario {
+            margin-bottom: 1.5rem;
+        }
+
+        .etiqueta-formulario {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 0.6rem;
+            font-weight: 500;
+            color: var(--secundario);
+        }
+
+        .etiqueta-formulario i {
+            color: var(--info);
+            width: 20px;
+            text-align: center;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: var(--claro);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--info);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(75, 132, 138, 0.2);
+            background-color: white;
+        }
+
+        .ayuda-formulario {
+            display: block;
+            margin-top: 0.4rem;
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error-formulario {
+            color: var(--peligro);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .acciones-formulario {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .boton-registro {
+            padding: 1rem 2rem;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 4px 8px rgba(75, 132, 138, 0.2);
+            text-decoration: none;
+        }
+
+        .boton-registro:hover {
+            background: var(--info-oscuro);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(75, 132, 138, 0.3);
+        }
+
+        .enlace-login {
+            color: var(--info);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .enlace-login:hover {
+            text-decoration: underline;
+            color: var(--info-oscuro);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .encabezado-registro {
+                padding: 1.5rem;
+            }
+
+            .formulario-registro {
+                padding: 1.5rem;
+            }
+
+            .cuadricula-formulario {
+                grid-template-columns: 1fr;
+            }
+
+            .acciones-formulario {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .boton-registro {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .contenedor-registro {
+                padding: 0 1rem;
+            }
+
+            .titulo-registro {
+                font-size: 1.5rem;
+            }
+
+            input,
+            textarea,
+            select {
+                padding: 0.8rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor-registro">
+        <div class="tarjeta-registro">
+            <div class="encabezado-registro">
+                <h2 class="titulo-registro">
+                    <i class="fas fa-user-plus"></i> Crear Cuenta
+                </h2>
+                <p class="subtitulo-registro">Completa el formulario para registrarte</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="formulario-registro">
+                {% csrf_token %}
+
+                <div class="cuadricula-formulario">
+                    <div class="grupo-formulario">
+                        <label for="nombre" class="etiqueta-formulario">
+                            <i class="fas fa-user"></i>
+                            Nombre completo
+                        </label>
+                        <input type="text" id="nombre" name="nombre" required>
+                        <small class="ayuda-formulario">Ingresa tu nombre completo como aparece en tu identificación</small>
+                    </div>
+
+                    <div class="grupo-formulario">
+                        <label for="email" class="etiqueta-formulario">
+                            <i class="fas fa-envelope"></i>
+                            Correo electrónico
+                        </label>
+                        <input type="email" id="email" name="email" required>
+                        <small class="ayuda-formulario">Ejemplo: usuario@dominio.com</small>
+                    </div>
+
+                    <div class="grupo-formulario">
+                        <label for="usuario" class="etiqueta-formulario">
+                            <i class="fas fa-id-card"></i>
+                            Nombre de usuario
+                        </label>
+                        <input type="text" id="usuario" name="usuario" required>
+                        <small class="ayuda-formulario">Entre 4 y 20 caracteres (letras y números)</small>
+                    </div>
+
+                    <div class="grupo-formulario">
+                        <label for="contrasena" class="etiqueta-formulario">
+                            <i class="fas fa-lock"></i>
+                            Contraseña
+                        </label>
+                        <input type="password" id="contrasena" name="contrasena" required>
+                        <small class="ayuda-formulario">Mínimo 8 caracteres con mayúsculas, números y símbolos</small>
+                    </div>
+
+                    <div class="grupo-formulario">
+                        <label for="confirmar_contrasena" class="etiqueta-formulario">
+                            <i class="fas fa-lock"></i>
+                            Confirmar contraseña
+                        </label>
+                        <input type="password" id="confirmar_contrasena" name="confirmar_contrasena" required>
+                    </div>
+
+                    
+                </div>
+
+                <div class="acciones-formulario">
+                    <button type="submit" class="boton-registro">
+                        <i class="fas fa-user-check"></i> Registrarse
+                    </button>
+                    <a href="{% url 'index' %}" class="boton-registro">
+                        <i class="fas fa-home"></i> Ir a inicio
+                    </a>
+                </div>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <p>¿Ya tienes una cuenta? <a href="{% url 'inicio_sesion' %}" class="enlace-login">Inicia sesión aquí</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

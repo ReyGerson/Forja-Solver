@@ -1,9 +1,295 @@
-{% extends 'base.html' %}
-{% block contenido  %}
-<h2>Créditos del Proyecto</h2>
-<ul>
-    {% for integrante in integrantes %}
-    <li><strong>{{ integrante.nombre }}</strong>: {{ integrante.rol }}</li>
-    {% endfor %}
-</ul>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créditos del Proyecto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4B848A;
+            --primary-light: #6ba0a6;
+            --secondary: #DCC9A9;
+            --light: #F9F2F2;
+            --dark: #1A1A1A;
+            --gray: #e0e0e0;
+            --white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .creditos-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+        }
+        
+        .back-button:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .creditos-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .creditos-title {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .creditos-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .team-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .team-member {
+            background: var(--white);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .member-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray);
+            padding-bottom: 20px;
+        }
+        
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary);
+            font-size: 2.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .member-info h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .member-role {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .member-responsibilities {
+            padding-left: 20px;
+        }
+        
+        .member-responsibilities h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .member-responsibilities h4 i {
+            margin-right: 10px;
+        }
+        
+        .responsibilities-list {
+            list-style-type: none;
+        }
+        
+        .responsibilities-list li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .responsibilities-list li::before {
+            content: '•';
+            color: var(--secondary);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .creditos-title {
+                font-size: 2rem;
+            }
+            
+            .back-button {
+                top: -50px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .team-member {
+                padding: 25px;
+            }
+            
+            .member-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .member-avatar {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .creditos-title {
+                font-size: 1.8rem;
+            }
+            
+            .creditos-subtitle {
+                font-size: 1rem;
+            }
+            
+            .back-button {
+                top: -45px;
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            
+            .team-member {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="creditos-container">
+        <a href="{% url 'index' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Volver al Inicio
+        </a>
+        
+        <div class="creditos-header">
+            <h1 class="creditos-title">Créditos del Proyecto</h1>
+        </div>
+        
+        <div class="team-container">
+            <!-- Integrante 1 -->
+            <div class="team-member">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="member-info">
+                        <h3>Gerson Alegría</h3>
+                        <p class="member-role">Backend Developer</p>
+                    </div>
+                </div>
+                
+                <div class="member-responsibilities">
+                    <h4><i class="fas fa-tasks"></i> Responsabilidades</h4>
+                    <ul class="responsibilities-list">
+                        <li>Programación del backend</li>
+                        <li>Desarrollo de los métodos</li>
+                        <li>Implementación de seguridad</li>
+                        <li>Manejo de base de datos</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Integrante 2 -->
+            <div class="team-member">
+                <div class="member-header">
+                    <div class="member-avatar">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <div class="member-info">
+                        <h3>Fabiola Romero</h3>
+                        <p class="member-role">Frontend Developer</p>
+                    </div>
+                </div>
+                
+                <div class="member-responsibilities">
+                    <h4><i class="fas fa-tasks"></i> Responsabilidades</h4>
+                    <ul class="responsibilities-list">
+                        <li>Diseño de interfaz</li>
+                        <li>Manejo de base de datos</li>
+                        <li>Pruebas de funcionalidad</li>
+                        <li>Documentación técnica</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,13 +51,14 @@
 
         table {
             width: 100%;
-            min-width: 800px; 
+            min-width: 800px;
             border-collapse: collapse;
             margin: 20px 0;
             border: 2px solid var(--primary);
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid var(--primary);
             padding: 12px 15px;
             text-align: left;
@@ -115,8 +117,67 @@
             font-size: clamp(1rem, 3vw, 1.2rem);
         }
 
+        .btn-punto-fijo {
+            display: inline-block;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #4B848A 0%, #3a6d73 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(75, 132, 138, 0.3);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .btn-punto-fijo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-punto-fijo:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(75, 132, 138, 0.4);
+        }
+
+        .btn-punto-fijo:hover::before {
+            left: 100%;
+        }
+
+        .btn-punto-fijo i {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+
+        .btn-punto-fijo:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(75, 132, 138, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .btn-punto-fijo {
+                padding: 10px 22px;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+        }
+
         @media (max-width: 992px) {
-            th, td {
+
+            th,
+            td {
                 padding: 10px 12px;
             }
         }
@@ -125,12 +186,13 @@
             .historial-container {
                 padding: 15px;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 8px 10px;
                 font-size: 14px;
             }
-            
+
             .action-links a {
                 margin: 0 3px;
                 padding: 3px 6px;
@@ -141,31 +203,33 @@
             body {
                 padding: 15px 10px;
             }
-            
+
             h1 {
                 font-size: 1.5rem;
                 padding-bottom: 8px;
             }
-            
+
             .historial-container {
                 padding: 10px;
                 border-radius: 8px;
             }
-            
+
             table {
-                min-width: 600px; 
+                min-width: 600px;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 6px 8px;
                 font-size: 13px;
             }
-            
+
             .action-links a {
                 display: block;
                 margin: 3px 0;
                 text-align: center;
             }
+
         }
     </style>
 </head>
@@ -173,10 +237,14 @@
 
 {% else %}
 
-  {% endif %}
+{% endif %}
+
 <body>
     {% csrf_token %}
-    <a class="" href="{% url 'puntoFijo' %}">Punto Fijo</a> 
+    <a class="btn-punto-fijo" href="{% url 'puntoFijo' %}">
+        <i class="fas fa-anchor"></i> Punto Fijo
+    </a>
+
     <h1>Historial de Ejecuciones – Punto Fijo</h1>
 
     <table>
@@ -188,7 +256,7 @@
                 <th>x₀</th>
                 <th>Tolerancia</th>
                 {% if is_premium %}
-                    <th>Iteraciones</th>
+                <th>Iteraciones</th>
                 {% endif %}
                 <th>Solución</th>
                 <th>Error</th>
@@ -205,14 +273,16 @@
                 <td>{{ h.valor_inicial }}</td>
                 <td>{{ h.tolerancia }}</td>
                 {% if is_premium %}
-                    <td><pre>{{ h.iteraciones }}</pre></td>
+                <td>
+                    <pre>{{ h.iteraciones }}</pre>
+                </td>
                 {% endif %}
                 <td>{{ h.solucion }}</td>
                 <td>{{ h.error }}%</td>
                 <td>{{ h.comprobacion }}</td>
                 <td>
                     <a href="{% url 'pdfPuntoFijo' h.id %}">📄 PDF</a> |
-                    <a href="{% url 'repetirPuntoFijo' h.id %}">🔁 Repetir</a>
+                    <a href="{% url 'repetirPuntoFijo' h.id %}">🔁 Ver proceso</a>
                 </td>
             </tr>
             {% empty %}
@@ -223,7 +293,9 @@
         </tbody>
     </table>
     {% if not is_premium %}
-        <div class="alert alert-info mt-3">¿Quieres ver el historial completo? <a href="{% url 'tienda' %}">¡Hazte premium!</a></div>
+    <div class="alert alert-info mt-3">¿Quieres ver el historial completo? <a class="btn-punto-fijo" href="{% url 'tienda' %}"> <i class="fas fa-anchor"></i> ¡Hazte
+            premium!</a></div>
     {% endif %}
 </body>
+
 </html>

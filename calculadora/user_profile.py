@@ -1,10 +1,17 @@
+"""
+Modelo de perfil de usuario extendido para Forja-Solver.
+Permite almacenar información adicional y estado premium.
+"""
+
 from django.db import models
 from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
+    """
+    Extiende el modelo de usuario de Django para agregar datos personales y estado premium.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_premium = models.BooleanField(default=False)
-    # Nuevos campos para gestión de usuarios
     nombre_completo = models.CharField(max_length=100, blank=True)
     foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True)
     carrera = models.CharField(max_length=100, blank=True)
@@ -15,6 +22,9 @@ class UserProfile(models.Model):
         return f"Perfil de {self.user.username} (Premium: {self.is_premium})"
 
     def get_foto_url(self):
+        """
+        Devuelve la URL de la foto de perfil o una imagen por defecto.
+        """
         if self.foto_perfil:
             return self.foto_perfil.url
         return '/static/img/default_profile.png'

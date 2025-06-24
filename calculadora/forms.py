@@ -1,9 +1,16 @@
+"""
+Formularios principales de la app Forja-Solver.
+Incluye formularios para métodos numéricos y gestión de usuario.
+"""
 from django import forms
 from django.contrib.auth.models import User
 from .user_profile import UserProfile
 from django.contrib.auth.forms import UserCreationForm
 
 class PuntoFijoForm(forms.Form):
+    """
+    Formulario para ingresar los datos del método de Punto Fijo.
+    """
     funcion = forms.CharField(
         label="Función F(x)",
         help_text="Ej: exp(-x)-x. Usa funciones como: exp(), log(), sin(), cos(), sqrt(), x**2"
@@ -17,6 +24,9 @@ class PuntoFijoForm(forms.Form):
     decimales = forms.IntegerField(label="Número de decimales", initial=5)
 
 class SplineInputForm(forms.Form):
+    """
+    Formulario para ingresar los datos del método de Trazador Cúbico.
+    """
     points = forms.CharField(
         label="Lista de puntos",
         help_text='Ejemplo: (1.2,4.6),(1.5,5.3),(2.4,6),(3,4.8),(3.8,3.2)',
@@ -25,6 +35,9 @@ class SplineInputForm(forms.Form):
     x_value = forms.FloatField(label="Valor de x")
 
 class RegistroUsuarioForm(UserCreationForm):
+    """
+    Formulario de registro extendido para nuevos usuarios, con datos personales y foto.
+    """
     email = forms.EmailField(required=True)
     nombre_completo = forms.CharField(max_length=100, required=True)
     foto_perfil = forms.ImageField(required=False)
@@ -52,6 +65,9 @@ class RegistroUsuarioForm(UserCreationForm):
         return user
 
 class EditarPerfilForm(forms.ModelForm):
+    """
+    Formulario para editar los datos del perfil de usuario.
+    """
     nombre_completo = forms.CharField(max_length=100, required=True)
     foto_perfil = forms.ImageField(required=False)
     carrera = forms.CharField(max_length=100, required=False)

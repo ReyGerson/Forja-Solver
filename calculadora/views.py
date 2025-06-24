@@ -1,3 +1,7 @@
+"""
+Vistas principales de la aplicación Forja-Solver.
+Incluye lógica para métodos numéricos (Punto Fijo, Trazador Cúbico), gestión de usuarios, historial, premium y generación de PDFs.
+"""
 from django.shortcuts import render, redirect
 import json
 from django.http import HttpResponse
@@ -14,6 +18,11 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def punto_fijo_view(request):
+    """
+    Vista principal para el método de Punto Fijo.
+    Permite calcular la raíz de una función usando un despeje g(x).
+    Guarda el historial y muestra la gráfica solo a usuarios premium.
+    """
     resultado = []
     solucion = None
     error = None
@@ -165,6 +174,11 @@ def punto_fijo_view(request):
 
 @login_required
 def spline_view(request):
+    """
+    Vista principal para el método de Trazador Cúbico.
+    Permite interpolar un valor usando splines cúbicos naturales.
+    Guarda el historial y muestra la gráfica solo a usuarios premium.
+    """
     result = None
     if request.method == 'POST':
         form = SplineInputForm(request.POST)
@@ -224,16 +238,25 @@ def spline_view(request):
 
 @login_required
 def historial_view(request):
+    """
+    Muestra el historial de cálculos de Trazador Cúbico del usuario.
+    """
     historial = SplineHistory.objects.filter(user=request.user).order_by('-fecha_creacion')
     return render(request, 'trazador_cubico/historialTrazador.html', {'historial': historial})
 
 @login_required
 def historial_punto_fijo(request):
+    """
+    Muestra el historial de cálculos de Punto Fijo del usuario.
+    """
     historial = PuntoFijoHistorial.objects.filter(user=request.user).order_by('-fecha')
     return render(request, 'punto_fijo/historial_punto_fijo.html', {'historial': historial})
 
 @login_required
 def punto_fijo_pdf(request, id):
+    """
+    Genera un PDF con el historial de un cálculo de Punto Fijo.
+    """
     obj = PuntoFijoHistorial.objects.get(id=id)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="punto_fijo_{obj.id}.pdf"'
@@ -270,6 +293,10 @@ def punto_fijo_pdf(request, id):
 
 @login_required
 def repetir_punto_fijo(request, id):
+    """
+    Permite repetir un cálculo de Punto Fijo guardado en el historial.
+    Solo muestra el proceso completo a usuarios premium.
+    """
     obj = get_object_or_404(PuntoFijoHistorial, id=id)
 
     form = PuntoFijoForm(initial={
@@ -373,6 +400,9 @@ def repetir_punto_fijo(request, id):
 
 @login_required
 def trazador_pdf(request, id):
+    """
+    Genera un PDF con el historial de un cálculo de Trazador Cúbico.
+    """
     obj = SplineHistory.objects.get(id=id)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="trazador_{obj.id}.pdf"'
@@ -415,6 +445,10 @@ def trazador_pdf(request, id):
 
 @login_required
 def repetir_trazador(request, id):
+    """
+    Permite repetir un cálculo de Trazador Cúbico guardado en el historial.
+    Solo muestra el proceso completo a usuarios premium.
+    """
     obj = get_object_or_404(SplineHistory, id=id)
 
     form = SplineInputForm(initial={
@@ -469,9 +503,11 @@ from django.contrib.auth import login, logout
 
 
 def login_view(request):
+    """Renderiza la página de login simple."""
     return render(request, 'paginas/login.html')
 
 def inicio_sesion(request):
+    """Procesa el inicio de sesión de usuario."""
     if request.method == 'POST':
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
@@ -484,6 +520,7 @@ def inicio_sesion(request):
     return render(request, "paginas/inicio_sesion.html")
 
 def registro(request):
+    """Registro de usuario básico (no recomendado, usar registro_usuario)."""
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -498,13 +535,16 @@ def registro(request):
     return render(request, "paginas/registro.html")
 
 def cerrar_sesion(request):
+    """Cierra la sesión del usuario actual."""
     logout(request)
     return redirect('login') 
 
 def index(request):
+    """Página principal de la aplicación."""
     return render(request,'paginas/index.html') 
 
 def tienda(request):
+    """Página de compra de premium."""
     is_premium = False
     if request.user.is_authenticated:
         try:
@@ -514,13 +554,16 @@ def tienda(request):
     return render(request,'paginas/tienda.html', {'is_premium': is_premium})
 
 def documentacion_trazadores(request):
+    """Documentación del método de Trazador Cúbico."""
     return render(request, 'trazador_cubico/documentacion_trazador.html')
 
 def documentacion_punto(request):
+    """Documentación del método de Punto Fijo."""
     return render(request, 'punto_fijo/documentacion_puntoFijo.html')
 
 @login_required
 def comprar_premium(request):
+    """Convierte al usuario en premium."""
     profile = UserProfile.objects.get(user=request.user)
     if not profile.is_premium:
         profile.is_premium = True
@@ -528,6 +571,7 @@ def comprar_premium(request):
     return redirect('tienda')
 
 def registro_usuario(request):
+    """Registro de usuario extendido con perfil personalizado."""
     if request.method == 'POST':
         form = RegistroUsuarioForm(request.POST, request.FILES)
         if form.is_valid():
@@ -540,6 +584,7 @@ def registro_usuario(request):
 
 @login_required
 def perfil_usuario(request):
+    """Muestra el perfil del usuario. Redirige a edición si faltan datos."""
     profile = request.user.userprofile
     # Si algún campo obligatorio está vacío, redirigir a editar perfil
     if not profile.nombre_completo or not profile.carrera or not profile.carnet or not profile.ciclo:
@@ -548,6 +593,7 @@ def perfil_usuario(request):
 
 @login_required
 def editar_perfil(request):
+    """Permite editar los datos del perfil de usuario."""
     profile = request.user.userprofile
     if request.method == 'POST':
         form = EditarPerfilForm(request.POST, request.FILES, instance=profile)
@@ -559,6 +605,7 @@ def editar_perfil(request):
     return render(request, 'paginas/editar_perfil.html', {'form': form})
 
 def creditos(request):
+    """Muestra los créditos del proyecto y el equipo de desarrollo."""
     integrantes = [
         {
             'nombre': 'Nombre 1',
