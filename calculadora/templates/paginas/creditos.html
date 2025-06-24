@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block contenido  %}
+<h2>Créditos del Proyecto</h2>
+<ul>
+    {% for integrante in integrantes %}
+    <li><strong>{{ integrante.nombre }}</strong>: {{ integrante.rol }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 import json
 from django.http import HttpResponse
-from .forms import PuntoFijoForm, SplineInputForm
+from .forms import PuntoFijoForm, SplineInputForm, RegistroUsuarioForm, EditarPerfilForm
 from .models import SplineHistory, PuntoFijoHistorial
 from .utils import parse_points, natural_cubic_spline
 import numexpr as ne
@@ -9,6 +9,8 @@ from reportlab.pdfgen import canvas
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .user_profile import UserProfile
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 
 @login_required
 def punto_fijo_view(request):
@@ -539,3 +541,48 @@ def comprar_premium(request):
         profile.is_premium = True
         profile.save()
     return redirect('tienda')
+
+def registro_usuario(request):
+    if request.method == 'POST':
+        form = RegistroUsuarioForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('index')
+    else:
+        form = RegistroUsuarioForm()
+    return render(request, 'paginas/registro_usuario.html', {'form': form})
+
+@login_required
+def perfil_usuario(request):
+    profile = request.user.userprofile
+    # Si algún campo obligatorio está vacío, redirigir a editar perfil
+    if not profile.nombre_completo or not profile.carrera or not profile.carnet or not profile.ciclo:
+        return redirect('editar_perfil')
+    return render(request, 'paginas/perfil_usuario.html', {'profile': profile})
+
+@login_required
+def editar_perfil(request):
+    profile = request.user.userprofile
+    if request.method == 'POST':
+        form = EditarPerfilForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('perfil_usuario')
+    else:
+        form = EditarPerfilForm(instance=profile)
+    return render(request, 'paginas/editar_perfil.html', {'form': form})
+
+def creditos(request):
+    integrantes = [
+        {
+            'nombre': 'Nombre 1',
+            'rol': 'Diseño de interfaz, backend, métodos',
+        },
+        {
+            'nombre': 'Nombre 2',
+            'rol': 'Base de datos, seguridad, pruebas',
+        },
+        # Agrega más integrantes y roles aquí
+    ]
+    return render(request, 'paginas/creditos.html', {'integrantes': integrantes})

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block contenido  %}
+<h2>Mi Perfil</h2>
+<img src="{{ profile.get_foto_url }}" alt="Foto de perfil" width="120" height="120" style="border-radius:50px;">
+<ul>
+    <li><strong>Usuario:</strong> {{ profile.user.username }}</li>
+    <li><strong>Nombre completo:</strong> {{ profile.nombre_completo }}</li>
+    <li><strong>Email:</strong> {{ profile.user.email }}</li>
+    <li><strong>Carrera:</strong> {{ profile.carrera }}</li>
+    <li><strong>Carnet:</strong> {{ profile.carnet }}</li>
+    <li><strong>Ciclo:</strong> {{ profile.ciclo }}</li>
+</ul>
+<a href="{% url 'editar_perfil' %}">Editar perfil</a>
+{% endblock %}

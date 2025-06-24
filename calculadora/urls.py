@@ -31,4 +31,9 @@ urlpatterns = [
 
     path('comprar_premium/', views.comprar_premium, name='comprar_premium'),
 
+    path('registro_usuario/', views.registro_usuario, name='registro_usuario'),
+    path('perfil/', views.perfil_usuario, name='perfil_usuario'),
+    path('editar_perfil/', views.editar_perfil, name='editar_perfil'),
+    path('creditos/', views.creditos, name='creditos'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
