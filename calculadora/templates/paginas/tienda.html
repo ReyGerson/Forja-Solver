@@ -1,24 +1,198 @@
-{% extends "base.html" %}
 
-{% load static %}
-
-{% block nombre %} Tienda {% endblock %}
-
-{% block contenido %}
-<a class="" href="{% url 'index' %}">Inicio</a>
-        <div class="card-header">Modo Premiun</div>
-        <div class="card-body">
-            <h5 class="card-title">Comprar modo premiun?</h5>
-            <p class="card-text">
-                Con el modo premiun podra ver todos los procesos de los modelos matetmaticos.
-            </p>
-            {% if user.is_authenticated and user.userprofile.is_premium %}
-                <div class="alert alert-success">¡Ya tienes modo premium!</div>
-            {% else %}
-                <form method="post" action="{% url 'comprar_premium' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-warning">Comprar!</button>
-                </form>
-            {% endif %}
+<div class="premium-container">
+    <div class="premium-card">
+        <div class="premium-header">
+            <h2>Forja Solver Premium</h2>
+            <p>Desbloquea todo el potencial de nuestros modelos matemáticos</p>
         </div>
-{% endblock %}
+        
+        <div class="premium-features">
+            <div class="feature">
+                <span class="feature-icon">✓</span>
+                <span>Procesos matemáticos completos</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">✓</span>
+                <span>Visualización paso a paso</span>
+            </div>
+        </div>
+
+        {% if user.is_authenticated and user.userprofile.is_premium %}
+        <div class="premium-active">
+            <p>¡Ya disfrutas de Forja Solver Premium!</p>
+            <a href="{% url 'index' %}" class="btn-primary">Volver al inicio</a>
+        </div>
+        {% else %}
+        <div class="premium-actions">
+            <div class="price">
+                <span class="amount">$2.99</span>
+                <span class="period">/mes</span>
+            </div>
+            <form method="post" action="{% url 'comprar_premium' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-subscribe">Obtener Premium</button>
+            </form>
+            <a href="{% url 'index' %}" class="btn-back">Volver al inicio</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .premium-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .premium-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 1px solid #eaeaea;
+    }
+
+    .premium-header {
+        padding: 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #4B848A, #3a6d73);
+        color: white;
+    }
+
+    .premium-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+    }
+
+    .premium-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+    }
+
+    .premium-features {
+        padding: 1.5rem 2rem;
+    }
+
+    .feature {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .feature:last-child {
+        border-bottom: none;
+    }
+
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: #4B848A;
+        color: white;
+        border-radius: 50%;
+        margin-right: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .premium-active {
+        padding: 1.5rem 2rem;
+        text-align: center;
+    }
+
+    .premium-active p {
+        margin-bottom: 1.5rem;
+        color: #4B848A;
+        font-weight: 500;
+    }
+
+    .premium-actions {
+        padding: 1.5rem 2rem;
+        text-align: center;
+    }
+
+    .price {
+        margin-bottom: 1.5rem;
+    }
+
+    .amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #4B848A;
+    }
+
+    .period {
+        font-size: 1rem;
+        color: #666;
+    }
+
+    .btn-subscribe {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        background: #4B848A;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+    }
+
+    .btn-subscribe:hover {
+        background: #3a6d73;
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        background: #4B848A;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: #3a6d73;
+    }
+
+    .btn-back {
+        display: inline-block;
+        color: #4B848A;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .premium-header {
+            padding: 1.5rem;
+        }
+        
+        .premium-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .premium-features, 
+        .premium-active, 
+        .premium-actions {
+            padding: 1.5rem;
+        }
+        
+        .amount {
+            font-size: 2rem;
+        }
+    }
+</style>

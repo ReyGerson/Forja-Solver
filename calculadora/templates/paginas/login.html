@@ -1,50 +1,200 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>solver</title>
+    <title>Forja Solver - Login</title>
+    <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
 
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/css/sci-fi.css">
-        <script src="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/js/retrosci-fi.js" defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js" defer></script>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            background-image: linear-gradient(135deg, rgba(220, 201, 169, 0.05) 0%, rgba(249, 242, 242, 1) 100%);
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--primary);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--info), var(--primary));
+        }
+        
+        .logo-container {
+            margin: 0 auto 1.8rem;
+            width: 140px;  
+            height: 140px;  
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--primary);
+            padding: 1.2rem;  
+        }
+        
+        .logo {
+            width: 100%;
+            height: auto;
+            max-height: 100px;  
+            object-fit: contain;
+        }
+        
+        h2 {
+            color: var(--info);
+            margin-bottom: 1.8rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.85rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--info);
+            color: white;
+            box-shadow: 0 4px 6px rgba(75, 132, 138, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a6d73;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(75, 132, 138, 0.25);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(75, 132, 138, 0.05);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 2rem;
+                border-radius: 14px;
+            }
+            
+            h2 {
+                font-size: 1.7rem;
+                margin-bottom: 1.6rem;
+            }
+            
+            .logo-container {
+                width: 130px;  
+                height: 130px;  
+                border-radius: 22px;
+                padding: 1.1rem;  
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.75rem;
+                border-radius: 12px;
+            }
+            
+            .btn {
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+            
+            .logo-container {
+                width: 120px;  
+                height: 120px; 
+                border-radius: 20px;
+                padding: 1rem;  
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar bg-secondary estilo-brillo border rounded border-white hover-neon p-1">
-        <div class="navbar-header">
-            <div class="navbar-brand">
-                <img src="/static/img/logo.png" alt="" style="width: 50px; height: 50px" />Forja Solver
-            </div>
-            <button class="navbar-toggle">
-                <div class="img-menu-white"></div>
-            </button>
+    <div class="login-container">
+        <div class="logo-container">
+            <img src="{% static 'img/logo2.png' %}" alt="Forja Solver Logo" class="logo">
         </div>
-        <div class="navbar-nav">
-            <a class="nav-item rounded-pill" href="#">Registrarse</a>
-            <a class="nav-item rounded-pill" href="#">Documentación</a>
-        </div>
-    </nav>
-
-    <div class="flex justify-center items-center min-h-screen mt-8 ">
-       <div class="p-6 w-full max-w-md bg-white rounded-lg shadow-xl dark:bg-gray-800 min-h-[500px] flex flex-col justify-center">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-5 flex justify-center">
-                Login
-            </h2>
-
-            <form class="space-y-7" method="post">
-                <a href="{% url 'inicio_sesion' %}"
-                    class="block text-center w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    Inicio de sesion
-                </a>
-                <a href="{% url 'registro' %}"
-                    class="block text-center w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    Registrarse
-                </a>
-            </form>
-         </div>
+        <h2>Bienvenido</h2>
+        <form method="post">
+            <a href="{% url 'inicio_sesion' %}" class="btn btn-primary">
+                Iniciar sesión
+            </a>
+            <a href="{% url 'registro' %}" class="btn btn-secondary">
+                Crear cuenta
+            </a>
+        </form>
     </div>
 </body>
 </html>

@@ -1,70 +1,176 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interpolación de Trazadores Cúbicos</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            max-width: 900px;
-            margin: auto;
-            padding: 20px;
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
         }
 
-        h1,
-        h2,
-        h3 {
-            color: #2c3e50;
-            border-bottom: 1px solid #eee;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--light);
+        }
+        
+        h1, h2, h3 {
+            color: var(--info);
+            border-bottom: 1px solid var(--primary);
             padding-bottom: 5px;
         }
-
+        
+        h1 {
+            font-size: 2rem;
+            border-bottom-width: 2px;
+        }
+        
+        section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--primary);
+        }
+        
         table {
-            border-collapse: collapse;
             width: 100%;
+            border-collapse: collapse;
             margin: 20px 0;
         }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
+        
+        th, td {
+            border: 1px solid var(--primary);
+            padding: 10px;
             text-align: center;
         }
-
+        
         th {
-            background-color: #f2f2f2;
+            background-color: var(--info);
+            color: white;
         }
-
+        
+        tr:nth-child(even) {
+            background-color: var(--light);
+        }
+        
+        tr:hover {
+            background-color: rgba(220, 201, 169, 0.3);
+        }
+        
         .formula {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-left: 3px solid #3498db;
-            margin: 10px 0;
+            background-color: var(--light);
+            padding: 15px;
+            border-left: 4px solid var(--warning);
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
             overflow-x: auto;
         }
-
+        
         .example {
-            background-color: #e8f4f8;
+            background-color: rgba(75, 132, 138, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--info);
+        }
+        
+        .result {
+            background-color: rgba(78, 104, 81, 0.2);
             padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
+            border-left: 4px solid var(--success);
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        ul, ol {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 5px;
+            transition: all 0.3s;
+        }
+        
+        a:hover {
+            color: var(--success);
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            section {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .formula, .example {
+                padding: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <a href="{% url 'index' %}">Inicio</a>
     <h1>Interpolación de Trazadores Cúbicos</h1>
+    
     <section>
         <h2>Objetivo del método</h2>
-        <p>Construir una función que interpole un conjunto de puntos dados, asegurando que sea continua en la función,
-            primera y segunda derivada en cada punto.</p>
+        <p>Construir una función que interpole un conjunto de puntos dados, asegurando que sea continua en la función, primera y segunda derivada en cada punto.</p>
     </section>
 
     <section>
@@ -75,7 +181,7 @@
                 <p>Conjunto de \( n + 1 \) puntos ordenados:</p>
                 <div class="formula">
                     \[ (x_0, y_0), (x_1, y_1), \ldots, (x_n, y_n) \quad \text{con} \quad x_0 < x_1 < \ldots < x_n \]
-                        </div>
+                </div>
             </li>
             <li>
                 <strong>Calcular longitudes de subintervalos:</strong>
@@ -86,8 +192,7 @@
             <li>
                 <strong>Sistema de ecuaciones para \( M_i \):</strong>
                 <div class="formula">
-                    \[ \frac{h_{i-1}}{6}M_{i-1} + \frac{h_{i-1} + h_i}{3}M_i + \frac{h_i}{6}M_{i+1} = \frac{y_{i+1} -
-                    y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}} \]
+                    \[ \frac{h_{i-1}}{6}M_{i-1} + \frac{h_{i-1} + h_i}{3}M_i + \frac{h_i}{6}M_{i+1} = \frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}} \]
                 </div>
                 <p>Condición natural: \( M_0 = M_n = 0 \).</p>
             </li>
@@ -97,9 +202,7 @@
             <li>
                 <strong>Fórmula del trazador cúbico \( S_i(x) \):</strong>
                 <div class="formula">
-                    \[ S_i(x) = \frac{M_{i+1}}{6h_i}(x - x_i)^3 + \frac{M_i}{6h_i}(x_{i+1} - x)^3 + \left(
-                    \frac{y_{i+1}}{h_i} - \frac{M_{i+1}h_i}{6} \right)(x - x_i) + \left( \frac{y_i}{h_i} - \frac{M_i
-                    h_i}{6} \right)(x_{i+1} - x) \]
+                    \[ S_i(x) = \frac{M_{i+1}}{6h_i}(x - x_i)^3 + \frac{M_i}{6h_i}(x_{i+1} - x)^3 + \left( \frac{y_{i+1}}{h_i} - \frac{M_{i+1}h_i}{6} \right)(x - x_i) + \left( \frac{y_i}{h_i} - \frac{M_i h_i}{6} \right)(x_{i+1} - x) \]
                 </div>
             </li>
         </ol>
@@ -138,13 +241,11 @@
             </table>
             <p>Subintervalos: \( h_0 = h_1 = h_2 = 1 \).</p>
 
-            <h3>Paso 2: Contruir el sistema para las segundas derivadas \( M_i \)</h3>
+            <h3>Paso 2: Construir el sistema para las segundas derivadas \( M_i \)</h3>
             <div class="formula">
                 <p>La fórmula general para construir el sistema tridiagonal es:</p>
                 \[
-                \frac{h_{i-1}}{6}M_{i-1} + \frac{h_{i-1} + h_i}{3}M_i + \frac{h_i}{6}M_{i+1} = \frac{y_{i+1} - y_i}{h_i}
-                - \frac{y_i
-                - y_{i-1}}{h_{i-1}}
+                \frac{h_{i-1}}{6}M_{i-1} + \frac{h_{i-1} + h_i}{3}M_i + \frac{h_i}{6}M_{i+1} = \frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}
                 \]
             </div>
             <div class="formula">
@@ -157,8 +258,7 @@
                 \[ \frac{2}{3}M_1 + \frac{1}{6}M_2 = 2 \]
                 <p>Para \( i = 2 \):</p>
                 \[
-                \frac{1}{6} M_1 + \frac{2}{3} M_2 + \frac{1}{6} M_3 = \frac{8 - 11}{1} - \frac{11 - 5}{1} = (-3) - 6 =
-                -9
+                \frac{1}{6} M_1 + \frac{2}{3} M_2 + \frac{1}{6} M_3 = \frac{8 - 11}{1} - \frac{11 - 5}{1} = (-3) - 6 = -9
                 \]
                 \[ \frac{1}{6}M_1 + \frac{2}{3}M_2 = -9 \]
             </div>
@@ -205,8 +305,7 @@
             <div class="formula">
                 <p>Fórmula del trazador cúbico para el intervalo [x₀, x₁]:</p>
                 \[
-                S_0(x) = \frac{M_1}{6h_0}(x - x_0)^3 + \frac{M_0}{6h_0}(x_1 - x)^3 + \left( \frac{y_1}{h_0} - \frac{M_1
-                h_0}{6} \right)(x - x_0) + \left( \frac{y_0}{h_0} - \frac{M_0 h_0}{6} \right)(x_1 - x)
+                S_0(x) = \frac{M_1}{6h_0}(x - x_0)^3 + \frac{M_0}{6h_0}(x_1 - x)^3 + \left( \frac{y_1}{h_0} - \frac{M_1 h_0}{6} \right)(x - x_0) + \left( \frac{y_0}{h_0} - \frac{M_0 h_0}{6} \right)(x_1 - x)
                 \]
             </div>
 
@@ -241,8 +340,7 @@
 
             <div class="result">
                 <h4>RESULTADO FINAL</h4>
-                <p>El valor interpolado en \( x = 1.5 \) usando trazadores cúbicos naturales es: <strong>2.5750</strong>
-                </p>
+                <p>El valor interpolado en \( x = 1.5 \) usando trazadores cúbicos naturales es: <strong>2.5750</strong></p>
             </div>
         </div>
     </section>
@@ -261,7 +359,7 @@
         <ul>
             <li>Requiere resolver un sistema de ecuaciones lineales.</li>
             <li>No tiene una expresión única global como un polinomio de Lagrange.</li>
-            <li>Para tareas pequeñas o cálculos a mano, los trazadores cúbicos son menos prácticos que otros métodos de interpolación directa. </li>
+            <li>Para tareas pequeñas o cálculos a mano, los trazadores cúbicos son menos prácticos que otros métodos de interpolación directa.</li>
             <li>Si solo tienes 2 o 3 puntos, aplicar un trazador cúbico puede ser innecesariamente complejo.</li>
         </ul>
     </section>
@@ -275,5 +373,4 @@
         </ul>
     </section>
 </body>
-
 </html>

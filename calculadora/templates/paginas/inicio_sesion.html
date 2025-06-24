@@ -1,67 +1,244 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>solver</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forja Solver - Login</title>
+    <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
 
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/css/sci-fi.css">
-        <script src="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/js/retrosci-fi.js" defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js" defer></script>
-    </head>
-<body >
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-  <!-- Barra superior -->
-  <nav class="navbar bg-secondary estilo-brillo border rounded border-white hover-neon p-3 w-full flex justify-between items-center">
-    <div class="flex items-center gap-2">
-      <img src="{% static 'img/logo.png' %}" alt="Logo" style="width: 50px; height: 50px" />
-      <span class="text-white font-bold">Forja Solver</span>
-    </div>
-    <div class="flex gap-4">
-      <a class="nav-item rounded-pill text-white hover:text-cyan-300" href="#">Registrarse</a>
-      <a class="nav-item rounded-pill text-white hover:text-cyan-300" href="#">Documentación</a>
-    </div>
-  </nav>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            background-image: radial-gradient(circle at 10% 20%, rgba(220, 201, 169, 0.1) 0%, rgba(220, 201, 169, 0.05) 90%);
+        }
 
-  <!-- Contenedor centrado -->
-  <div class="flex justify-center items-center min-h-screen mt-8 ">
-    <div class="p-6 w-full max-w-md bg-white rounded-lg shadow-xl dark:bg-gray-800 min-h-[500px] flex flex-col justify-center">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-5 flex justify-center">
-        Iniciar sesión
-      </h2>
-       <p class="text-blue-900">{{error}}</p>
-      <form class="space-y-5" method="post">
-         {% csrf_token %} 
-            <div>
-                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ingrese su usuario</label>
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--primary);
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        h2 {
+            color: var(--info);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .welcome-emoji {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            background-color: var(--light);
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .form-input:hover {
+            border-color: var(--info);
+        }
+
+        .form-input:focus {
+            border-color: var(--info);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(75, 132, 138, 0.2);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--info);
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a6d73;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--info);
+            border: 1px solid var(--info);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(75, 132, 138, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .text-link {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .text-link:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: var(--danger);
+            background-color: rgba(231, 1, 3, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 1.75rem;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+            }
+            
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+                border-radius: 10px;
+            }
+            
+            .logo {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .form-input, .btn {
+                padding: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>
+            <span class="welcome-emoji">🔒</span> Iniciar sesión
+        </h2>
+        
+        {% if error %}
+        <div class="error-message">
+            {{error}}
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
                 <input type="text" name="username" id="username"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                        placeholder="juli chava" required />
+                       class="form-input"
+                       placeholder="Ingresa tu usuario" required />
             </div>
 
-            <div>
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
                 <input type="password" name="password" id="password"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                        placeholder="••••••••" required />
+                       class="form-input"
+                       placeholder="••••••••" required />
             </div>
-            <button type="submit"
-                    class="w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            Iniciar sesión
+            
+            <button type="submit" class="btn btn-primary">
+                Iniciar sesión
             </button>
-             <a href="{% url 'login' %}"
-                    class="mb-4 inline-block text-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full">
-                    cancelar
+            
+            <a href="{% url 'login' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            
+            <p class="text-sm" style="color: var(--secondary);">
+                ¿No tienes una cuenta? 
+                <a href="{% url 'registro' %}" class="text-link">
+                    Regístrate aquí
                 </a>
-            <p class="text-sm text-gray-500 dark:text-gray-300">
-            ¿No tienes una cuenta? <a href="{% url 'registro' %}" class="text-blue-600 hover:underline dark:text-blue-500">Regístrate</a>
             </p>
-      </form>
+        </form>
     </div>
-  </div>
-
 </body>
 </html>

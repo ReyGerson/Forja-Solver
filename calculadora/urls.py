@@ -11,6 +11,8 @@ urlpatterns = [
     path('tienda/', views.tienda, name='tienda'),
     path('historial/', views.historial_view, name='historial'),
     path('punto/historial/', views.historial_punto_fijo, name='historialPuntoFijo'),
+    path('documentacionTrazador/',views.documentacion_trazadores, name='documentacionTrazador' ),
+    path('documentacionPuntoFijo/',views.documentacion_punto, name='documentacionPuntoFijo'),
     
 
 

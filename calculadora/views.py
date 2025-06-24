@@ -441,6 +441,12 @@ def tienda(request):
             is_premium = False
     return render(request,'paginas/tienda.html', {'is_premium': is_premium})
 
+def documentacion_trazadores(request):
+    return render(request, 'trazador_cubico/documentacion_trazador.html')
+
+def documentacion_punto(request):
+    return render(request, 'punto_fijo/documentacion_puntoFijo.html')
+
 @login_required
 def comprar_premium(request):
     profile = UserProfile.objects.get(user=request.user)
