@@ -26,3 +26,4 @@ Thumbs.db
 # Archivos de VSCode o IDEs
 .vscode/
 .idea/
+*.pyc
