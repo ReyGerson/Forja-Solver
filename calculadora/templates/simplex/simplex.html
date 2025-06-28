@@ -1,0 +1,225 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método Simplex - Forja Solver</title>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h3, h4 {
+            color: #1f1f2e;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .resultado-section {
+            margin-top: 30px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #1f1f2e, #1A1A1A);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Método Simplex</h1>
+        
+        <div class="form-section">
+            <form method="post" action="{% url 'simplex' %}">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 20px;">
+                    <label><strong>Función objetivo (Z):</strong></label><br>
+                    <strong>Maximizar Z = </strong>
+                    <math-field id="campoFuncionObjetivo" style="display: inline-block; width: 400px;" placeholder="20x_1 + 40x_2"></math-field>
+                    <input type="hidden" name="funcion_objetivo" id="funcion_objetivo_hidden">
+                </div>
+
+                <div id="restricciones" style="margin-bottom: 20px;">
+                    <label><strong>Sujeto a:</strong></label><br>
+                    <button type="button" id="agregarRestricciones">Agregar Restricción</button>
+                    <button type="button" id="quitarRestricciones">Quitar Restricción</button>
+                    <ul id="listaRestricciones" style="list-style: none; padding: 0; margin: 10px 0;"></ul>
+                    <div style="margin-top: 10px;">
+                        <math-field id="restriccionNecesaria" read-only>x_{1}, x_{2} \geq 0</math-field>
+                    </div>
+                    <input type="hidden" name="restricciones" id="restricciones_hidden">
+                </div>
+
+                <button type="submit" style="font-size: 16px; padding: 12px 30px;">Resolver</button>
+            </form>
+        </div>
+
+        {% if tiene_solucion and resultado %}
+        <div class="resultado-section">
+            <hr style="border: 1px solid #ddd; margin: 30px 0;">
+            
+            <h3>📋 Modelo Matemático Original:</h3>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p><strong>Función objetivo:</strong></p>
+                <div style="text-align: center; margin: 10px 0;">
+                    <math-field read-only>{{ resultado.modelo_matematico.funcion_objetivo }}</math-field>
+                </div>
+
+                <p><strong>Restricciones:</strong></p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    {% for restriccion in resultado.modelo_matematico.restricciones %}
+                    <li style="margin: 5px 0; text-align: center;">
+                        <math-field read-only>{{ restriccion }}</math-field>
+                    </li>
+                    {% endfor %}
+                    <li style="margin: 5px 0; text-align: center;">
+                        <math-field read-only>x_1, x_2, \ldots \geq 0</math-field>
+                    </li>
+                </ul>
+            </div>
+            
+            <h3>⚖️ Función Objetivo en Forma Estándar:</h3>
+            <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p><strong>Función Z igualada a cero:</strong></p>
+                <div style="text-align: center; margin: 10px 0;">
+                    <math-field read-only>{{ resultado.modelo_matematico.funcion_z_estandar }}</math-field>
+                </div>
+            </div>
+            
+            <h3>🔧 Modelo con Variables de Holgura:</h3>
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <ul style="list-style-type: none; padding-left: 0;">
+                    {% for restriccion in resultado.modelo_holgura %}
+                    <li style="margin: 8px 0; text-align: center;">
+                        <math-field read-only>{{ restriccion }}</math-field>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <h3>📊 Tabla Inicial del Método Simplex:</h3>
+            <div class="tabla-wrapper">
+                {{ resultado.tabla_inicial|safe }}
+            </div>
+            
+            <h3>🔄 Iteraciones del Algoritmo:</h3>
+            <div class="iteraciones-container">
+                {% for iteracion in resultado.iteraciones %}
+                <div class="iteracion" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                    {{ iteracion.tabla_html|safe }}
+                    
+                    {% if not iteracion.es_optima %}
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <p><strong>🎯 Variable que entra:</strong> {{ iteracion.variable_entra }}</p>
+                        <p><strong>🔄 Variable que sale:</strong> {{ iteracion.variable_sale }}</p>
+                        <p><strong>⚡ Elemento pivote:</strong> {{ iteracion.elemento_pivote }}</p>
+                    </div>
+                    
+                    <h5>📝 Operaciones realizadas:</h5>
+                    {% for operacion in iteracion.operaciones %}
+                        {% if operacion.tipo == 'normalizacion' %}
+                        <div style="background: #f0f8ff; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            <strong>Normalización de {{ operacion.fila }}:</strong>
+                            <ul style="margin: 5px 0;">
+                                {% for detalle in operacion.detalles %}
+                                <li>{{ detalle.variable }}: {{ detalle.operacion }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% elif operacion.tipo == 'actualizacion' %}
+                        <div style="background: #fff5f5; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            <strong>Actualización de {{ operacion.fila }} (factor: {{ operacion.factor }}):</strong>
+                            <ul style="margin: 5px 0;">
+                                {% for detalle in operacion.detalles %}
+                                <li>{{ detalle.variable }}: {{ detalle.operacion }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <div style="background: #d4edda; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <h4>🎉 ¡Solución Óptima Encontrada!</h4>
+                        <p>Todos los coeficientes en la fila Z son no negativos.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <h3>🏆 Solución Óptima:</h3>
+            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    {% for variable, valor in resultado.solucion_optima.items %}
+                    <div style="background: white; padding: 10px; border-radius: 5px; text-align: center;">
+                        <strong>{{ variable }} = {{ valor|floatformat:2 }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="text-align: center; font-size: 18px; font-weight: bold; color: #155724;">
+                    <strong>Valor máximo de Z = {{ resultado.valor_z|floatformat:2 }}</strong>
+                </div>
+            </div>
+            
+            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <h4>ℹ️ Interpretación de los Resultados:</h4>
+                <ul>
+                    <li><strong>Variables de decisión:</strong> Los valores óptimos de las variables originales del problema</li>
+                    <li><strong>Variables de holgura:</strong> Representan los recursos no utilizados en cada restricción</li>
+                    <li><strong>Valor de Z:</strong> El valor máximo alcanzado por la función objetivo</li>
+                    <li><strong>Iteraciones:</strong> Cada paso del algoritmo muestra cómo se mejora la solución</li>
+                </ul>
+            </div>
+        </div>
+        
+        {% elif error %}
+        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <h4>❌ Error:</h4>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
+    <script src='{% static "js/simplex.js" %}'></script>
+
+</body>
+
+</html>

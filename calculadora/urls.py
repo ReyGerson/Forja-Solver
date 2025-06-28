@@ -13,6 +13,7 @@ urlpatterns = [
     path('punto/historial/', views.historial_punto_fijo, name='historialPuntoFijo'),
     path('documentacionTrazador/',views.documentacion_trazadores, name='documentacionTrazador' ),
     path('documentacionPuntoFijo/',views.documentacion_punto, name='documentacionPuntoFijo'),
+    path('simplex/',views.simplex, name='simplex'),
     
 
 

@@ -15,6 +15,10 @@ from django.shortcuts import get_object_or_404
 from .user_profile import UserProfile
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+import re
+from typing import List, Tuple
+import pandas as pd
+import pandas as pd
 
 @login_required
 def punto_fijo_view(request):
@@ -618,3 +622,332 @@ def creditos(request):
         # Agrega más integrantes y roles aquí
     ]
     return render(request, 'paginas/creditos.html', {'integrantes': integrantes})
+
+# ==================== MÉTODO SIMPLEX ====================
+
+# Variable global para definir decimales en el simplex
+decimal_places = 2
+
+def format_value(value: float) -> str:
+    """Formatea un valor flotante con el número de decimales especificado"""
+    return f"{value:.{decimal_places}f}"
+
+def parse_latex_to_numbers(funcion_latex, restricciones_latex):
+    """
+    Convierte las expresiones LaTeX de MathLive a listas numéricas
+    """
+    try:
+        # Parsear función objetivo
+        # Ejemplo: "20x_1 + 40x_2" -> [20, 40]
+        objetivo = []
+        
+        # Limpiar la expresión y extraer coeficientes
+        funcion_clean = funcion_latex.replace('\\cdot', '*').replace(' ', '')
+        
+        # Buscar patrones como 20x_1, -15x_2, etc.
+        import re
+        patron_coef = r'([+-]?\d*)\*?x_\{?(\d+)\}?'
+        matches = re.findall(patron_coef, funcion_clean)
+        
+        # Crear diccionario con coeficientes
+        coef_dict = {}
+        for coef_str, var_num in matches:
+            if coef_str in ['', '+']:
+                coef = 1
+            elif coef_str == '-':
+                coef = -1
+            else:
+                coef = int(coef_str)
+            coef_dict[int(var_num)] = coef
+        
+        # Crear lista ordenada de coeficientes
+        max_var = max(coef_dict.keys()) if coef_dict else 1
+        objetivo = [coef_dict.get(i+1, 0) for i in range(max_var)]
+        
+        # Parsear restricciones
+        # Ejemplo: ["2x_1 + 3x_2 \\leq 110", "4x_1 + x_2 \\leq 130"]
+        restricciones = []
+        
+        for restriccion in restricciones_latex:
+            # Separar lado izquierdo del derecho
+            if '\\leq' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\leq')
+            elif '\\le' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\le')
+            elif '≤' in restriccion:
+                lado_izq, lado_der = restriccion.split('≤')
+            else:
+                continue
+            
+            # Limpiar y parsear lado izquierdo
+            lado_izq = lado_izq.replace('\\cdot', '*').replace(' ', '')
+            lado_der = lado_der.strip()
+            
+            # Extraer coeficientes del lado izquierdo
+            matches_rest = re.findall(patron_coef, lado_izq)
+            coef_rest_dict = {}
+            
+            for coef_str, var_num in matches_rest:
+                if coef_str in ['', '+']:
+                    coef = 1
+                elif coef_str == '-':
+                    coef = -1
+                else:
+                    coef = int(coef_str)
+                coef_rest_dict[int(var_num)] = coef
+            
+            # Crear fila de restricción [coef_x1, coef_x2, ..., b]
+            fila_restriccion = [coef_rest_dict.get(i+1, 0) for i in range(max_var)]
+            
+            # Agregar término independiente (lado derecho)
+            try:
+                rhs = float(lado_der)
+                fila_restriccion.append(rhs)
+                restricciones.append(fila_restriccion)
+            except ValueError:
+                continue
+        
+        return objetivo, restricciones
+        
+    except Exception as e:
+        print(f"Error en parsing: {e}")
+        # Valores por defecto en caso de error
+        return [20, 40], [[2, 3, 110], [4, 1, 130]]
+
+def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> Tuple[List[List[float]], List[str]]:
+    """Prepara la tabla inicial del método simplex"""
+    num_vars = len(obj)
+    num_constraints = len(constraints)
+
+    matrix = []
+    for i, row in enumerate(constraints):
+        vars_part = row[:-1]
+        rhs = row[-1]
+        slack = [0] * num_constraints
+        slack[i] = 1
+        matrix.append(vars_part + slack + [rhs])
+
+    z_row = [-c for c in obj] + [0] * (num_constraints + 1)
+    matrix.append(z_row)
+
+    var_names = [f"x{i+1}" for i in range(num_vars)]
+    return matrix, var_names
+
+def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]]) -> dict:
+    """
+    Genera la solución completa del método simplex adaptada para Django
+    """
+    num_constraints = len(matrix) - 1
+    num_vars = len(var_names)
+
+    slack_vars = [f"s{i+1}" for i in range(num_constraints)]
+    all_vars = var_names + slack_vars + ["B"] 
+    table = pd.DataFrame(matrix, columns=all_vars)
+
+    basis = slack_vars.copy()
+    
+    # Datos para el template
+    resultado = {
+        'obj_original': obj,
+        'constraints_original': constraints,
+        'var_names': var_names,
+        'slack_vars': slack_vars,
+        'iteraciones': [],
+        'solucion_optima': {},
+        'valor_z': 0,
+        'tabla_inicial': None,
+        'modelo_matematico': None,
+        'modelo_holgura': None
+    }
+    
+    # Modelo matemático original
+    obj_expr = " + ".join(f"{format_value(c)}x_{{{i+1}}}" for i, c in enumerate(obj))
+    constraints_expr = []
+    for i, row in enumerate(constraints):
+        lhs = " + ".join(f"{format_value(val)}x_{{{j+1}}}" for j, val in enumerate(row[:-1]) if val != 0)
+        rhs = format_value(row[-1])
+        constraints_expr.append(f"{lhs} \\leq {rhs}")
+    
+    # Función Z igualada a 0 (forma estándar)
+    funcion_z_estandar = f"Z - ({obj_expr}) = 0"
+    
+    resultado['modelo_matematico'] = {
+        'funcion_objetivo': f"\\text{{Maximizar }} Z = {obj_expr}",
+        'funcion_z_estandar': funcion_z_estandar,
+        'restricciones': constraints_expr
+    }
+    
+    # Modelo con variables de holgura
+    transformed_expr = []
+    for i, row in enumerate(constraints):
+        lhs = " + ".join(f"{format_value(val)}x_{{{j+1}}}" for j, val in enumerate(row[:-1]) if val != 0)
+        lhs += f" + s_{{{i+1}}}"
+        rhs = format_value(row[-1])
+        transformed_expr.append(f"{lhs} = {rhs}")
+    
+    resultado['modelo_holgura'] = transformed_expr
+    
+    # Tabla inicial
+    tabla_inicial_html = generar_tabla_html(table, basis, 0)
+    resultado['tabla_inicial'] = tabla_inicial_html
+
+    # Iteraciones del algoritmo simplex
+    iteration = 0
+    while True:
+        # Crear datos de la iteración actual
+        iteracion_data = {
+            'numero': iteration,
+            'tabla_html': generar_tabla_html(table, basis, iteration),
+            'es_optima': False,
+            'variable_entra': None,
+            'variable_sale': None,
+            'elemento_pivote': None,
+            'operaciones': []
+        }
+        
+        # Verificar si es solución óptima
+        last_row = table.iloc[-1, :-1]
+        pivot_col_name = last_row.idxmin()
+        
+        if table.at[len(table) - 1, pivot_col_name] >= 0:
+            iteracion_data['es_optima'] = True
+            resultado['iteraciones'].append(iteracion_data)
+            break
+
+        # Encontrar variable que entra y sale
+        ratios = []
+        for i in range(len(table) - 1):
+            col_val = table.at[i, pivot_col_name]
+            if col_val > 0:
+                ratios.append(table.at[i, "B"] / col_val) 
+            else:
+                ratios.append(float('inf'))
+
+        pivot_row = ratios.index(min(ratios))
+        pivot_element = table.at[pivot_row, pivot_col_name]
+
+        entering = pivot_col_name
+        leaving = basis[pivot_row]
+        
+        iteracion_data['variable_entra'] = entering
+        iteracion_data['variable_sale'] = leaving
+        iteracion_data['elemento_pivote'] = format_value(pivot_element)
+        
+        # Normalización de fila pivote
+        operacion_pivote = []
+        new_pivot_row = []
+        for col in table.columns:
+            original_val = table.at[pivot_row, col]
+            new_val = original_val / pivot_element
+            new_pivot_row.append(new_val)
+            operacion_pivote.append({
+                'variable': col,
+                'operacion': f"{format_value(original_val)} ÷ {format_value(pivot_element)} = {format_value(new_val)}"
+            })
+        table.iloc[pivot_row] = new_pivot_row
+        
+        iteracion_data['operaciones'].append({
+            'tipo': 'normalizacion',
+            'fila': f"F{pivot_row+1}",
+            'detalles': operacion_pivote
+        })
+        
+        # Actualización de otras filas
+        for i in range(len(table)):
+            if i != pivot_row:
+                factor = table.at[i, pivot_col_name]
+                if factor != 0:
+                    operacion_fila = []
+                    original_row = table.iloc[i].copy()
+                    new_row = []
+                    for col in table.columns:
+                        old_val = original_row[col]
+                        pivot_val = table.at[pivot_row, col]
+                        result = old_val - factor * pivot_val
+                        new_row.append(result)
+                        operacion_fila.append({
+                            'variable': col,
+                            'operacion': f"{format_value(old_val)} - ({format_value(factor)} × {format_value(pivot_val)}) = {format_value(result)}"
+                        })
+                    table.iloc[i] = new_row
+                    
+                    iteracion_data['operaciones'].append({
+                        'tipo': 'actualizacion',
+                        'fila': f"F{i+1}",
+                        'factor': format_value(factor),
+                        'detalles': operacion_fila
+                    })
+
+        basis[pivot_row] = entering
+        resultado['iteraciones'].append(iteracion_data)
+        iteration += 1
+
+    # Solución óptima
+    solution = {var: 0.0 for var in var_names}
+    for i, var in enumerate(basis):
+        if var in solution:
+            solution[var] = table.at[i, "B"]  
+
+    resultado['solucion_optima'] = solution
+    resultado['valor_z'] = table.at[len(table) - 1, "B"] 
+    
+    return resultado
+
+def generar_tabla_html(table, basis, iteration_num):
+    """Genera HTML para una tabla del simplex"""
+    html = f'<div class="tabla-iteracion">'
+    html += f'<h4>Iteración {iteration_num}</h4>'
+    html += '<table class="simplex-table">'
+    html += '<thead><tr><th>Base</th>'
+    
+    for col in table.columns:
+        html += f'<th>{col}</th>'
+    html += '</tr></thead><tbody>'
+
+    for i in range(len(table)):
+        html += '<tr>'
+        base_name = basis[i] if i < len(basis) else 'Z'
+        html += f'<td><strong>{base_name}</strong></td>'
+        
+        for col in table.columns:
+            val = table.at[i, col]
+            html += f'<td>{format_value(val)}</td>'
+        html += '</tr>'
+    html += '</tbody></table></div>'
+    
+    return html
+
+def simplex(request):
+    """Vista principal del método simplex"""
+    if request.method == "POST":
+        try:
+            # Obtener datos del formulario
+            funcion_objetivo = request.POST.get("funcion_objetivo", "")
+            restricciones_raw = request.POST.get("restricciones", "[]")
+            
+            # Parsear las restricciones JSON
+            restricciones = json.loads(restricciones_raw)
+            
+            # Convertir de LaTeX a números
+            objetivo, constraints = parse_latex_to_numbers(funcion_objetivo, restricciones)
+            
+            # Preparar tabla inicial
+            matrix, var_names = prepare_initial_table(objetivo, constraints)
+            
+            # Resolver el problema simplex
+            resultado = generate_simplex_solution(matrix, var_names, objetivo, constraints)
+            
+            return render(request, 'simplex/simplex.html', {
+                'funcion_objetivo': funcion_objetivo,
+                'restricciones': restricciones,
+                'resultado': resultado,
+                'tiene_solucion': True
+            })
+            
+        except Exception as e:
+            print(f"Error en simplex: {e}")
+            return render(request, 'simplex/simplex.html', {
+                'error': f"Error al procesar los datos: {str(e)}"
+            })
+
+    return render(request, 'simplex/simplex.html')
