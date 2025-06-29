@@ -542,11 +542,11 @@ def cerrar_sesion(request):
     """Cierra la sesión del usuario actual."""
     logout(request)
     return redirect('login') 
-
+@login_required
 def index(request):
     """Página principal de la aplicación."""
     return render(request,'paginas/index.html') 
-
+@login_required
 def tienda(request):
     """Página de compra de premium."""
     is_premium = False
@@ -556,11 +556,11 @@ def tienda(request):
         except Exception:
             is_premium = False
     return render(request,'paginas/tienda.html', {'is_premium': is_premium})
-
+@login_required
 def documentacion_trazadores(request):
     """Documentación del método de Trazador Cúbico."""
     return render(request, 'trazador_cubico/documentacion_trazador.html')
-
+@login_required
 def documentacion_punto(request):
     """Documentación del método de Punto Fijo."""
     return render(request, 'punto_fijo/documentacion_puntoFijo.html')
@@ -607,7 +607,7 @@ def editar_perfil(request):
     else:
         form = EditarPerfilForm(instance=profile)
     return render(request, 'paginas/editar_perfil.html', {'form': form})
-
+@login_required
 def creditos(request):
     """Muestra los créditos del proyecto y el equipo de desarrollo."""
     integrantes = [
@@ -627,11 +627,11 @@ def creditos(request):
 
 # Variable global para definir decimales en el simplex
 decimal_places = 2
-
+@login_required
 def format_value(value: float) -> str:
     """Formatea un valor flotante con el número de decimales especificado"""
     return f"{value:.{decimal_places}f}"
-
+@login_required
 def parse_latex_to_numbers(funcion_latex, restricciones_latex):
     """
     Convierte las expresiones LaTeX de MathLive a listas numéricas
@@ -733,7 +733,7 @@ def parse_latex_to_numbers(funcion_latex, restricciones_latex):
         print(f"Error en parsing: {e}")
         # Valores por defecto en caso de error
         return [20, 40], [[2, 3, 110], [4, 1, 130]]
-
+@login_required
 def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> Tuple[List[List[float]], List[str]]:
     """Prepara la tabla inicial del método simplex"""
     num_vars = len(obj)
@@ -767,7 +767,7 @@ def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> T
 
     var_names = [f"x{i+1}" for i in range(num_vars)]
     return matrix, var_names
-
+@login_required
 def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]], tipo_objetivo: str = "Maximizar") -> dict:
     """
     Genera la solución completa del método simplex adaptada para Django
@@ -950,7 +950,7 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
     resultado['tipo_objetivo'] = tipo_objetivo
     
     return resultado
-
+@login_required
 def generar_tabla_html(table, basis, iteration_num):
     """Genera HTML para una tabla del simplex"""
     html = f'<div class="tabla-iteracion">'
@@ -974,7 +974,7 @@ def generar_tabla_html(table, basis, iteration_num):
     html += '</tbody></table></div>'
     
     return html
-
+@login_required
 def validar_coherencia_objetivo_restricciones(tipo_objetivo, restricciones):
     """
     Valida que el tipo de objetivo sea coherente con las restricciones:
@@ -1008,7 +1008,7 @@ def validar_coherencia_objetivo_restricciones(tipo_objetivo, restricciones):
                    "3. Agregue variables de holgura y artificiales según corresponda")
     
     return None  # No hay errores
-
+@login_required
 def simplex(request):
     """Vista principal del método simplex"""
     if request.method == "POST":
