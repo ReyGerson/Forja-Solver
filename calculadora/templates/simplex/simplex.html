@@ -62,16 +62,43 @@
     </style>
 </head>
 <body>
+    <a class="" href="{% url 'index' %}">Inicio</a>
     <div class="container">
-        <h1>Método Simplex</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Método Simplex</h1>
+            {% if user.is_authenticated %}
+            <a href="{% url 'simplex_historial' %}" class="btn" style="background: #17a2b8;">📋 Ver Historial</a>
+            {% endif %}
+        </div>
         
         <div class="form-section">
             <form method="post" action="{% url 'simplex' %}">
                 {% csrf_token %}
                 
+                {% if precarga %}
+                <!-- Campos ocultos para precarga -->
+                <input type="hidden" id="precarga_tipo" value="{{ precarga.tipo_objetivo }}">
+                <input type="hidden" id="precarga_funcion" value="{{ precarga.funcion_objetivo }}">
+                <input type="hidden" id="precarga_restricciones" value="{{ precarga.restricciones_json }}">
+                {% endif %}
+                
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+                    <h4>⚠️ Limitaciones del Método Simplex Estándar</h4>
+                    <ul style="margin: 10px 0;">
+                        <li><strong>Maximización:</strong> Solo restricciones del tipo ≤ (menor o igual)</li>
+                        <li><strong>Minimización:</strong> Requiere métodos avanzados (Gran M o Dos Fases)</li>
+                        <li><strong>Valores Bj:</strong> Deben ser no negativos</li>
+                    </ul>
+                    <p style="margin: 10px 0; font-weight: bold;">💡 Si su problema no cumple estas condiciones, use el Método de la Gran M.</p>
+                </div>
+                
                 <div style="margin-bottom: 20px;">
                     <label><strong>Función objetivo (Z):</strong></label><br>
-                    <strong>Maximizar Z = </strong>
+                    <select name="tipo_objetivo" id="tipo_objetivo" required style="margin-right: 10px;">
+                        <option value="Maximizar" selected>Maximizar</option>
+                        <option value="Minimizar">Minimizar</option>
+                    </select>
+                    <span id="texto_objetivo">Maximizar Z = </span>
                     <math-field id="campoFuncionObjetivo" style="display: inline-block; width: 400px;" placeholder="20x_1 + 40x_2"></math-field>
                     <input type="hidden" name="funcion_objetivo" id="funcion_objetivo_hidden">
                 </div>
@@ -95,6 +122,21 @@
         <div class="resultado-section">
             <hr style="border: 1px solid #ddd; margin: 30px 0;">
             
+            {% if not is_premium %}
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+                <h4>⚠️ Versión Gratuita - Solo Resultado Final</h4>
+                <p>Estás viendo la versión limitada. Con <strong>Premium</strong> puedes acceder a:</p>
+                <ul>
+                    <li>📊 Todas las iteraciones detalladas del algoritmo</li>
+                    <li>🔧 Modelo matemático completo con variables de holgura</li>
+                    <li>📝 Proceso paso a paso de cada operación</li>
+                    <li>📋 Tabla inicial y todas las tablas intermedias</li>
+                </ul>
+                <a href="{% url 'tienda' %}" class="btn" style="background: #ffd700; color: #000; font-weight: bold;">🔓 Actualizar a Premium</a>
+            </div>
+            {% endif %}
+            
+            {% if is_premium %}
             <h3>📋 Modelo Matemático Original:</h3>
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                 <p><strong>Función objetivo:</strong></p>
@@ -183,6 +225,7 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endif %}
             
             <h3>🏆 Solución Óptima:</h3>
             <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin-top: 20px;">
@@ -194,7 +237,11 @@
                     {% endfor %}
                 </div>
                 <div style="text-align: center; font-size: 18px; font-weight: bold; color: #155724;">
+                    {% if resultado.tipo_objetivo == "Minimizar" %}
+                    <strong>Valor mínimo de Z = {{ resultado.valor_z|floatformat:2 }}</strong>
+                    {% else %}
                     <strong>Valor máximo de Z = {{ resultado.valor_z|floatformat:2 }}</strong>
+                    {% endif %}
                 </div>
             </div>
             
@@ -203,7 +250,11 @@
                 <ul>
                     <li><strong>Variables de decisión:</strong> Los valores óptimos de las variables originales del problema</li>
                     <li><strong>Variables de holgura:</strong> Representan los recursos no utilizados en cada restricción</li>
+                    {% if resultado.tipo_objetivo == "Minimizar" %}
+                    <li><strong>Valor de Z:</strong> El valor mínimo alcanzado por la función objetivo</li>
+                    {% else %}
                     <li><strong>Valor de Z:</strong> El valor máximo alcanzado por la función objetivo</li>
+                    {% endif %}
                     <li><strong>Iteraciones:</strong> Cada paso del algoritmo muestra cómo se mejora la solución</li>
                 </ul>
             </div>
@@ -219,6 +270,83 @@
 
     <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
     <script src='{% static "js/simplex.js" %}'></script>
+
+    <script>
+        // Inicializar precarga desde campos hidden
+        document.addEventListener('DOMContentLoaded', function() {
+            const precargaTipo = document.getElementById('precarga_tipo');
+            const precargaFuncion = document.getElementById('precarga_funcion');
+            const precargaRestricciones = document.getElementById('precarga_restricciones');
+            
+            if (precargaTipo && precargaTipo.value) {
+                // Cargar tipo de objetivo
+                const tipoObjetivo = document.getElementById('tipo_objetivo');
+                if (tipoObjetivo) {
+                    tipoObjetivo.value = precargaTipo.value;
+                    
+                    // Actualizar texto
+                    const textoObjetivo = document.getElementById('texto_objetivo');
+                    textoObjetivo.textContent = precargaTipo.value + ' Z = ';
+                }
+                
+                // Cargar función objetivo
+                const campoFuncion = document.getElementById('campoFuncionObjetivo');
+                if (campoFuncion && precargaFuncion && precargaFuncion.value) {
+                    campoFuncion.value = precargaFuncion.value;
+                }
+                
+                // Cargar restricciones
+                if (precargaRestricciones && precargaRestricciones.value) {
+                    console.log('Valor de restricciones:', precargaRestricciones.value);
+                    try {
+                        const restricciones = JSON.parse(precargaRestricciones.value);
+                        console.log('Restricciones parseadas:', restricciones);
+                        if (restricciones && Array.isArray(restricciones)) {
+                            restricciones.forEach(function(restriccion, index) {
+                                console.log(`Cargando restricción ${index + 1}:`, restriccion);
+                                // Agregar restricción
+                                document.getElementById('agregarRestricciones').click();
+                                
+                                // Esperar un poco para que se cree el elemento
+                                setTimeout(function() {
+                                    const campoRestriccion = document.getElementById(`restriccion${index + 1}`);
+                                    console.log(`Campo restriccion${index + 1}:`, campoRestriccion);
+                                    if (campoRestriccion) {
+                                        campoRestriccion.value = restriccion;
+                                        console.log(`Valor asignado a restriccion${index + 1}:`, restriccion);
+                                    }
+                                }, 100 * (index + 1));
+                            });
+                        }
+                    } catch (e) {
+                        console.log('Error al cargar restricciones:', e);
+                    }
+                }
+            }
+        });
+        
+        // Actualizar texto según el tipo de objetivo seleccionado
+        document.getElementById('tipo_objetivo').addEventListener('change', function() {
+            const textoObjetivo = document.getElementById('texto_objetivo');
+            textoObjetivo.textContent = this.value + ' Z = ';
+            
+            // Actualizar placeholders de restricciones existentes
+            updateExistingRestrictions();
+        });
+        
+        function updateExistingRestrictions() {
+            const tipoObjetivo = document.getElementById('tipo_objetivo').value;
+            const placeholder = tipoObjetivo === "Maximizar" ? "x_{1} + x_{2} \\leq 8" : "x_{1} + x_{2} \\geq 8";
+            
+            // Actualizar todas las restricciones existentes
+            const restricciones = document.querySelectorAll('#listaRestricciones math-field');
+            restricciones.forEach(function(campo) {
+                if (!campo.value || campo.value.trim() === '') {
+                    campo.value = placeholder;
+                }
+            });
+        }
+    </script>
 
 </body>
 

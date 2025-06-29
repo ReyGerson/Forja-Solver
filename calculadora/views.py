@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 import json
 from django.http import HttpResponse
 from .forms import PuntoFijoForm, SplineInputForm, RegistroUsuarioForm, EditarPerfilForm
-from .models import SplineHistory, PuntoFijoHistorial
+from .models import SplineHistory, PuntoFijoHistorial, SimplexHistorial
 from .utils import parse_points, natural_cubic_spline
 import numexpr as ne
 from reportlab.pdfgen import canvas
@@ -665,17 +665,31 @@ def parse_latex_to_numbers(funcion_latex, restricciones_latex):
         objetivo = [coef_dict.get(i+1, 0) for i in range(max_var)]
         
         # Parsear restricciones
-        # Ejemplo: ["2x_1 + 3x_2 \\leq 110", "4x_1 + x_2 \\leq 130"]
+        # Ejemplo: ["2x_1 + 3x_2 \\leq 110", "4x_1 + x_2 \\leq 130"] para maximizar
+        # Ejemplo: ["2x_1 + 3x_2 \\geq 110", "4x_1 + x_2 \\geq 130"] para minimizar
         restricciones = []
         
         for restriccion in restricciones_latex:
             # Separar lado izquierdo del derecho
+            operador_encontrado = None
             if '\\leq' in restriccion:
                 lado_izq, lado_der = restriccion.split('\\leq')
+                operador_encontrado = '<='
             elif '\\le' in restriccion:
                 lado_izq, lado_der = restriccion.split('\\le')
+                operador_encontrado = '<='
+            elif '\\geq' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\geq')
+                operador_encontrado = '>='
+            elif '\\ge' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\ge')
+                operador_encontrado = '>='
             elif '≤' in restriccion:
                 lado_izq, lado_der = restriccion.split('≤')
+                operador_encontrado = '<='
+            elif '≥' in restriccion:
+                lado_izq, lado_der = restriccion.split('≥')
+                operador_encontrado = '>='
             else:
                 continue
             
@@ -702,6 +716,12 @@ def parse_latex_to_numbers(funcion_latex, restricciones_latex):
             # Agregar término independiente (lado derecho)
             try:
                 rhs = float(lado_der)
+                
+                # Para restricciones >=, multiplicar por -1 para convertir a <=
+                if operador_encontrado == '>=':
+                    fila_restriccion = [-coef for coef in fila_restriccion]
+                    rhs = -rhs
+                
                 fila_restriccion.append(rhs)
                 restricciones.append(fila_restriccion)
             except ValueError:
@@ -719,6 +739,21 @@ def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> T
     num_vars = len(obj)
     num_constraints = len(constraints)
 
+    # Validar que no haya RHS negativos (indicaría necesidad de métodos avanzados)
+    for i, row in enumerate(constraints):
+        rhs = row[-1]
+        if rhs < 0:
+            raise ValueError(f"⚠️ MÉTODO SIMPLEX ESTÁNDAR NO APLICABLE\n\n"
+                           f"La restricción {i+1} tiene un valor del lado derecho negativo ({rhs}).\n"
+                           f"Esto indica que el problema requiere:\n\n"
+                           f"💡 MÉTODOS AVANZADOS:\n"
+                           f"• Método de las Dos Fases\n"
+                           f"• Método de la Gran M\n"
+                           f"• Variables artificiales\n\n"
+                           f"📚 El método simplex estándar solo puede resolver problemas con:\n"
+                           f"• Restricciones del tipo ≤ para maximización\n"
+                           f"• Valores del lado derecho no negativos")
+
     matrix = []
     for i, row in enumerate(constraints):
         vars_part = row[:-1]
@@ -733,7 +768,7 @@ def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> T
     var_names = [f"x{i+1}" for i in range(num_vars)]
     return matrix, var_names
 
-def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]]) -> dict:
+def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]], tipo_objetivo: str = "Maximizar") -> dict:
     """
     Genera la solución completa del método simplex adaptada para Django
     """
@@ -761,18 +796,34 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
     }
     
     # Modelo matemático original
-    obj_expr = " + ".join(f"{format_value(c)}x_{{{i+1}}}" for i, c in enumerate(obj))
+    # Para minimización, necesitamos mostrar el objetivo original (sin negar)
+    if tipo_objetivo == "Minimizar":
+        # Para minimización, el objetivo original es el negativo de lo que usamos internamente
+        obj_original = [-c for c in obj]  # obj ya está negado para minimización
+        obj_expr = " + ".join(f"{format_value(c)}x_{{{i+1}}}" for i, c in enumerate(obj_original))
+        objetivo_texto = f"\\text{{Minimizar }} Z = {obj_expr}"
+        funcion_z_estandar = f"Z - ({obj_expr}) = 0"
+    else:
+        obj_expr = " + ".join(f"{format_value(c)}x_{{{i+1}}}" for i, c in enumerate(obj))
+        objetivo_texto = f"\\text{{Maximizar }} Z = {obj_expr}"
+        funcion_z_estandar = f"Z - ({obj_expr}) = 0"
+    
     constraints_expr = []
     for i, row in enumerate(constraints):
         lhs = " + ".join(f"{format_value(val)}x_{{{j+1}}}" for j, val in enumerate(row[:-1]) if val != 0)
         rhs = format_value(row[-1])
-        constraints_expr.append(f"{lhs} \\leq {rhs}")
-    
-    # Función Z igualada a 0 (forma estándar)
-    funcion_z_estandar = f"Z - ({obj_expr}) = 0"
+        # Para minimización, mostrar las restricciones originales (>=)
+        if tipo_objetivo == "Minimizar":
+            # Las restricciones ya están convertidas a <= internamente, pero mostramos las originales >=
+            # Necesitamos deshacer la conversión para mostrar
+            lhs_original = " + ".join(f"{format_value(-val)}x_{{{j+1}}}" for j, val in enumerate(row[:-1]) if val != 0)
+            rhs_original = format_value(-row[-1])
+            constraints_expr.append(f"{lhs_original} \\geq {rhs_original}")
+        else:
+            constraints_expr.append(f"{lhs} \\leq {rhs}")
     
     resultado['modelo_matematico'] = {
-        'funcion_objetivo': f"\\text{{Maximizar }} Z = {obj_expr}",
+        'funcion_objetivo': objetivo_texto,
         'funcion_z_estandar': funcion_z_estandar,
         'restricciones': constraints_expr
     }
@@ -889,7 +940,14 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
             solution[var] = table.at[i, "B"]  
 
     resultado['solucion_optima'] = solution
-    resultado['valor_z'] = table.at[len(table) - 1, "B"] 
+    
+    # Para minimización, el valor de Z debe ser negado porque internamente trabajamos con -Z
+    z_value = table.at[len(table) - 1, "B"]
+    if tipo_objetivo == "Minimizar":
+        z_value = -z_value  # Regresar al valor original
+    
+    resultado['valor_z'] = z_value
+    resultado['tipo_objetivo'] = tipo_objetivo
     
     return resultado
 
@@ -917,6 +975,40 @@ def generar_tabla_html(table, basis, iteration_num):
     
     return html
 
+def validar_coherencia_objetivo_restricciones(tipo_objetivo, restricciones):
+    """
+    Valida que el tipo de objetivo sea coherente con las restricciones:
+    - Maximizar: solo permite restricciones <=
+    - Minimizar: solo permite restricciones >=
+    
+    IMPORTANTE: El método simplex estándar implementado NO puede resolver:
+    - Problemas de minimización (requieren Método de las Dos Fases o Gran M)
+    - Problemas con restricciones mixtas
+    - Problemas con RHS negativos
+    """
+    for restriccion in restricciones:
+        if tipo_objetivo == "Maximizar":
+            # Para maximizar, no se permiten restricciones >=
+            if "\\geq" in restriccion or "\\ge" in restriccion:
+                return ("⚠️ PROBLEMA NO VÁLIDO PARA MÉTODO SIMPLEX ESTÁNDAR\n\n"
+                       "Para problemas de MAXIMIZACIÓN solo se permiten restricciones del tipo ≤ (menor o igual).\n"
+                       "Su problema contiene restricciones ≥ (mayor o igual).\n\n"
+                       "💡 SOLUCIÓN: Debe aplicar el Método de la Gran M o Método de las Dos Fases para resolver este problema.")
+        else:  # Minimizar
+            # IMPORTANTE: Los problemas de minimización requieren métodos avanzados
+            return ("⚠️ PROBLEMA DE MINIMIZACIÓN DETECTADO\n\n"
+                   "Los problemas de MINIMIZACIÓN con restricciones ≥ (mayor o igual) requieren métodos avanzados que no están implementados en esta versión del sistema.\n\n"
+                   "💡 SOLUCIÓN RECOMENDADA:\n"
+                   "• Use el Método de las Dos Fases\n"
+                   "• Use el Método de la Gran M\n"
+                   "• Convierta manualmente a un problema de maximización equivalente\n\n"
+                   "� ALTERNATIVA MANUAL:\n"
+                   "1. Cambie 'Minimizar Z' por 'Maximizar W = -Z'\n"
+                   "2. Multiplique la función objetivo por -1\n"
+                   "3. Agregue variables de holgura y artificiales según corresponda")
+    
+    return None  # No hay errores
+
 def simplex(request):
     """Vista principal del método simplex"""
     if request.method == "POST":
@@ -924,24 +1016,54 @@ def simplex(request):
             # Obtener datos del formulario
             funcion_objetivo = request.POST.get("funcion_objetivo", "")
             restricciones_raw = request.POST.get("restricciones", "[]")
+            tipo_objetivo = request.POST.get("tipo_objetivo", "Maximizar")
             
             # Parsear las restricciones JSON
             restricciones = json.loads(restricciones_raw)
             
+            # Validar coherencia entre tipo de objetivo y restricciones (validación adicional del backend)
+            error_validacion = validar_coherencia_objetivo_restricciones(tipo_objetivo, restricciones)
+            if error_validacion:
+                return render(request, 'simplex/simplex.html', {
+                    'error': error_validacion
+                })
+            
             # Convertir de LaTeX a números
             objetivo, constraints = parse_latex_to_numbers(funcion_objetivo, restricciones)
+            
+            # Para minimización, convertir a maximización (multiplicar objetivo por -1)
+            if tipo_objetivo == "Minimizar":
+                objetivo = [-coef for coef in objetivo]
             
             # Preparar tabla inicial
             matrix, var_names = prepare_initial_table(objetivo, constraints)
             
             # Resolver el problema simplex
-            resultado = generate_simplex_solution(matrix, var_names, objetivo, constraints)
+            resultado = generate_simplex_solution(matrix, var_names, objetivo, constraints, tipo_objetivo)
+            
+            # Verificar si el usuario es premium
+            is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False
+            
+            # Guardar en historial si el usuario está autenticado
+            if request.user.is_authenticated and resultado:
+                SimplexHistorial.objects.create(
+                    user=request.user,
+                    tipo_objetivo=tipo_objetivo,
+                    funcion_objetivo=funcion_objetivo,
+                    restricciones=restricciones_raw,
+                    solucion_optima=json.dumps(resultado.get('solucion_optima', {})),
+                    valor_z=resultado.get('valor_z', 0),
+                    iteraciones_json=json.dumps(resultado.get('iteraciones', [])) if is_premium else "[]",
+                    modelo_matematico=json.dumps(resultado.get('modelo_matematico', {}))
+                )
             
             return render(request, 'simplex/simplex.html', {
                 'funcion_objetivo': funcion_objetivo,
                 'restricciones': restricciones,
                 'resultado': resultado,
-                'tiene_solucion': True
+                'tiene_solucion': True,
+                'tipo_objetivo': tipo_objetivo,
+                'is_premium': is_premium
             })
             
         except Exception as e:
@@ -951,3 +1073,54 @@ def simplex(request):
             })
 
     return render(request, 'simplex/simplex.html')
+
+@login_required
+def simplex_historial(request):
+    """Vista para mostrar el historial del método simplex del usuario"""
+    
+    historial = SimplexHistorial.objects.filter(user=request.user).order_by('-fecha')
+    is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium
+    
+    # Parsear JSON de solucion_optima para cada item del historial
+    for item in historial:
+        try:
+            item.solucion_optima = json.loads(item.solucion_optima)
+        except:
+            item.solucion_optima = {}
+    
+    return render(request, 'simplex/historial.html', {
+        'historial': historial,
+        'is_premium': is_premium
+    })
+
+@login_required
+def cargar_simplex_historial(request, historial_id):
+    """Cargar un problema del historial para resolverlo nuevamente"""
+    
+    try:
+        historial_item = get_object_or_404(SimplexHistorial, id=historial_id, user=request.user)
+        
+        # Preparar datos para precargar el formulario
+        # La función objetivo debe mantenerse tal como está guardada
+        funcion_objetivo = historial_item.funcion_objetivo
+        
+        # Cargar restricciones tal como están guardadas
+        restricciones_raw = json.loads(historial_item.restricciones)
+        
+        print(f"DEBUG - Restricciones cargadas del historial: {restricciones_raw}")
+        
+        contexto = {
+            'precarga': {
+                'tipo_objetivo': historial_item.tipo_objetivo,
+                'funcion_objetivo': funcion_objetivo,
+                'restricciones_json': json.dumps(restricciones_raw)  # Crear una versión JSON separada
+            }
+        }
+        
+        print(f"DEBUG - Contexto enviado al template: {contexto}")
+        
+        return render(request, 'simplex/simplex.html', contexto)
+        
+    except Exception as e:
+        print(f"Error cargando historial: {e}")
+        return redirect('simplex')

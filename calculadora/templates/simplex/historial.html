@@ -1,0 +1,190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial Simplex - Forja Solver</title>
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .historial-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #1f1f2e;
+        }
+        
+        .historial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .historial-titulo {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f1f2e;
+        }
+        
+        .historial-fecha {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .historial-detalles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        
+        .detalle-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .detalle-label {
+            font-weight: bold;
+            color: #1f1f2e;
+            margin-bottom: 5px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #1f1f2e, #1A1A1A);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .premium-badge {
+            background: #ffd700;
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .no-premium-notice {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1>📊 Historial del Método Simplex</h1>
+            <a href="{% url 'simplex' %}" class="btn">Nuevo Problema</a>
+        </div>
+        
+        {% if not is_premium %}
+        <div class="no-premium-notice">
+            <h4>⚠️ Funcionalidad Limitada</h4>
+            <p>Como usuario gratuito, solo puedes ver los resultados finales de tus problemas anteriores.</p>
+            <p><strong>Con Premium puedes:</strong></p>
+            <ul>
+                <li>Ver todas las iteraciones paso a paso</li>
+                <li>Acceder al proceso completo de resolución</li>
+                <li>Análisis detallado de cada tabla</li>
+            </ul>
+            <a href="{% url 'tienda' %}" class="btn" style="background: #ffd700; color: #000;">Actualizar a Premium</a>
+        </div>
+        {% endif %}
+        
+        {% if historial %}
+            {% for item in historial %}
+            <div class="historial-item">
+                <div class="historial-header">
+                    <div class="historial-titulo">
+                        {{ item.tipo_objetivo }} Z
+                        {% if is_premium %}
+                        <span class="premium-badge">PREMIUM</span>
+                        {% endif %}
+                    </div>
+                    <div class="historial-fecha">{{ item.fecha|date:"d/m/Y H:i" }}</div>
+                </div>
+                
+                <div class="historial-detalles">
+                    <div class="detalle-item">
+                        <div class="detalle-label">Función Objetivo:</div>
+                        <math-field read-only style="width: 100%;">{{ item.funcion_objetivo }}</math-field>
+                    </div>
+                    
+                    <div class="detalle-item">
+                        <div class="detalle-label">Resultado:</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #28a745;">
+                            {% if item.tipo_objetivo == "Minimizar" %}
+                            Valor mínimo: Z = {{ item.valor_z|floatformat:2 }}
+                            {% else %}
+                            Valor máximo: Z = {{ item.valor_z|floatformat:2 }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <div class="detalle-label">Variables Óptimas:</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                        {% for var, valor in item.solucion_optima.items %}
+                        <div style="background: #e8f5e8; padding: 8px 12px; border-radius: 5px;">
+                            <strong>{{ var }} = {{ valor|floatformat:2 }}</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                
+                <div style="margin-top: 20px; text-align: right;">
+                    <a href="{% url 'cargar_simplex_historial' item.id %}" class="btn">🔄 Cargar Problema</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 50px; color: #666;">
+                <h3>📋 No hay problemas en el historial</h3>
+                <p>Resuelve tu primer problema del método simplex para ver el historial aquí.</p>
+                <a href="{% url 'simplex' %}" class="btn">Resolver Primer Problema</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
+</body>
+</html>

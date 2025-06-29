@@ -46,6 +46,26 @@ class PuntoFijoHistorial(models.Model):
     def __str__(self):
         return f"{self.funcion} (x0={self.valor_inicial}) → {self.solucion} [{self.fecha.strftime('%Y-%m-%d %H:%M')}]"
 
+class SimplexHistorial(models.Model):
+    """
+    Guarda el historial de cálculos del método Simplex para cada usuario.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    tipo_objetivo = models.CharField(max_length=20)  # "Maximizar" o "Minimizar"
+    funcion_objetivo = models.TextField()  # LaTeX de la función objetivo
+    restricciones = models.TextField()  # JSON con las restricciones en LaTeX
+    solucion_optima = models.TextField()  # JSON con las variables y sus valores
+    valor_z = models.FloatField()  # Valor óptimo de Z
+    iteraciones_json = models.TextField()  # JSON con todas las iteraciones (solo para premium)
+    modelo_matematico = models.TextField()  # JSON con el modelo completo
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.tipo_objetivo} Z (Z={self.valor_z:.2f}) [{self.fecha.strftime('%Y-%m-%d %H:%M')}]"
+
+    class Meta:
+        ordering = ['-fecha']
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     """

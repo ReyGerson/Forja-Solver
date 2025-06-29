@@ -37,4 +37,7 @@ urlpatterns = [
     path('editar_perfil/', views.editar_perfil, name='editar_perfil'),
     path('creditos/', views.creditos, name='creditos'),
 
+    path('simplex/historial/', views.simplex_historial, name='simplex_historial'),
+    path('simplex/cargar/<int:historial_id>/', views.cargar_simplex_historial, name='cargar_simplex_historial'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,8 +2,20 @@
 const agregarRestricciones = document.getElementById("agregarRestricciones");
 const quitarRestricciones = document.getElementById("quitarRestricciones");
 const listaRestricciones = document.getElementById("listaRestricciones");
+const tipoObjetivo = document.getElementById("tipo_objetivo");
+const textoObjetivo = document.getElementById("texto_objetivo");
 
 let numRestricciones = 0;
+
+// Actualizar texto del objetivo cuando cambia la selección
+tipoObjetivo.addEventListener("change", function() {
+  const tipo = this.value;
+  textoObjetivo.textContent = tipo + " Z = ";
+});
+
+function getPlaceholderRestriction() {
+  return tipoObjetivo.value === "Maximizar" ? "x_{1} + x_{2} \\leq 8" : "x_{1} + x_{2} \\geq 8";
+}
 
 agregarRestricciones.addEventListener("click", (e) => {
   e.preventDefault();
@@ -15,8 +27,8 @@ agregarRestricciones.addEventListener("click", (e) => {
   mathLive.id = `restriccion${numRestricciones}`;
   mathLive.style.cssText = "display: inline-block; width: 400px; margin: 5px;";
   
-  // Agregar placeholder para ayudar al usuario
-  mathLive.value = "x_{1} + x_{2} \\leq 0";
+  // Agregar placeholder según el tipo de objetivo
+  mathLive.value = getPlaceholderRestriction();
 
   const li = document.createElement("li");
   li.id = `itemRestriccion${numRestricciones}`;
@@ -74,9 +86,7 @@ document.querySelector("form").addEventListener("submit", function (e) {
     return;
   }
   
-  // Obtener valores
-  campoFuncionHidden.value = funcionValue;
-  
+  // Obtener valores de las restricciones
   const valores = Array.from(lista).map((el) => {
     const valor = el.getValue("latex");
     return valor || "";
@@ -88,5 +98,47 @@ document.querySelector("form").addEventListener("submit", function (e) {
     return;
   }
   
+  // Validar coherencia entre tipo de objetivo y restricciones
+  const tipoSeleccionado = tipoObjetivo.value;
+  let errorValidacion = false;
+  let mensajeError = "";
+  
+  if (tipoSeleccionado === "Maximizar") {
+    // Para maximizar, solo se permiten restricciones con <=
+    for (let restriccion of valores) {
+      if (restriccion.includes("\\geq") || restriccion.includes("\\ge") || restriccion.includes(">")) {
+        errorValidacion = true;
+        mensajeError = "⚠️ MÉTODO SIMPLEX ESTÁNDAR NO APLICABLE\n\n" +
+                      "Para problemas de MAXIMIZACIÓN solo se permiten restricciones del tipo ≤ (menor o igual).\n\n" +
+                      "💡 SOLUCIÓN: Para restricciones ≥ debe aplicar el Método de la Gran M o Método de las Dos Fases.";
+        break;
+      }
+    }
+  } else {
+    // Para minimizar, advertir sobre las limitaciones
+    errorValidacion = true;
+    mensajeError = "⚠️ PROBLEMA DE MINIMIZACIÓN DETECTADO\n\n" +
+                  "Los problemas de MINIMIZACIÓN requieren métodos avanzados que actualmente tienen limitaciones en este sistema.\n\n" +
+                  "💡 RECOMENDACIONES:\n" +
+                  "• Use el Método de las Dos Fases\n" +
+                  "• Use el Método de la Gran M\n" +
+                  "• Convierta manualmente a maximización\n\n" +
+                  "¿Desea continuar de todas formas?\n" +
+                  "(El resultado puede no ser correcto)";
+    
+    // Permitir continuar con confirmación
+    if (confirm(mensajeError + "\n\nPresione OK para continuar o Cancelar para modificar el problema.")) {
+      errorValidacion = false; // Permitir continuar
+    }
+  }
+  
+  if (errorValidacion) {
+    alert(mensajeError);
+    e.preventDefault();
+    return;
+  }
+  
+  // Si pasa todas las validaciones, enviar el formulario
+  campoFuncionHidden.value = funcionValue;
   restriccionesHidden.value = JSON.stringify(valores);
 });
