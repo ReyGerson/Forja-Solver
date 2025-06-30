@@ -6,72 +6,292 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Método Simplex - Forja Solver</title>
-    
     <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            background-color: var(--light);
             margin: 0;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 0 15px;
         }
-        
-        h1, h3, h4 {
-            color: #1f1f2e;
-        }
-        
-        .form-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
+
+        h1 {
+            color: var(--info);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
             margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
         }
-        
-        .resultado-section {
-            margin-top: 30px;
+
+        h2, h3, h4 {
+            color: var(--success);
+            margin-top: 1.5em;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
         }
-        
+
+        .form-container, .result-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        form {
+            margin: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: border-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--info);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(75, 132, 138, 0.2);
+        }
+
+        small {
+            font-size: 0.85em;
+            color: #6c757d;
+            font-style: italic;
+        }
+
         button {
-            background: linear-gradient(135deg, #1f1f2e, #1A1A1A);
+            background-color: var(--info);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
             margin: 5px;
         }
-        
+
         button:hover {
-            opacity: 0.9;
+            background-color: #3A6A70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
-        select {
-            padding: 8px;
+
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background-color: var(--info);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--primary);
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--light);
+        }
+
+        tr:hover {
+            background-color: rgba(220, 201, 169, 0.3);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: var(--light);
+            padding: 4px 8px;
             border-radius: 4px;
-            border: 1px solid #ddd;
-            margin: 5px;
+            font-family: monospace;
+            color: var(--danger);
+            border-left: 3px solid var(--warning);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            display: inline-block;
+            margin: 3px 0;
+        }
+
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 5px;
+        }
+
+        a:hover {
+            color: var(--success);
+            text-decoration: underline;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--danger);
+            font-style: italic;
+        }
+
+        .input-group {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: var(--warning);
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: var(--success);
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: var(--danger);
+        }
+
+        .alert-info {
+            background-color: #e8f4fd;
+            border-color: var(--info);
+        }
+
+        math-field {
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 5px 0;
+            background-color: white;
+        }
+
+        @media (max-width: 480px) {
+            .input-group {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-container, .result-box {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            input[type="text"],
+            input[type="number"],
+            select {
+                padding: 10px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                max-width: 100%;
+            }
+            
+            code {
+                white-space: pre-wrap;
+                word-break: break-all;
+            }
         }
     </style>
 </head>
 <body>
-    <a class="" href="{% url 'index' %}">Inicio</a>
+    <a href="{% url 'index' %}">Inicio</a>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1>Método Simplex</h1>
             {% if user.is_authenticated %}
-            <a href="{% url 'simplex_historial' %}" class="btn" style="background: #17a2b8;">📋 Ver Historial</a>
+            <a href="{% url 'simplex_historial' %}" class="btn">📋 Ver Historial</a>
             {% endif %}
         </div>
         
-        <div class="form-section">
+        <div class="form-container">
             <form method="post" action="{% url 'simplex' %}">
                 {% csrf_token %}
                 
@@ -82,31 +302,35 @@
                 <input type="hidden" id="precarga_restricciones" value="{{ precarga.restricciones_json }}">
                 {% endif %}
                 
-                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+                <div class="alert alert-warning">
                     <h4>⚠️ Limitaciones del Método Simplex Estándar</h4>
-                    <ul style="margin: 10px 0;">
+                    <ul>
                         <li><strong>Maximización:</strong> Solo restricciones del tipo ≤ (menor o igual)</li>
                         <li><strong>Minimización:</strong> Requiere métodos avanzados (Gran M o Dos Fases)</li>
                         <li><strong>Valores Bj:</strong> Deben ser no negativos</li>
                     </ul>
-                    <p style="margin: 10px 0; font-weight: bold;">💡 Si su problema no cumple estas condiciones, use el Método de la Gran M.</p>
+                    <p><strong>💡 Si su problema no cumple estas condiciones, use el Método de la Gran M.</strong></p>
                 </div>
                 
                 <div style="margin-bottom: 20px;">
-                    <label><strong>Función objetivo (Z):</strong></label><br>
-                    <select name="tipo_objetivo" id="tipo_objetivo" required style="margin-right: 10px;">
-                        <option value="Maximizar" selected>Maximizar</option>
-                        <option value="Minimizar">Minimizar</option>
-                    </select>
-                    <span id="texto_objetivo">Maximizar Z = </span>
-                    <math-field id="campoFuncionObjetivo" style="display: inline-block; width: 400px;" placeholder="20x_1 + 40x_2"></math-field>
+                    <label><strong>Función objetivo (Z):</strong></label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select name="tipo_objetivo" id="tipo_objetivo" required style="flex: 0 0 auto; width: auto;">
+                            <option value="Maximizar" selected>Maximizar</option>
+                            <option value="Minimizar">Minimizar</option>
+                        </select>
+                        <span id="texto_objetivo" style="font-weight: 600;">Maximizar Z = </span>
+                        <math-field id="campoFuncionObjetivo" style="flex-grow: 1;" placeholder="20x_1 + 40x_2"></math-field>
+                    </div>
                     <input type="hidden" name="funcion_objetivo" id="funcion_objetivo_hidden">
                 </div>
 
                 <div id="restricciones" style="margin-bottom: 20px;">
-                    <label><strong>Sujeto a:</strong></label><br>
-                    <button type="button" id="agregarRestricciones">Agregar Restricción</button>
-                    <button type="button" id="quitarRestricciones">Quitar Restricción</button>
+                    <label><strong>Sujeto a:</strong></label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" id="agregarRestricciones">Agregar Restricción</button>
+                        <button type="button" id="quitarRestricciones">Quitar Restricción</button>
+                    </div>
                     <ul id="listaRestricciones" style="list-style: none; padding: 0; margin: 10px 0;"></ul>
                     <div style="margin-top: 10px;">
                         <math-field id="restriccionNecesaria" read-only>x_{1}, x_{2} \geq 0</math-field>
@@ -114,16 +338,16 @@
                     <input type="hidden" name="restricciones" id="restricciones_hidden">
                 </div>
 
-                <button type="submit" style="font-size: 16px; padding: 12px 30px;">Resolver</button>
+                <button type="submit" style="width: 100%; max-width: 200px; margin: 20px auto 0; display: block;">Resolver</button>
             </form>
         </div>
 
         {% if tiene_solucion and resultado %}
-        <div class="resultado-section">
-            <hr style="border: 1px solid #ddd; margin: 30px 0;">
+        <div class="result-box">
+            <hr style="border: 1px solid var(--primary); margin: 30px 0;">
             
             {% if not is_premium %}
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
+            <div class="alert alert-warning">
                 <h4>⚠️ Versión Gratuita - Solo Resultado Final</h4>
                 <p>Estás viendo la versión limitada. Con <strong>Premium</strong> puedes acceder a:</p>
                 <ul>
@@ -132,13 +356,13 @@
                     <li>📝 Proceso paso a paso de cada operación</li>
                     <li>📋 Tabla inicial y todas las tablas intermedias</li>
                 </ul>
-                <a href="{% url 'tienda' %}" class="btn" style="background: #ffd700; color: #000; font-weight: bold;">🔓 Actualizar a Premium</a>
+                <a href="{% url 'tienda' %}" class="btn" style="background: var(--warning); color: var(--secondary);">🔓 Actualizar a Premium</a>
             </div>
             {% endif %}
             
             {% if is_premium %}
             <h3>📋 Modelo Matemático Original:</h3>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="alert alert-info">
                 <p><strong>Función objetivo:</strong></p>
                 <div style="text-align: center; margin: 10px 0;">
                     <math-field read-only>{{ resultado.modelo_matematico.funcion_objetivo }}</math-field>
@@ -158,7 +382,7 @@
             </div>
             
             <h3>⚖️ Función Objetivo en Forma Estándar:</h3>
-            <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="alert alert-success">
                 <p><strong>Función Z igualada a cero:</strong></p>
                 <div style="text-align: center; margin: 10px 0;">
                     <math-field read-only>{{ resultado.modelo_matematico.funcion_z_estandar }}</math-field>
@@ -166,7 +390,7 @@
             </div>
             
             <h3>🔧 Modelo con Variables de Holgura:</h3>
-            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="alert alert-warning">
                 <ul style="list-style-type: none; padding-left: 0;">
                     {% for restriccion in resultado.modelo_holgura %}
                     <li style="margin: 8px 0; text-align: center;">
@@ -177,18 +401,20 @@
             </div>
             
             <h3>📊 Tabla Inicial del Método Simplex:</h3>
-            <div class="tabla-wrapper">
+            <div class="table-responsive">
                 {{ resultado.tabla_inicial|safe }}
             </div>
             
             <h3>🔄 Iteraciones del Algoritmo:</h3>
-            <div class="iteraciones-container">
+            <div>
                 {% for iteracion in resultado.iteraciones %}
-                <div class="iteracion" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-                    {{ iteracion.tabla_html|safe }}
+                <div style="margin: 20px 0; padding: 15px; border: 1px solid var(--primary); border-radius: 8px;">
+                    <div class="table-responsive">
+                        {{ iteracion.tabla_html|safe }}
+                    </div>
                     
                     {% if not iteracion.es_optima %}
-                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                    <div style="background: rgba(227, 242, 253, 0.5); padding: 10px; border-radius: 5px; margin: 10px 0;">
                         <p><strong>🎯 Variable que entra:</strong> {{ iteracion.variable_entra }}</p>
                         <p><strong>🔄 Variable que sale:</strong> {{ iteracion.variable_sale }}</p>
                         <p><strong>⚡ Elemento pivote:</strong> {{ iteracion.elemento_pivote }}</p>
@@ -197,7 +423,7 @@
                     <h5>📝 Operaciones realizadas:</h5>
                     {% for operacion in iteracion.operaciones %}
                         {% if operacion.tipo == 'normalizacion' %}
-                        <div style="background: #f0f8ff; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <div style="background: rgba(240, 248, 255, 0.7); padding: 10px; margin: 5px 0; border-radius: 5px;">
                             <strong>Normalización de {{ operacion.fila }}:</strong>
                             <ul style="margin: 5px 0;">
                                 {% for detalle in operacion.detalles %}
@@ -206,7 +432,7 @@
                             </ul>
                         </div>
                         {% elif operacion.tipo == 'actualizacion' %}
-                        <div style="background: #fff5f5; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <div style="background: rgba(255, 245, 245, 0.7); padding: 10px; margin: 5px 0; border-radius: 5px;">
                             <strong>Actualización de {{ operacion.fila }} (factor: {{ operacion.factor }}):</strong>
                             <ul style="margin: 5px 0;">
                                 {% for detalle in operacion.detalles %}
@@ -217,7 +443,7 @@
                         {% endif %}
                     {% endfor %}
                     {% else %}
-                    <div style="background: #d4edda; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                    <div class="alert alert-success">
                         <h4>🎉 ¡Solución Óptima Encontrada!</h4>
                         <p>Todos los coeficientes en la fila Z son no negativos.</p>
                     </div>
@@ -228,15 +454,15 @@
             {% endif %}
             
             <h3>🏆 Solución Óptima:</h3>
-            <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <div class="alert alert-success">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
                     {% for variable, valor in resultado.solucion_optima.items %}
-                    <div style="background: white; padding: 10px; border-radius: 5px; text-align: center;">
+                    <div style="background: white; padding: 10px; border-radius: 5px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <strong>{{ variable }} = {{ valor|floatformat:2 }}</strong>
                     </div>
                     {% endfor %}
                 </div>
-                <div style="text-align: center; font-size: 18px; font-weight: bold; color: #155724;">
+                <div style="text-align: center; font-size: 18px; font-weight: bold; color: var(--success);">
                     {% if resultado.tipo_objetivo == "Minimizar" %}
                     <strong>Valor mínimo de Z = {{ resultado.valor_z|floatformat:2 }}</strong>
                     {% else %}
@@ -245,7 +471,7 @@
                 </div>
             </div>
             
-            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <div class="alert alert-info">
                 <h4>ℹ️ Interpretación de los Resultados:</h4>
                 <ul>
                     <li><strong>Variables de decisión:</strong> Los valores óptimos de las variables originales del problema</li>
@@ -261,7 +487,7 @@
         </div>
         
         {% elif error %}
-        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <div class="alert alert-danger">
             <h4>❌ Error:</h4>
             <p>{{ error }}</p>
         </div>
@@ -347,7 +573,5 @@
             });
         }
     </script>
-
 </body>
-
 </html>

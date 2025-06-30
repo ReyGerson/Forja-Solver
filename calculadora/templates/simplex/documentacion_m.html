@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación del Método de la M - Forja Solver</title>
+    <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            background-color: var(--light);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        h1 {
+            color: var(--info);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        h2, h3 {
+            color: var(--success);
+            margin-top: 1.5em;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+
+        .content-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--info);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--primary);
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--light);
+        }
+
+        .math-formula {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .math-formula code {
+            font-family: 'Courier New', monospace;
+            color: var(--secondary);
+            font-size: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .advantages-list, .disadvantages-list {
+            padding-left: 20px;
+        }
+
+        .advantages-list li {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .advantages-list li::before {
+            content: "✓";
+            color: var(--success);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .disadvantages-list li {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .disadvantages-list li::before {
+            content: "⚠";
+            color: var(--danger);
+            position: absolute;
+            left: 0;
+        }
+
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .use-case {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .use-case h4 {
+            margin-top: 0;
+            color: var(--info);
+        }
+
+        button, .btn {
+            background-color: var(--info);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        button:hover, .btn:hover {
+            background-color: #3A6A70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .use-cases {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-box {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            .math-formula {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Documentación del Método de la M</h1>
+        <a href="{% url 'index' %}" class="btn">Inicio</a>
+        
+        <div class="content-box">
+            <h2>Objetivo del método</h2>
+            <p>El objetivo principal del método de la "M" es resolver problemas de programación lineal donde la solución inicial factible no está disponible, especialmente cuando se trata de restricciones de igualdad o desigualdad "mayor o igual que".</p>
+        </div>
+        
+        <div class="content-box">
+            <h2>Ventajas</h2>
+            <ul class="advantages-list">
+                <li>Es capaz de solucionar cualquier modelo, sin importar si el origen no pertenece a la región factible.</li>
+                <li>No existe un límite de variables.</li>
+                <li>Se basa en el algoritmo sencillo del método simplex.</li>
+                <li>Detecta cualquier tipo de solución del problema.</li>
+            </ul>
+            
+            <h2>Desventajas</h2>
+            <ul class="disadvantages-list">
+                <li>Al meter variables artificiales implica que el modelo incrementa en tamaño.</li>
+                <li>El manejo de la M puede hacer confuso u orilla a cometer errores.</li>
+                <li>Implica más pasos que en el método simplex.</li>
+            </ul>
+        </div>
+        
+        <div class="content-box">
+            <h2>Situaciones de uso</h2>
+            <div class="use-cases">
+                <div class="use-case">
+                    <h4>Restricciones de tipo "≥" (mayor o igual)</h4>
+                    <p>Cuando una restricción tiene el signo ≥, se resta una variable de holgura y se agrega una variable artificial para convertirla en ecuación.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Restricciones de tipo "=" (igualdad)</h4>
+                    <p>Las restricciones de igualdad no permiten utilizar variables de holgura de forma directa, entonces se debe agregar una variable artificial para poder tener una base inicial.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Cuando no se puede encontrar una base inicial factible</h4>
+                    <p>El método de la gran M fuerza una solución inicial artificial, penalizándola con un valor muy grande (la constante M) en la función objetivo.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-box">
+            <h2>Pasos para realizar el método</h2>
+            
+            <h3>1. Escribir el problema en su forma estándar</h3>
+            <p>Convertir todas las restricciones en igualdades:</p>
+            <ul>
+                <li>Para restricciones del tipo ≤: Se agrega una variable de holgura.</li>
+                <li>Para restricciones del tipo ≥: Resta una variable y agrega una variable artificial.</li>
+                <li>Para restricciones del tipo =: Agrega una variable artificial.</li>
+            </ul>
+            
+            <h3>2. Modificar la función objetivo</h3>
+            <p>Agrega las variables artificiales con un costo muy grande (M):</p>
+            <ul>
+                <li>Si es maximización: Resta M ⋅ A<sub>i</sub> en la función objetivo, porque queremos que esas variables desaparezcan: penalizando el valor.</li>
+                <li>Si es minimización: Suma M ⋅ A<sub>i</sub>.</li>
+            </ul>
+            
+            <h3>3. Construir la tabla inicial del método simplex</h3>
+            <ul>
+                <li>Usa las restricciones en formas de ecuación.</li>
+                <li>Coloca las variables básicas en columnas.</li>
+                <li>Incluye la fila Z (fila de diferencias) con los coeficientes modificados.</li>
+            </ul>
+            
+            <h3>4. Aplicar el método simplex</h3>
+            <ol>
+                <li>Buscar la variable que entra a la base (La que tiene el valor más negativo en la fila Z)</li>
+                <li>Buscar la variable que sale de la base (usando la prueba razón mínima).</li>
+                <li>Pivoteo para obtener la nueva tabla.</li>
+            </ol>
+            
+            <h3>5. Repetir iteraciones hasta que no haya más coeficientes negativos en la fila Z</h3>
+            <p>Cuando todos los valores en la Fila Z son mayores a 0, se ha llegado a una solución óptima.</p>
+            
+            <h3>6. Revisar si las variables artificiales están en cero</h3>
+            <ul>
+                <li>Si todas las variables artificiales son 0 al final, entonces la solución es factible y válida.</li>
+                <li>Si alguna variable artificial queda con valor diferente a 0, el problema no tiene solución factible (es inconsistente con las restricciones).</li>
+            </ul>
+        </div>
+        
+        <div class="content-box">
+            <h2>Ejemplo</h2>
+            
+            <div class="math-formula">
+                <p><strong>Función objetivo:</strong></p>
+                <code>Minimizar Z = 3x₁ + 2x₂</code>
+                
+                <p><strong>Sujeto a:</strong></p>
+                <code>2x₁ - 2x₂ ≥ 3</code>
+                <code>2x₁ + 2x₂ ≥ 9</code>
+                <code>x₁, x₂ ≥ 0</code>
+            </div>
+            
+            <h3>Convertir a forma estándar</h3>
+            <div class="math-formula">
+                <code>Z - 3x₁ - 2x₂ - MR₁ - MR₂ = 0</code>
+                <code>2x₁ - 2x₂ - x₃ + R₁ = 3</code>
+                <code>2x₁ + 2x₂ - x₄ + R₂ = 9</code>
+            </div>
+            
+            <h3>Tabla inicial</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>x₁</th>
+                        <th>x₂</th>
+                        <th>x₃</th>
+                        <th>x₄</th>
+                        <th>R₁</th>
+                        <th>R₂</th>
+                        <th>B(j)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Z</strong></td>
+                        <td>-3</td>
+                        <td>-2</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>-100</td>
+                        <td>-100</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R₁</strong></td>
+                        <td>2</td>
+                        <td>-2</td>
+                        <td>-1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>3/2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R₂</strong></td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td>-1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>9/2</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Nueva fila z = Anterior fila z + (100) * (fila R₁ + fila R₂)</h4>
+            <div class="math-formula">
+                <code>Nueva fila z = (-3, -2, 0, 0, -100, -100, 0) + (100)*(2+2, -2+2, -1+0, 0-1, 1+0, 0+1, 3+9)</code>
+                <code>Nueva fila z = (-3+400, -2+0, 0-100, 0-100, -100+100, -100+100, 0+1200)</code>
+                <code>Nueva fila z = (397, -2, -100, -100, 0, 0, 1200)</code>
+            </div>
+            
+            <h3>Iteración 1</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>x₁</th>
+                        <th>x₂</th>
+                        <th>x₃</th>
+                        <th>x₄</th>
+                        <th>R₁</th>
+                        <th>R₂</th>
+                        <th>B(j)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Z</strong></td>
+                        <td>397</td>
+                        <td>-2</td>
+                        <td>-100</td>
+                        <td>-100</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>1200</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R₁</strong></td>
+                        <td>2</td>
+                        <td>-2</td>
+                        <td>-1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>3/2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R₂</strong></td>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td>-1</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>9/2</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>x₁</th>
+                        <th>x₂</th>
+                        <th>x₃</th>
+                        <th>x₄</th>
+                        <th>R₁</th>
+                        <th>R₂</th>
+                        <th>B(j)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Z</strong></td>
+                        <td>0</td>
+                        <td>395</td>
+                        <td>197/2</td>
+                        <td>-100</td>
+                        <td>-397/2</td>
+                        <td>0</td>
+                        <td>1209/2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>x₁</strong></td>
+                        <td>1</td>
+                        <td>-1</td>
+                        <td>-1/2</td>
+                        <td>0</td>
+                        <td>1/2</td>
+                        <td>0</td>
+                        <td>3/2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R₂</strong></td>
+                        <td>0</td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>-1</td>
+                        <td>-1</td>
+                        <td>1</td>
+                        <td>6</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Para fila Z:</h4>
+            <div class="math-formula">
+                <code>x₁ = 397 - (397*1) = 0</code>
+                <code>x₂ = -2 - (397)(-1) = 395</code>
+                <code>x₃ = -100 - (397)(-1/2) = 197/2</code>
+                <code>x₄ = -100 - (397*0) = -100</code>
+                <code>R₁ = 0 - (397)(1/2) = -397/2</code>
+                <code>R₂ = 0 - (397*0) = 0</code>
+                <code>B(j) = 1200-(397)(3/2)=1209/2</code>
+            </div>
+            
+            <h4>Para fila x₁:</h4>
+            <div class="math-formula">
+                <code>x₁ = 2/2 = 1</code>
+                <code>x₂ = -2/2 = -1</code>
+                <code>x₃ = -1/2</code>
+                <code>x₄ = 0/2 = 0</code>
+                <code>R₁ = 1/2</code>
+                <code>R₂ = 0/2 = 0</code>
+                <code>B(j) = 3/2</code>
+            </div>
+            
+            <h4>Para fila R₂:</h4>
+            <div class="math-formula">
+                <code>x₁ = 2 - (2*1) = 0</code>
+                <code>x₂ = 2 - (2)(-1) = 4</code>
+                <code>x₃ = 0 - (2)(-1/2) = 1</code>
+                <code>x₄ = -1 - (2*0) = -1</code>
+                <code>R₁ = 0 - (2)(1/2) = -1</code>
+                <code>R₂ = 1 - (2*0) = 1</code>
+                <code>B(j) = 9-(2)(3/2)=6</code>
+            </div>
+            
+            <h3>Iteración 2</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>x₁</th>
+                        <th>x₂</th>
+                        <th>x₃</th>
+                        <th>x₄</th>
+                        <th>R₁</th>
+                        <th>R₂</th>
+                        <th>B(j)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Z</strong></td>
+                        <td>0</td>
+                        <td>395</td>
+                        <td>197/2</td>
+                        <td>-100</td>
+                        <td>-397/2</td>
+                        <td>0</td>
+                        <td>1209/2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>x₁</strong></td>
+                        <td>1</td>
+                        <td>-1</td>
+                        <td>-1/2</td>
+                        <td>0</td>
+                        <td>1/2</td>
+                        <td>0</td>
+                        <td>3/2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>R₂</strong></td>
+                        <td>0</td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>-1</td>
+                        <td>-1</td>
+                        <td>1</td>
+                        <td>6</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>x₁</th>
+                        <th>x₂</th>
+                        <th>x₃</th>
+                        <th>x₄</th>
+                        <th>R₁</th>
+                        <th>R₂</th>
+                        <th>B(j)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Z</strong></td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>-1/4</td>
+                        <td>-5/4</td>
+                        <td>-399/4</td>
+                        <td>-395/4</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td><strong>x₁</strong></td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>-1/4</td>
+                        <td>-1/4</td>
+                        <td>1/4</td>
+                        <td>1/4</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td><strong>x₂</strong></td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>1/4</td>
+                        <td>-1/4</td>
+                        <td>-1/4</td>
+                        <td>1/4</td>
+                        <td>3/2</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4>Para fila Z:</h4>
+            <div class="math-formula">
+                <code>x₁ = 0 - (395*0) = 0</code>
+                <code>x₂ = 395 - (395)(1) = 0</code>
+                <code>x₃ = 197/2 - (395)(1/4) = -1/4</code>
+                <code>x₄ = -100 - (395)(-1/4) = -5/4</code>
+                <code>R₁ = -397/2 - (395)(-1/4) = -399/4</code>
+                <code>R₂ = 0 - (395)(1/4) = -395/4</code>
+                <code>B(j) = 1209/2-(395)(3/2)=12</code>
+            </div>
+             <h4>Para fila x₁:</h4>
+            <div class="math-formula">
+                <code>x₁ = 1 - (-1*0) = 1</code>
+                <code>x₂ = -1 - (-1)(1) = 0</code>
+                <code>x₃ = -1/2 - (-1)(1/4) = -1/4</code>
+                <code>x₄ = 0 - (-1)(-1/4) = -1/4</code>
+                <code>R₁ = 1/2 - (-1)(-1/4) = 1/4</code>
+                <code>R₂ = 0 - (-1)(1/4) = 1/4</code>
+                <code>B(j) = 3/2-(-1)(3/2)=3</code>
+            </div>
+            <h4>Para fila x₂:</h4>
+            <div class="math-formula">
+                <code>x₁ = 0/4 = 0</code>
+                <code>x₂ = 4/4 = 1</code>
+                <code>x₃ = 1/4</code>
+                <code>x₄ = -1/4</code>
+                <code>R₁ = -1/4</code>
+                <code>R₂ = 1/4</code>
+                <code>B(j) = 6/4 = 3/2</code>
+            </div>
+            <h3>Tabla final</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>x₁</th>
+                        <th>x₂</th>
+                        <th>x₃</th>
+                        <th>x₄</th>
+                        <th>R₁</th>
+                        <th>R₂</th>
+                        <th>B(j)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Z</strong></td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>-1/4</td>
+                        <td>-5/4</td>
+                        <td>-399/4</td>
+                        <td>-395/4</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td><strong>x₁</strong></td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>-1/4</td>
+                        <td>-1/4</td>
+                        <td>1/4</td>
+                        <td>1/4</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td><strong>x₂</strong></td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>1/4</td>
+                        <td>-1/4</td>
+                        <td>-1/4</td>
+                        <td>1/4</td>
+                        <td>3/2</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Solución óptima:</h3>
+            <div class="math-formula">
+                <code>x₁ = 3, x₂ = 3/2, Z = 12</code>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

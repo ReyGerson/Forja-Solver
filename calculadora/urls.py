@@ -40,4 +40,9 @@ urlpatterns = [
     path('simplex/historial/', views.simplex_historial, name='simplex_historial'),
     path('simplex/cargar/<int:historial_id>/', views.cargar_simplex_historial, name='cargar_simplex_historial'),
 
+    path('documentacionSimplex/',views.documentacion_simplex, name='documentacionSimplex'),
+    path('documentacionM', views.documentacion_m, name='documentacionM'),
+    path('documentacionGrafico', views.documentacion_grafico, name='documentacionGrafico'),
+
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

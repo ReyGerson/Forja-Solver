@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+    {% load static%}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación del Método Gráfico - Forja Solver</title>
+    <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            background-color: var(--light);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        h1 {
+            color: var(--info);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        h2, h3 {
+            color: var(--success);
+            margin-top: 1.5em;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+
+        .content-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .math-formula {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .math-formula code {
+            font-family: 'Courier New', monospace;
+            color: var(--secondary);
+            font-size: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .advantages-list, .disadvantages-list {
+            padding-left: 20px;
+        }
+
+        .advantages-list li {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .advantages-list li::before {
+            content: "✓";
+            color: var(--success);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .disadvantages-list li {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .disadvantages-list li::before {
+            content: "⚠";
+            color: var(--danger);
+            position: absolute;
+            left: 0;
+        }
+
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .use-case {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .use-case h4 {
+            margin-top: 0;
+            color: var(--info);
+        }
+
+        .step {
+            margin-bottom: 30px;
+        }
+
+        .step h3 {
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 5px;
+        }
+
+        .graph-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .graph-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .solution-box {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+            margin: 20px 0;
+        }
+
+        button, .btn {
+            background-color: var(--info);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        button:hover, .btn:hover {
+            background-color: #3A6A70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .use-cases {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-box {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            .math-formula {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            color: var(--success);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Documentación del Método Gráfico</h1>
+        <a href="{% url 'index' %}" class="btn">Inicio</a>
+        <div class="content-box">
+            <h2>Objetivo del método</h2>
+            <p>Solucionar problemas de <a href="https://ingenieriaindustrialonline.com/investigacion-de-operaciones/programacion-lineal/" target="_blank">programación lineal</a> que se utiliza principalmente para casos con dos variables. Aunque no es muy práctico para una gran cantidad de variables, es muy útil para interpretar y analizar los resultados y la sensibilidad del problema.</p>
+        </div>
+        
+        <div class="content-box">
+            <h2>Ventajas</h2>
+            <ul class="advantages-list">
+                <li><strong>Capacidad para encontrar la mejor solución:</strong> En situaciones donde los recursos son limitados.</li>
+                <li><strong>Optimización de recursos:</strong> Permite maximizar el uso de recursos limitados, como tiempo, dinero y materiales.</li>
+                <li><strong>Facilidad de implementación:</strong> Con el uso de <a href="https://programacionpro.com/ventajas-y-desventajas-de-la-programacion-lineal/" target="_blank">software</a> especializado, se puede implementar de manera eficiente en diversos escenarios.</li>
+                <li><strong>Flexibilidad:</strong> Es posible ajustar los parámetros y restricciones para adaptarse a diferentes situaciones y necesidades.</li>
+            </ul>
+            
+            <h2>Desventajas</h2>
+            <ul class="disadvantages-list">
+                <li><strong>Complejidad computacional:</strong> En algunos casos, resolver problemas puede requerir una gran cantidad de recursos computacionales.</li>
+                <li><strong>Limitaciones en la modelización:</strong> Algunas situaciones del mundo real pueden no ajustarse perfectamente al modelo lineal, lo que puede llevar a soluciones subóptimas.</li>
+                <li><strong>Sensibilidad a los datos de entrada:</strong> Pequeños cambios en los datos de entrada pueden tener un impacto significativo en los resultados, lo que requiere un análisis cuidadoso.</li>
+            </ul>
+        </div>
+        
+        <div class="content-box">
+            <h2>Situaciones de uso</h2>
+            <p>Esta herramienta es ampliamente utilizada en campos como la economía, la ingeniería, la logística y más. Las situaciones más comunes donde se aplica el método gráfico son:</p>
+            
+            <div class="use-cases">
+                <div class="use-case">
+                    <h4>Optimización de productos</h4>
+                    <p>Determinar la combinación óptima de productos para maximizar beneficios.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Mezclas y formulaciones</h4>
+                    <p>Encontrar la combinación óptima de ingredientes o componentes.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Asignación de recursos</h4>
+                    <p>Distribuir recursos limitados entre diferentes actividades o departamentos.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Problemas de transporte</h4>
+                    <p>Optimizar rutas y costos de transporte.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Planificación de la producción</h4>
+                    <p>Programar la producción para maximizar la eficiencia.</p>
+                </div>
+                <div class="use-case">
+                    <h4>Optimización de costos</h4>
+                    <p>Minimizar costos mientras se cumplen los requisitos de producción.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-box">
+            <h2>Pasos para realizar el algoritmo</h2>
+            
+            <div class="step">
+                <h3>1. Formulación del problema</h3>
+                <p>Definir las variables de decisión, la función objetivo y las restricciones.</p>
+            </div>
+            
+            <div class="step">
+                <h3>2. Gráfico de las restricciones</h3>
+                <p>Representar gráficamente cada una de las restricciones en un sistema de coordenadas.</p>
+            </div>
+            
+            <div class="step">
+                <h3>3. Identificación de la región factible</h3>
+                <p>Determinar el área donde se satisfacen todas las restricciones simultáneamente.</p>
+            </div>
+            
+            <div class="step">
+                <h3>4. Búsqueda de la solución óptima</h3>
+                <p>Encontrar el punto (o puntos) en la región factible que maximiza o minimiza la función objetivo.</p>
+            </div>
+            
+            <div class="step">
+                <h3>5. Análisis de la solución</h3>
+                <p>Interpretar los resultados y verificar su validez en el contexto del problema.</p>
+            </div>
+        </div>
+        
+        <div class="content-box">
+            <h2>Ejemplo</h2>
+            
+            <div class="step">
+                <h3>Paso 1: Formulación del problema</h3>
+                <p>La fábrica de hilados y tejidos Salazar requiere fabricar dos tejidos de calidad diferente, estándar y premium; se dispone de:</p>
+                <ul>
+                    <li>500 kg de hilo A</li>
+                    <li>300 kg de hilo B</li>
+                    <li>108 kg de hilo C</li>
+                </ul>
+                
+                <p><strong>Requisitos por metro de tejido:</strong></p>
+                <ul>
+                    <li><strong>Estándar:</strong> 125 gr de A, 150 gr de B y 75 gr de C</li>
+                    <li><strong>Premium:</strong> 200 gr de A, 100 gr de B y 27 gr de C</li>
+                </ul>
+                
+                <p><strong>Precios de venta:</strong></p>
+                <ul>
+                    <li>Estándar: $4,000 por metro</li>
+                    <li>Premium: $5,000 por metro</li>
+                </ul>
+                
+                <p><strong>Variables:</strong></p>
+                <div class="math-formula">
+                    <code>X: cantidad de metros diarios de tejido tipo estándar</code>
+                    <code>Y: cantidad de metros diarios de tejido tipo premium</code>
+                </div>
+                
+                <p><strong>Restricciones:</strong></p>
+                <div class="math-formula">
+                    <code>0.12x + 0.2y ≤ 500  (kg de hilo A)</code>
+                    <code>0.15x + 0.1y ≤ 300  (kg de hilo B)</code>
+                    <code>0.075x + 0.027y ≤ 108  (kg de hilo C)</code>
+                    <code>x, y ≥ 0  (restricciones de no negatividad)</code>
+                </div>
+                
+                <p><strong>Función objetivo:</strong></p>
+                <div class="math-formula">
+                    <code>Z<sub>max</sub> = 4000x + 5000y  (máximos ingresos totales)</code>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 2: Gráfico de las restricciones</h3>
+                <p>Igualamos las restricciones a 0 para encontrar los puntos de corte:</p>
+                
+                <p><strong>Restricción 1 (Hilo A):</strong></p>
+                <div class="math-formula">
+                    <code>0.12x + 0.2y = 500</code>
+                    <code>Cuando x = 0 → y = 2500 → (0, 2500)</code>
+                    <code>Cuando y = 0 → x ≈ 4167 → (4167, 0)</code>
+                </div>
+                
+                <p><strong>Restricción 2 (Hilo B):</strong></p>
+                <div class="math-formula">
+                    <code>0.15x + 0.1y = 300</code>
+                    <code>Cuando x = 0 → y = 3000 → (0, 3000)</code>
+                    <code>Cuando y = 0 → x = 2000 → (2000, 0)</code>
+                </div>
+                
+                <p><strong>Restricción 3 (Hilo C):</strong></p>
+                <div class="math-formula">
+                    <code>0.075x + 0.027y = 108</code>
+                    <code>Cuando x = 0 → y ≈ 4000 → (0, 4000)</code>
+                    <code>Cuando y = 0 → x = 1440 → (1440, 0)</code>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 3: Identificación de la región factible</h3>
+                <p>Con las coordenadas encontradas anteriormente:</p>
+                <ul>
+                    <li>Restricción 1 (Hilo A): (0, 2500) y (4167, 0)</li>
+                    <li>Restricción 2 (Hilo B): (0, 3000) y (2000, 0)</li>
+                    <li>Restricción 3 (Hilo C): (0, 4000) y (1440, 0)</li>
+                </ul>
+                
+                <div class="graph-container">
+                    <img src="{% static 'img/grafico.png' %}" alt="Gráfico de restricciones y región factible">
+                    <p><em>Gráfico que muestra las restricciones y la región factible</em></p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 4: Búsqueda de la solución óptima</h3>
+                <p>Encontramos la intersección de las restricciones 1 y 2:</p>
+                
+                <div class="math-formula">
+                    <code>Ecuación 1: 0.12x + 0.2y = 500</code>
+                    <code>Ecuación 2: 0.15x + 0.1y = 300 (multiplicamos por -2)</code>
+                    <code>Ecuación 2 modificada: -0.30x - 0.2y = -600</code>
+                    <code>Sumamos 1 y 2 modificada: -0.18x = -100</code>
+                    <code>Despejamos x: x = -100 / -0.18 ≈ 555.55</code>
+                </div>
+                
+                <p>Reemplazamos x = 555.55 en la ecuación 1 para encontrar y:</p>
+                <div class="math-formula">
+                    <code>0.12(555.55) + 0.2y = 500</code>
+                    <code>66.666 + 0.2y = 500</code>
+                    <code>0.2y = 500 - 66.666 = 433.334</code>
+                    <code>y = 433.334 / 0.2 ≈ 2166.67</code>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h3>Paso 5: Análisis de la solución</h3>
+                <div class="solution-box">
+                    <p>La contribución obtenida (reemplazando las variables en la función objetivo) es de:</p>
+                    <div class="math-formula">
+                        <code>Z<sub>max</sub> = 4000x + 5000y</code>
+                        <code>Z<sub>max</sub> = 4000(555.55) + 5000(2166.67)</code>
+                        <code>Z<sub>max</sub> ≈ $13,055,550</code>
+                    </div>
+                    
+                    <p><strong>Solución óptima:</strong></p>
+                    <ul>
+                        <li>Tejido estándar (x): ≈ 556 metros</li>
+                        <li>Tejido premium (y): ≈ 2167 metros</li>
+                        <li>Máxima ganancia: ≈ $13,055,550</li>
+                    </ul>
+                    
+                    <p>Esto significa que deben producir aproximadamente 556 metros de estándar y 2167 metros de premium para obtener la máxima ganancia.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

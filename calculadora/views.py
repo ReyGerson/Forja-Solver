@@ -1095,6 +1095,19 @@ def simplex_historial(request):
     })
 
 @login_required
+def documentacion_simplex(request):
+    """Documentación del método de Simplex."""
+    return render(request, 'simplex/documentacion_simplex.html')
+@login_required
+def documentacion_m(request):
+    """Documentación del método la de M."""
+    return render(request, 'simplex/documentacion_m.html')
+@login_required
+def documentacion_grafico(request):
+    """Documentación del método de Grafico."""
+    return render(request, 'simplex/documentacion_grafico.html')
+
+@login_required
 def cargar_simplex_historial(request, historial_id):
     """Cargar un problema del historial para resolverlo nuevamente"""
     

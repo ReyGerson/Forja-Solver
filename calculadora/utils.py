@@ -84,3 +84,4 @@ def natural_cubic_spline(points, x_query):
         'x_intervalo': [x[i], x[i+1]],
         'polinomio_usado': polinomios[i]['formula']
     }
+

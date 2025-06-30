@@ -1,121 +1,249 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial Simplex - Forja Solver</title>
-    
     <style>
+        :root {
+            --primary: #DCC9A9;
+            --secondary: #1A1A1A;
+            --success: #4E6851;
+            --info: #4B848A;
+            --warning: #FBC359;
+            --danger: #E70103;
+            --light: #F9F2F2;
+            --alert: #BB3A2D;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--secondary);
+            background-color: var(--light);
             margin: 0;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 0 15px;
         }
-        
+
+        h1 {
+            color: var(--info);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+
+        h2, h3, h4 {
+            color: var(--success);
+            margin-top: 1.5em;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+
+        .historial-container, .notice-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
         .historial-item {
             background: #f8f9fa;
             padding: 20px;
             margin: 15px 0;
             border-radius: 8px;
-            border-left: 4px solid #1f1f2e;
+            border-left: 4px solid var(--info);
         }
-        
+
         .historial-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
-        
+
         .historial-titulo {
             font-size: 18px;
             font-weight: bold;
-            color: #1f1f2e;
+            color: var(--secondary);
         }
-        
+
         .historial-fecha {
             color: #666;
             font-size: 14px;
         }
-        
+
         .historial-detalles {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin: 15px 0;
         }
-        
+
+        @media (max-width: 768px) {
+            .historial-detalles {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .detalle-item {
             background: white;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--primary);
         }
-        
+
         .detalle-label {
             font-weight: bold;
-            color: #1f1f2e;
+            color: var(--info);
             margin-bottom: 5px;
         }
-        
-        .btn {
-            background: linear-gradient(135deg, #1f1f2e, #1A1A1A);
+
+        button, .btn {
+            background-color: var(--info);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
             text-decoration: none;
             display: inline-block;
             margin: 5px;
         }
-        
-        .btn:hover {
-            opacity: 0.9;
+
+        button:hover, .btn:hover {
+            background-color: #3A6A70;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .btn-secondary {
-            background: #6c757d;
+            background: var(--warning);
+            color: var(--secondary);
         }
-        
+
         .premium-badge {
-            background: #ffd700;
-            color: #000;
-            padding: 3px 8px;
+            background: var(--warning);
+            color: var(--secondary);
+            padding: 3px 10px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: bold;
+            margin-left: 10px;
         }
-        
-        .no-premium-notice {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
-            margin-bottom: 20px;
+
+        .notice-box {
+            background-color: #fff3cd;
+            border-left: 4px solid var(--warning);
+            margin-bottom: 30px;
+        }
+
+        .notice-box h4 {
+            color: var(--alert);
+            margin-top: 0;
+        }
+
+        .notice-box ul {
+            padding-left: 20px;
+        }
+
+        .notice-box li {
+            margin-bottom: 8px;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 50px;
+            color: var(--danger);
+            font-style: italic;
+        }
+
+        .var-optima {
+            background: #e8f5e8;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 480px) {
+            .historial-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .historial-fecha {
+                margin-top: 10px;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-container .btn {
+                margin-top: 15px;
+                width: 100%;
+            }
+        }
+
+        code {
+            background-color: var(--light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--danger);
+            border-left: 3px solid var(--warning);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            display: inline-block;
+            margin: 3px 0;
+        }
+
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: var(--success);
+            text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div class="header-container">
             <h1>📊 Historial del Método Simplex</h1>
             <a href="{% url 'simplex' %}" class="btn">Nuevo Problema</a>
+            <a href="{% url 'index' %}" class="btn">Inicio</a>
         </div>
         
         {% if not is_premium %}
-        <div class="no-premium-notice">
+        <div class="notice-box">
             <h4>⚠️ Funcionalidad Limitada</h4>
             <p>Como usuario gratuito, solo puedes ver los resultados finales de tus problemas anteriores.</p>
             <p><strong>Con Premium puedes:</strong></p>
@@ -124,7 +252,7 @@
                 <li>Acceder al proceso completo de resolución</li>
                 <li>Análisis detallado de cada tabla</li>
             </ul>
-            <a href="{% url 'tienda' %}" class="btn" style="background: #ffd700; color: #000;">Actualizar a Premium</a>
+            <a href="{% url 'tienda' %}" class="btn btn-secondary">Actualizar a Premium</a>
         </div>
         {% endif %}
         
@@ -149,7 +277,7 @@
                     
                     <div class="detalle-item">
                         <div class="detalle-label">Resultado:</div>
-                        <div style="font-size: 16px; font-weight: bold; color: #28a745;">
+                        <div style="font-size: 16px; font-weight: bold; color: var(--success);">
                             {% if item.tipo_objetivo == "Minimizar" %}
                             Valor mínimo: Z = {{ item.valor_z|floatformat:2 }}
                             {% else %}
@@ -161,15 +289,12 @@
                 
                 <div style="margin-top: 15px;">
                     <div class="detalle-label">Variables Óptimas:</div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                    <div style="margin-top: 10px;">
                         {% for var, valor in item.solucion_optima.items %}
-                        <div style="background: #e8f5e8; padding: 8px 12px; border-radius: 5px;">
-                            <strong>{{ var }} = {{ valor|floatformat:2 }}</strong>
-                        </div>
+                        <span class="var-optima"><strong>{{ var }} = {{ valor|floatformat:2 }}</strong></span>
                         {% endfor %}
                     </div>
                 </div>
-                
                 
                 <div style="margin-top: 20px; text-align: right;">
                     <a href="{% url 'cargar_simplex_historial' item.id %}" class="btn">🔄 Cargar Problema</a>
@@ -177,7 +302,7 @@
             </div>
             {% endfor %}
         {% else %}
-            <div style="text-align: center; padding: 50px; color: #666;">
+            <div class="empty-message">
                 <h3>📋 No hay problemas en el historial</h3>
                 <p>Resuelve tu primer problema del método simplex para ver el historial aquí.</p>
                 <a href="{% url 'simplex' %}" class="btn">Resolver Primer Problema</a>
