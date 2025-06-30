@@ -7,6 +7,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
+from django.utils import timezone
+
 
 from .user_profile import UserProfile
 
@@ -60,3 +62,24 @@ def save_user_profile(sender, instance, **kwargs):
     Guarda automáticamente el perfil extendido al guardar el usuario.
     """
     instance.userprofile.save()
+
+class MetodoGraficoHistorial(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+    funcion = models.CharField(max_length=255)
+    optimizacion = models.CharField(max_length=10)  # 'max' o 'min'
+    restricciones = models.TextField()
+    solucion = models.CharField(max_length=100)
+    punto_optimo = models.CharField(max_length=100)
+    puntos_factibles = models.TextField()
+    vertices = models.TextField(blank=True, null=True)
+    iteraciones = models.TextField(blank=True, null=True)
+    grafica = models.TextField(blank=True, null=True)  # Para almacenar el HTML de la gráfica
+
+    class Meta:
+        verbose_name = "Historial Método Gráfico"
+        verbose_name_plural = "Historial Método Gráfico"
+        ordering = ['-fecha_creacion']
+
+    def __str__(self):
+        return f"Método Gráfico - {self.fecha_creacion.strftime('%Y-%m-%d %H:%M')}"
