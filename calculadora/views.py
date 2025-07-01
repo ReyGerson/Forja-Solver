@@ -629,6 +629,9 @@ def creditos(request):
 # Variable global para definir decimales en el simplex
 decimal_places = 2
 
+# Variable global para almacenar nombres de variables personalizadas
+variables_nombres = ['x1', 'x2']
+
 def format_value(value: float) -> str:
     """Formatea un valor flotante con el número de decimales especificado"""
     return f"{value:.{decimal_places}f}"
@@ -934,11 +937,366 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
         resultado['iteraciones'].append(iteracion_data)
         iteration += 1
 
-    # Solución óptima
-    solution = {var: 0.0 for var in var_names}
-    for i, var in enumerate(basis):
-        if var in solution:
-            solution[var] = table.at[i, "B"]  
+    # Solución óptima con nombres personalizados
+    solution = {}
+    
+    # Agregar variables de decisión (personalizadas)
+    for i, var_personalizada in enumerate(variables_nombres):
+        var_original = f"x{i+1}"  # x1, x2, etc.
+        if var_original in basis:
+            idx = basis.index(var_original)
+            solution[var_personalizada] = table.at[idx, "B"]
+        else:
+            solution[var_personalizada] = 0.0
+    
+    # Agregar variables de holgura
+    for slack_var in slack_vars:
+        if slack_var in basis:
+            idx = basis.index(slack_var)
+            solution[slack_var] = table.at[idx, "B"]
+        else:
+            solution[slack_var] = 0.0
+
+    resultado['solucion_optima'] = solution
+    
+    # Para minimización, el valor de Z debe ser negado porque internamente trabajamos con -Z
+    z_value = table.at[len(table) - 1, "B"]
+    if tipo_objetivo == "Minimizar":
+        z_value = -z_value  # Regresar al valor original
+    
+    resultado['valor_z'] = z_value
+    resultado['tipo_objetivo'] = tipo_objetivo
+    
+    return resultado
+
+def parse_latex_to_numbers_with_custom_vars(funcion_latex, restricciones_latex, variables_nombres):
+    """
+    Convierte las expresiones LaTeX de MathLive a listas numéricas usando nombres de variables personalizados
+    """
+    try:
+        # Parsear función objetivo
+        objetivo = []
+        
+        # Limpiar la expresión y extraer coeficientes
+        funcion_clean = funcion_latex.replace('\\cdot', '*').replace(' ', '')
+        
+        # Crear un mapeo de variables personalizadas a índices
+        var_mapping = {var: i+1 for i, var in enumerate(variables_nombres)}
+        
+        # Buscar patrones de variables personalizadas en la función objetivo
+        coef_dict = {}
+        
+        # Primero, intentar buscar variables personalizadas directamente
+        for var_name in variables_nombres:
+            # Buscar patrones como 20var_name, -15var_name, etc.
+            patron = rf'([+-]?\d*)\*?{re.escape(var_name)}(?!\w)'
+            matches = re.findall(patron, funcion_clean)
+            
+            coef_sum = 0
+            for coef_str in matches:
+                if coef_str in ['', '+']:
+                    coef_sum += 1
+                elif coef_str == '-':
+                    coef_sum += -1
+                else:
+                    coef_sum += int(coef_str)
+            
+            if coef_sum != 0:
+                coef_dict[var_mapping[var_name]] = coef_sum
+        
+        # Si no se encontraron variables personalizadas, usar el patrón original x_1, x_2
+        if not coef_dict:
+            patron_coef = r'([+-]?\d*)\*?x_\{?(\d+)\}?'
+            matches = re.findall(patron_coef, funcion_clean)
+            
+            for coef_str, var_num in matches:
+                if coef_str in ['', '+']:
+                    coef = 1
+                elif coef_str == '-':
+                    coef = -1
+                else:
+                    coef = int(coef_str)
+                coef_dict[int(var_num)] = coef
+        
+        # Crear lista ordenada de coeficientes
+        max_var = max(coef_dict.keys()) if coef_dict else len(variables_nombres)
+        objetivo = [coef_dict.get(i+1, 0) for i in range(max_var)]
+        
+        # Parsear restricciones
+        restricciones = []
+        
+        for restriccion in restricciones_latex:
+            # Separar lado izquierdo del derecho
+            operador_encontrado = None
+            if '\\leq' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\leq')
+                operador_encontrado = '<='
+            elif '\\le' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\le')
+                operador_encontrado = '<='
+            elif '\\geq' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\geq')
+                operador_encontrado = '>='
+            elif '\\ge' in restriccion:
+                lado_izq, lado_der = restriccion.split('\\ge')
+                operador_encontrado = '>='
+            elif '≤' in restriccion:
+                lado_izq, lado_der = restriccion.split('≤')
+                operador_encontrado = '<='
+            elif '≥' in restriccion:
+                lado_izq, lado_der = restriccion.split('≥')
+                operador_encontrado = '>='
+            else:
+                continue
+            
+            # Limpiar y parsear lado izquierdo
+            lado_izq = lado_izq.replace('\\cdot', '*').replace(' ', '')
+            lado_der = lado_der.strip()
+            
+            # Extraer coeficientes del lado izquierdo usando variables personalizadas
+            coef_rest_dict = {}
+            
+            # Buscar variables personalizadas
+            for var_name in variables_nombres:
+                patron = rf'([+-]?\d*)\*?{re.escape(var_name)}(?!\w)'
+                matches_rest = re.findall(patron, lado_izq)
+                
+                coef_sum = 0
+                for coef_str in matches_rest:
+                    if coef_str in ['', '+']:
+                        coef_sum += 1
+                    elif coef_str == '-':
+                        coef_sum += -1
+                    else:
+                        coef_sum += int(coef_str)
+                
+                if coef_sum != 0:
+                    coef_rest_dict[var_mapping[var_name]] = coef_sum
+            
+            # Si no se encontraron variables personalizadas, usar patrón x_1, x_2
+            if not coef_rest_dict:
+                patron_coef = r'([+-]?\d*)\*?x_\{?(\d+)\}?'
+                matches_rest = re.findall(patron_coef, lado_izq)
+                
+                for coef_str, var_num in matches_rest:
+                    if coef_str in ['', '+']:
+                        coef = 1
+                    elif coef_str == '-':
+                        coef = -1
+                    else:
+                        coef = int(coef_str)
+                    coef_rest_dict[int(var_num)] = coef
+            
+            # Crear fila de restricción [coef_x1, coef_x2, ..., b]
+            fila_restriccion = [coef_rest_dict.get(i+1, 0) for i in range(max_var)]
+            
+            # Agregar término independiente (lado derecho)
+            try:
+                rhs = float(lado_der)
+                
+                # Para restricciones >=, multiplicar por -1 para convertir a <=
+                if operador_encontrado == '>=':
+                    fila_restriccion = [-coef for coef in fila_restriccion]
+                    rhs = -rhs
+                
+                fila_restriccion.append(rhs)
+                restricciones.append(fila_restriccion)
+            except ValueError:
+                continue
+        
+        return objetivo, restricciones
+        
+    except Exception as e:
+        print(f"Error en parsing con variables personalizadas: {e}")
+        # Valores por defecto en caso de error
+        return [20, 40], [[2, 3, 110], [4, 1, 130]]
+
+def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]], tipo_objetivo: str = "Maximizar", variables_nombres: List[str] = None) -> dict:
+    """
+    Genera la solución completa del método simplex adaptada para Django con variables personalizadas
+    """
+    if variables_nombres is None:
+        variables_nombres = [f"x{i+1}" for i in range(len(obj))]
+    
+    num_constraints = len(matrix) - 1
+    num_vars = len(var_names)
+
+    slack_vars = [f"s{i+1}" for i in range(num_constraints)]
+    all_vars = var_names + slack_vars + ["B"] 
+    table = pd.DataFrame(matrix, columns=all_vars)
+
+    basis = slack_vars.copy()
+    
+    # Datos para el template
+    resultado = {
+        'obj_original': obj,
+        'constraints_original': constraints,
+        'var_names': var_names,
+        'slack_vars': slack_vars,
+        'iteraciones': [],
+        'solucion_optima': {},
+        'valor_z': 0,
+        'tabla_inicial': None,
+        'modelo_matematico': None,
+        'modelo_holgura': None,
+        'variables_nombres': variables_nombres
+    }
+    
+    # Modelo matemático original con variables personalizadas
+    if tipo_objetivo == "Minimizar":
+        # Para minimización, el objetivo original es el negativo de lo que usamos internamente
+        obj_original = [-c for c in obj]  # obj ya está negado para minimización
+        obj_expr = " + ".join(f"{format_value(c)}{var}" for i, (c, var) in enumerate(zip(obj_original, variables_nombres)) if c != 0)
+        objetivo_texto = f"\\text{{Minimizar }} Z = {obj_expr}"
+        funcion_z_estandar = f"Z - ({obj_expr}) = 0"
+    else:
+        obj_expr = " + ".join(f"{format_value(c)}{var}" for i, (c, var) in enumerate(zip(obj, variables_nombres)) if c != 0)
+        objetivo_texto = f"\\text{{Maximizar }} Z = {obj_expr}"
+        funcion_z_estandar = f"Z - ({obj_expr}) = 0"
+    
+    constraints_expr = []
+    for i, row in enumerate(constraints):
+        lhs = " + ".join(f"{format_value(val)}{variables_nombres[j]}" for j, val in enumerate(row[:-1]) if val != 0)
+        rhs = format_value(row[-1])
+        # Para minimización, mostrar las restricciones originales (>=)
+        if tipo_objetivo == "Minimizar":
+            # Las restricciones ya están convertidas a <= internamente, pero mostramos las originales >=
+            lhs_original = " + ".join(f"{format_value(-val)}{variables_nombres[j]}" for j, val in enumerate(row[:-1]) if val != 0)
+            rhs_original = format_value(-row[-1])
+            constraints_expr.append(f"{lhs_original} \\geq {rhs_original}")
+        else:
+            constraints_expr.append(f"{lhs} \\leq {rhs}")
+    
+    resultado['modelo_matematico'] = {
+        'funcion_objetivo': objetivo_texto,
+        'funcion_z_estandar': funcion_z_estandar,
+        'restricciones': constraints_expr
+    }
+    
+    # Modelo con variables de holgura
+    transformed_expr = []
+    for i, row in enumerate(constraints):
+        lhs = " + ".join(f"{format_value(val)}{variables_nombres[j]}" for j, val in enumerate(row[:-1]) if val != 0)
+        lhs += f" + s_{{{i+1}}}"
+        rhs = format_value(row[-1])
+        transformed_expr.append(f"{lhs} = {rhs}")
+    
+    resultado['modelo_holgura'] = transformed_expr
+    
+    # Tabla inicial
+    tabla_inicial_html = generar_tabla_html(table, basis, 0)
+    resultado['tabla_inicial'] = tabla_inicial_html
+
+    # Iteraciones del algoritmo simplex
+    iteration = 0
+    while True:
+        # Crear datos de la iteración actual
+        iteracion_data = {
+            'numero': iteration,
+            'tabla_html': generar_tabla_html(table, basis, iteration),
+            'es_optima': False,
+            'variable_entra': None,
+            'variable_sale': None,
+            'elemento_pivote': None,
+            'operaciones': []
+        }
+        
+        # Verificar si es solución óptima
+        last_row = table.iloc[-1, :-1]
+        pivot_col_name = last_row.idxmin()
+        
+        if table.at[len(table) - 1, pivot_col_name] >= 0:
+            iteracion_data['es_optima'] = True
+            resultado['iteraciones'].append(iteracion_data)
+            break
+
+        # Encontrar variable que entra y sale
+        ratios = []
+        for i in range(len(table) - 1):
+            col_val = table.at[i, pivot_col_name]
+            if col_val > 0:
+                ratios.append(table.at[i, "B"] / col_val) 
+            else:
+                ratios.append(float('inf'))
+
+        pivot_row = ratios.index(min(ratios))
+        pivot_element = table.at[pivot_row, pivot_col_name]
+
+        entering = pivot_col_name
+        leaving = basis[pivot_row]
+        
+        iteracion_data['variable_entra'] = entering
+        iteracion_data['variable_sale'] = leaving
+        iteracion_data['elemento_pivote'] = format_value(pivot_element)
+        
+        # Normalización de fila pivote
+        operacion_pivote = []
+        new_pivot_row = []
+        for col in table.columns:
+            original_val = table.at[pivot_row, col]
+            new_val = original_val / pivot_element
+            new_pivot_row.append(new_val)
+            operacion_pivote.append({
+                'variable': col,
+                'operacion': f"{format_value(original_val)} ÷ {format_value(pivot_element)} = {format_value(new_val)}"
+            })
+        table.iloc[pivot_row] = new_pivot_row
+        
+        iteracion_data['operaciones'].append({
+            'tipo': 'normalizacion',
+            'fila': f"F{pivot_row+1}",
+            'detalles': operacion_pivote
+        })
+        
+        # Actualización de otras filas
+        for i in range(len(table)):
+            if i != pivot_row:
+                factor = table.at[i, pivot_col_name]
+                if factor != 0:
+                    operacion_fila = []
+                    original_row = table.iloc[i].copy()
+                    new_row = []
+                    for col in table.columns:
+                        old_val = original_row[col]
+                        pivot_val = table.at[pivot_row, col]
+                        result = old_val - factor * pivot_val
+                        new_row.append(result)
+                        operacion_fila.append({
+                            'variable': col,
+                            'operacion': f"{format_value(old_val)} - ({format_value(factor)} × {format_value(pivot_val)}) = {format_value(result)}"
+                        })
+                    table.iloc[i] = new_row
+                    
+                    iteracion_data['operaciones'].append({
+                        'tipo': 'actualizacion',
+                        'fila': f"F{i+1}",
+                        'factor': format_value(factor),
+                        'detalles': operacion_fila
+                    })
+
+        basis[pivot_row] = entering
+        resultado['iteraciones'].append(iteracion_data)
+        iteration += 1
+
+    # Solución óptima con nombres personalizados
+    solution = {}
+    
+    # Agregar variables de decisión (personalizadas)
+    for i, var_personalizada in enumerate(variables_nombres):
+        var_original = f"x{i+1}"  # x1, x2, etc.
+        if var_original in basis:
+            idx = basis.index(var_original)
+            solution[var_personalizada] = table.at[idx, "B"]
+        else:
+            solution[var_personalizada] = 0.0
+    
+    # Agregar variables de holgura
+    for slack_var in slack_vars:
+        if slack_var in basis:
+            idx = basis.index(slack_var)
+            solution[slack_var] = table.at[idx, "B"]
+        else:
+            solution[slack_var] = 0.0
 
     resultado['solucion_optima'] = solution
     
@@ -1019,9 +1377,15 @@ def simplex(request):
             funcion_objetivo = request.POST.get("funcion_objetivo", "")
             restricciones_raw = request.POST.get("restricciones", "[]")
             tipo_objetivo = request.POST.get("tipo_objetivo", "Maximizar")
+            variables_nombres_raw = request.POST.get("variables_nombres", "[]")
             
-            # Parsear las restricciones JSON
+            # Parsear las restricciones JSON y variables personalizadas
             restricciones = json.loads(restricciones_raw)
+            variables_nombres = json.loads(variables_nombres_raw) if variables_nombres_raw else []
+            
+            # Si no hay variables personalizadas, usar valores por defecto
+            if not variables_nombres:
+                variables_nombres = ['x1', 'x2']
             
             # Validar coherencia entre tipo de objetivo y restricciones (validación adicional del backend)
             error_validacion = validar_coherencia_objetivo_restricciones(tipo_objetivo, restricciones)
@@ -1030,8 +1394,8 @@ def simplex(request):
                     'error': error_validacion
                 })
             
-            # Convertir de LaTeX a números
-            objetivo, constraints = parse_latex_to_numbers(funcion_objetivo, restricciones)
+            # Convertir de LaTeX a números usando variables personalizadas
+            objetivo, constraints = parse_latex_to_numbers_with_custom_vars(funcion_objetivo, restricciones, variables_nombres)
             
             # Para minimización, convertir a maximización (multiplicar objetivo por -1)
             if tipo_objetivo == "Minimizar":
@@ -1040,8 +1404,8 @@ def simplex(request):
             # Preparar tabla inicial
             matrix, var_names = prepare_initial_table(objetivo, constraints)
             
-            # Resolver el problema simplex
-            resultado = generate_simplex_solution(matrix, var_names, objetivo, constraints, tipo_objetivo)
+            # Resolver el problema simplex con variables personalizadas
+            resultado = generate_simplex_solution_with_custom_vars(matrix, var_names, objetivo, constraints, tipo_objetivo, variables_nombres)
             
             # Verificar si el usuario es premium
             is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False
@@ -1065,7 +1429,8 @@ def simplex(request):
                 'resultado': resultado,
                 'tiene_solucion': True,
                 'tipo_objetivo': tipo_objetivo,
-                'is_premium': is_premium
+                'is_premium': is_premium,
+                'variables_nombres': variables_nombres
             })
             
         except Exception as e:
@@ -1764,6 +2129,7 @@ def metodo_grafico_pdf(request, id):
             if re.match(r"^\d+\. ", linea.strip()):
                 p.setFont("Helvetica-Bold", 11)
                 p.drawString(60, y, linea.strip())
+
                 y -= 14
             # Detectar subtítulos (ej: 'Intersección entre:', 'Método de reducción:')
             elif re.match(r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ].*:$", linea.strip()):

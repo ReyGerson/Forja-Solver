@@ -303,7 +303,7 @@
                 {% endif %}
                 
                 <div class="alert alert-warning">
-                    <h4>⚠️ Limitaciones del Método Simplex Estándar</h4>
+                    <h4>⚠️ Limitaciones del Método Simplex General</h4>
                     <ul>
                         <li><strong>Maximización:</strong> Solo restricciones del tipo ≤ (menor o igual)</li>
                         <li><strong>Minimización:</strong> Requiere métodos avanzados (Gran M o Dos Fases)</li>
@@ -312,33 +312,49 @@
                     <p><strong>💡 Si su problema no cumple estas condiciones, use el Método de la Gran M.</strong></p>
                 </div>
                 
+                <!-- Configuración de Variables -->
+                <div style="margin-bottom: 20px;">
+                    <label><strong>Variables del problema (máximo 10):</strong></label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button type="button" id="agregarVariable" style="background-color: var(--success);">➕ Agregar Variable</button>
+                        <button type="button" id="quitarVariable" style="background-color: var(--danger);">➖ Quitar Variable</button>
+                    </div>
+                    <div id="listaVariables" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                        <!-- Variables se agregan dinámicamente -->
+                    </div>
+                    <div class="alert alert-info" style="font-size: 0.9em;">
+                        <strong>💡 Ejemplos de nombres:</strong> perros, camiones, h, producto_A, x1, etc. Solo letras, números y guiones bajos.
+                    </div>
+                </div>
+
                 <div style="margin-bottom: 20px;">
                     <label><strong>Función objetivo (Z):</strong></label>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <select name="tipo_objetivo" id="tipo_objetivo" required style="flex: 0 0 auto; width: auto;">
+                        <select name="tipo_objetivo" id="tipo_objetivo" required style="flex: 0 0 auto; width: auto;" disabled>
                             <option value="Maximizar" selected>Maximizar</option>
-                            <option value="Minimizar">Minimizar</option>
                         </select>
                         <span id="texto_objetivo" style="font-weight: 600;">Maximizar Z = </span>
-                        <math-field id="campoFuncionObjetivo" style="flex-grow: 1;" placeholder="20x_1 + 40x_2"></math-field>
+                        <math-field id="campoFuncionObjetivo" style="flex-grow: 1;" placeholder="20*perros + 40*camiones"></math-field>
                     </div>
                     <input type="hidden" name="funcion_objetivo" id="funcion_objetivo_hidden">
+                    <input type="hidden" name="variables_nombres" id="variables_nombres_hidden">
                 </div>
 
                 <div id="restricciones" style="margin-bottom: 20px;">
-                    <label><strong>Sujeto a:</strong></label>
+                    <label><strong>Sujeto a (máximo 10 restricciones):</strong></label>
                     <div style="margin-bottom: 10px;">
-                        <button type="button" id="agregarRestricciones">Agregar Restricción</button>
-                        <button type="button" id="quitarRestricciones">Quitar Restricción</button>
+                        <button type="button" id="agregarRestricciones">➕ Agregar Restricción</button>
+                        <button type="button" id="quitarRestricciones">➖ Quitar Restricción</button>
+                        <span id="contadorRestricciones" style="margin-left: 15px; font-weight: bold; color: var(--info);">0/10 restricciones</span>
                     </div>
                     <ul id="listaRestricciones" style="list-style: none; padding: 0; margin: 10px 0;"></ul>
-                    <div style="margin-top: 10px;">
-                        <math-field id="restriccionNecesaria" read-only>x_{1}, x_{2} \geq 0</math-field>
-                    </div>
                     <input type="hidden" name="restricciones" id="restricciones_hidden">
                 </div>
 
-                <button type="submit" style="width: 100%; max-width: 200px; margin: 20px auto 0; display: block;">Resolver</button>
+                <div style="display: flex; gap: 10px; justify-content: center; margin: 20px auto 0; max-width: 450px;">
+                    <button type="submit" style="flex: 1; max-width: 200px;">Resolver</button>
+                    <button type="button" id="nuevoProblema" style="flex: 1; max-width: 200px; background-color: var(--warning); color: var(--secondary);"> Nuevo Problema</button>
+                </div>
             </form>
         </div>
 
@@ -376,12 +392,12 @@
                     </li>
                     {% endfor %}
                     <li style="margin: 5px 0; text-align: center;">
-                        <math-field read-only>x_1, x_2, \ldots \geq 0</math-field>
+                        <math-field read-only>{% if variables_nombres %}{% for var in variables_nombres %}{{ var }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}x_1, x_2, \ldots{% endif %} \geq 0</math-field>
                     </li>
                 </ul>
             </div>
             
-            <h3>⚖️ Función Objetivo en Forma Estándar:</h3>
+            <h3>⚖️ Función Objetivo en Forma General:</h3>
             <div class="alert alert-success">
                 <p><strong>Función Z igualada a cero:</strong></p>
                 <div style="text-align: center; margin: 10px 0;">
@@ -498,11 +514,70 @@
     <script src='{% static "js/simplex.js" %}'></script>
 
     <script>
-        // Inicializar precarga desde campos hidden
+        // Variables globales
+        let variablesPersonalizadas = [];
+        let contadorRestricciones = 0;
+        const MAX_VARIABLES = 10;
+        const MAX_RESTRICCIONES = 10;
+        
+        // Función para extraer variables de una función objetivo
+        function extraerVariablesDeFuncion(funcionObjetivo) {
+            const variables = [];
+            
+            // Patrón para capturar variables (letras seguidas de números, guiones bajos)
+            // Excluye operadores matemáticos comunes
+            const patron = /(?:^|[^a-zA-Z])([a-zA-Z][a-zA-Z0-9_]*?)(?=\s*[\+\-\*\/\)\(]|$)/g;
+            let match;
+            
+            while ((match = patron.exec(funcionObjetivo)) !== null) {
+                const variable = match[1];
+                
+                // Filtrar palabras reservadas matemáticas
+                const palabrasReservadas = ['max', 'min', 'sqrt', 'sin', 'cos', 'tan', 'log', 'ln', 'exp', 'abs'];
+                if (!palabrasReservadas.includes(variable.toLowerCase()) && !variables.includes(variable)) {
+                    variables.push(variable);
+                }
+            }
+            
+            console.log('Variables extraídas de la función:', variables);
+            return variables;
+        }
+        
+        // Inicializar con 2 variables por defecto
         document.addEventListener('DOMContentLoaded', function() {
             const precargaTipo = document.getElementById('precarga_tipo');
             const precargaFuncion = document.getElementById('precarga_funcion');
             const precargaRestricciones = document.getElementById('precarga_restricciones');
+            
+            // Si hay precarga, procesar primero las variables desde la función objetivo
+            if (precargaFuncion && precargaFuncion.value) {
+                console.log('Función objetivo precargada:', precargaFuncion.value);
+                
+                // Extraer variables de la función objetivo
+                const variablesExtraidas = extraerVariablesDeFuncion(precargaFuncion.value);
+                console.log('Variables extraídas:', variablesExtraidas);
+                
+                if (variablesExtraidas.length >= 2) {
+                    // Limpiar variables por defecto
+                    variablesPersonalizadas = [];
+                    document.getElementById('listaVariables').innerHTML = '';
+                    
+                    // Agregar variables extraídas
+                    variablesExtraidas.forEach(function(variable, index) {
+                        agregarVariableInicial(variable);
+                    });
+                } else {
+                    // Agregar variables por defecto si no se pudieron extraer
+                    agregarVariableInicial('x1');
+                    agregarVariableInicial('x2');
+                }
+            } else {
+                // Agregar variables por defecto
+                agregarVariableInicial('x1');
+                agregarVariableInicial('x2');
+            }
+            
+            actualizarPlaceholdersYEjemplos();
             
             if (precargaTipo && precargaTipo.value) {
                 // Cargar tipo de objetivo
@@ -551,27 +626,294 @@
             }
         });
         
+        // Función para agregar variable inicial
+        function agregarVariableInicial(nombre) {
+            if (variablesPersonalizadas.length < MAX_VARIABLES) {
+                variablesPersonalizadas.push(nombre);
+                crearCampoVariable(nombre, variablesPersonalizadas.length);
+                actualizarVariablesHidden();
+            }
+        }
+        
+        // Función para crear campo de variable
+        function crearCampoVariable(nombre, index) {
+            const listaVariables = document.getElementById('listaVariables');
+            const div = document.createElement('div');
+            div.id = `variable${index}`;
+            div.style.cssText = 'display: flex; align-items: center; gap: 5px; padding: 5px; background: var(--light); border-radius: 5px;';
+            
+            div.innerHTML = `
+                <span style="font-weight: bold; color: var(--info);">${index}:</span>
+                <input type="text" 
+                       id="nombreVariable${index}" 
+                       value="${nombre}" 
+                       placeholder="Ej: perros, x${index}" 
+                       maxlength="20"
+                       style="flex: 1; padding: 8px; border: 1px solid var(--primary); border-radius: 4px; margin: 0;"
+                       onchange="actualizarNombreVariable(${index}, this.value)"
+                       pattern="[a-zA-Z][a-zA-Z0-9_]*"
+                       title="Debe comenzar con letra, solo letras, números y guiones bajos">
+            `;
+            
+            listaVariables.appendChild(div);
+        }
+        
+        // Actualizar nombre de variable
+        function actualizarNombreVariable(index, nuevoNombre) {
+            // Validar nombre
+            const regex = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+            if (!regex.test(nuevoNombre)) {
+                alert('El nombre de la variable debe comenzar con una letra y solo puede contener letras, números y guiones bajos.');
+                document.getElementById(`nombreVariable${index}`).value = variablesPersonalizadas[index - 1];
+                return;
+            }
+            
+            // Verificar que no se repita
+            const nombreExistente = variablesPersonalizadas.find((v, i) => v === nuevoNombre && i !== index - 1);
+            if (nombreExistente) {
+                alert('Ya existe una variable con ese nombre. Elige otro nombre.');
+                document.getElementById(`nombreVariable${index}`).value = variablesPersonalizadas[index - 1];
+                return;
+            }
+            
+            variablesPersonalizadas[index - 1] = nuevoNombre;
+            actualizarVariablesHidden();
+            actualizarPlaceholdersYEjemplos();
+        }
+        
+        // Actualizar campo hidden de variables
+        function actualizarVariablesHidden() {
+            document.getElementById('variables_nombres_hidden').value = JSON.stringify(variablesPersonalizadas);
+        }
+        
+        // Actualizar placeholders y ejemplos
+        function actualizarPlaceholdersYEjemplos() {
+            if (variablesPersonalizadas.length >= 2) {
+                // Actualizar placeholder de función objetivo
+                const ejemplo = `20*${variablesPersonalizadas[0]} + 40*${variablesPersonalizadas[1]}`;
+                document.getElementById('campoFuncionObjetivo').setAttribute('placeholder', ejemplo);
+                
+                // Determinar operador según el tipo de objetivo
+                const tipoObjetivo = document.getElementById('tipo_objetivo').value;
+                const operador = tipoObjetivo === "Maximizar" ? "\\leq" : "\\geq";
+                
+                // Crear placeholder para restricciones con variables personalizadas
+                const restriccionEjemplo = `2*${variablesPersonalizadas[0]} + 4*${variablesPersonalizadas[1]} ${operador} 8`;
+                
+                // Actualizar todas las restricciones existentes
+                const restricciones = document.querySelectorAll('#listaRestricciones math-field');
+                restricciones.forEach(function(campo) {
+                    campo.setAttribute('placeholder', restriccionEjemplo);
+                });
+            }
+        }
+        
+        // Agregar variable
+        document.getElementById('agregarVariable').addEventListener('click', function() {
+            if (variablesPersonalizadas.length >= MAX_VARIABLES) {
+                alert(`Máximo ${MAX_VARIABLES} variables permitidas.`);
+                return;
+            }
+            
+            const nuevoIndex = variablesPersonalizadas.length + 1;
+            const nuevoNombre = `x${nuevoIndex}`;
+            variablesPersonalizadas.push(nuevoNombre);
+            crearCampoVariable(nuevoNombre, nuevoIndex);
+            actualizarVariablesHidden();
+            actualizarPlaceholdersYEjemplos();
+        });
+        
+        // Quitar variable
+        document.getElementById('quitarVariable').addEventListener('click', function() {
+            if (variablesPersonalizadas.length <= 2) {
+                alert('Debe haber al menos 2 variables.');
+                return;
+            }
+            
+            const ultimoIndex = variablesPersonalizadas.length;
+            const elementoVariable = document.getElementById(`variable${ultimoIndex}`);
+            if (elementoVariable) {
+                elementoVariable.remove();
+            }
+            
+            variablesPersonalizadas.pop();
+            actualizarVariablesHidden();
+            actualizarPlaceholdersYEjemplos();
+        });
+        
+        // Agregar restricción con límite
+        document.getElementById('agregarRestricciones').addEventListener('click', function() {
+            if (contadorRestricciones >= MAX_RESTRICCIONES) {
+                alert(`Máximo ${MAX_RESTRICCIONES} restricciones permitidas.`);
+                return;
+            }
+            
+            contadorRestricciones++;
+            const listaRestricciones = document.getElementById('listaRestricciones');
+            const li = document.createElement('li');
+            li.id = `restriccionItem${contadorRestricciones}`;
+            li.style.cssText = 'margin: 10px 0; padding: 10px; background: var(--light); border-radius: 5px;';
+            
+            li.innerHTML = `
+                <label style="margin-bottom: 5px; font-size: 0.9em;">Restricción ${contadorRestricciones}:</label>
+                <math-field id="restriccion${contadorRestricciones}" placeholder=""></math-field>
+            `;
+            
+            actualizarContadorRestricciones();
+            
+            // Actualizar placeholders después de agregar la restricción
+            actualizarPlaceholdersYEjemplos();
+        });
+        
+        // Quitar restricción
+        document.getElementById('quitarRestricciones').addEventListener('click', function() {
+            if (contadorRestricciones <= 0) {
+                alert('No hay restricciones para quitar.');
+                return;
+            }
+            
+            const elementoRestriccion = document.getElementById(`restriccionItem${contadorRestricciones}`);
+            if (elementoRestriccion) {
+                elementoRestriccion.remove();
+            }
+            
+            contadorRestricciones--;
+            actualizarContadorRestricciones();
+        });
+        
+        // Actualizar contador de restricciones
+        function actualizarContadorRestricciones() {
+            const contador = document.getElementById('contadorRestricciones');
+            contador.textContent = `${contadorRestricciones}/${MAX_RESTRICCIONES} restricciones`;
+            contador.style.color = contadorRestricciones >= MAX_RESTRICCIONES ? 'var(--danger)' : 'var(--info)';
+        }
+        
         // Actualizar texto según el tipo de objetivo seleccionado
         document.getElementById('tipo_objetivo').addEventListener('change', function() {
             const textoObjetivo = document.getElementById('texto_objetivo');
             textoObjetivo.textContent = this.value + ' Z = ';
             
             // Actualizar placeholders de restricciones existentes
-            updateExistingRestrictions();
+            actualizarPlaceholdersYEjemplos();
         });
         
-        function updateExistingRestrictions() {
-            const tipoObjetivo = document.getElementById('tipo_objetivo').value;
-            const placeholder = tipoObjetivo === "Maximizar" ? "x_{1} + x_{2} \\leq 8" : "x_{1} + x_{2} \\geq 8";
-            
-            // Actualizar todas las restricciones existentes
-            const restricciones = document.querySelectorAll('#listaRestricciones math-field');
-            restricciones.forEach(function(campo) {
-                if (!campo.value || campo.value.trim() === '') {
-                    campo.value = placeholder;
+        // Función para limpiar todos los campos y reiniciar la página
+        document.getElementById('nuevoProblema').addEventListener('click', function() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los campos y comenzar un nuevo problema?')) {
+                // Limpiar función objetivo
+                const campoFuncion = document.getElementById('campoFuncionObjetivo');
+                if (campoFuncion) {
+                    campoFuncion.value = '';
                 }
-            });
-        }
+                
+                // Restablecer tipo de objetivo a Maximizar
+                const tipoObjetivo = document.getElementById('tipo_objetivo');
+                if (tipoObjetivo) {
+                    tipoObjetivo.value = 'Maximizar';
+                    const textoObjetivo = document.getElementById('texto_objetivo');
+                    textoObjetivo.textContent = 'Maximizar Z = ';
+                }
+                
+                // Limpiar todas las restricciones
+                const listaRestricciones = document.getElementById('listaRestricciones');
+                if (listaRestricciones) {
+                    listaRestricciones.innerHTML = '';
+                    contadorRestricciones = 0;
+                    actualizarContadorRestricciones();
+                }
+                
+                // Reiniciar variables a las por defecto
+                const listaVariables = document.getElementById('listaVariables');
+                if (listaVariables) {
+                    listaVariables.innerHTML = '';
+                }
+                variablesPersonalizadas = [];
+                agregarVariableInicial('x1');
+                agregarVariableInicial('x2');
+                actualizarPlaceholdersYEjemplos();
+                
+                // Limpiar campos hidden
+                const funcionObjetivoHidden = document.getElementById('funcion_objetivo_hidden');
+                const restriccionesHidden = document.getElementById('restricciones_hidden');
+                const variablesHidden = document.getElementById('variables_nombres_hidden');
+                if (funcionObjetivoHidden) funcionObjetivoHidden.value = '';
+                if (restriccionesHidden) restriccionesHidden.value = '';
+                if (variablesHidden) variablesHidden.value = '';
+                
+                // Limpiar campos de precarga si existen
+                const precargaTipo = document.getElementById('precarga_tipo');
+                const precargaFuncion = document.getElementById('precarga_funcion');
+                const precargaRestricciones = document.getElementById('precarga_restricciones');
+                if (precargaTipo) precargaTipo.value = '';
+                if (precargaFuncion) precargaFuncion.value = '';
+                if (precargaRestricciones) precargaRestricciones.value = '';
+                
+                console.log('Campos limpiados - Listo para nuevo problema');
+            }
+        });
+        
+        // Validar antes de enviar el formulario
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Validar que haya al menos 2 variables
+            if (variablesPersonalizadas.length < 2) {
+                e.preventDefault();
+                alert('Debe tener al menos 2 variables.');
+                return;
+            }
+            
+            // Validar que haya al menos 1 restricción
+            if (contadorRestricciones < 1) {
+                e.preventDefault();
+                alert('Debe agregar al menos 1 restricción.');
+                return;
+            }
+            
+            // Validar que no haya campos vacíos
+            const campoFuncion = document.getElementById('campoFuncionObjetivo');
+            if (!campoFuncion || !campoFuncion.value || campoFuncion.value.trim() === '') {
+                e.preventDefault();
+                alert('Por favor, ingrese la función objetivo.');
+                return;
+            }
+            
+            // Validar que todas las restricciones estén completas
+            let restriccionesVacias = 0;
+            for (let i = 1; i <= contadorRestricciones; i++) {
+                const campo = document.getElementById(`restriccion${i}`);
+                if (!campo || !campo.value || campo.value.trim() === '') {
+                    restriccionesVacias++;
+                }
+            }
+            
+            if (restriccionesVacias > 0) {
+                e.preventDefault();
+                alert(`Por favor, complete todas las restricciones. Hay ${restriccionesVacias} restricción(es) vacía(s).`);
+                return;
+            }
+            
+            // Actualizar campos hidden antes de enviar
+            actualizarVariablesHidden();
+            
+            // Recopilar restricciones
+            const restricciones = [];
+            for (let i = 1; i <= contadorRestricciones; i++) {
+                const campo = document.getElementById(`restriccion${i}`);
+                if (campo && campo.value.trim()) {
+                    restricciones.push(campo.value.trim());
+                }
+            }
+            document.getElementById('restricciones_hidden').value = JSON.stringify(restricciones);
+            
+            // Actualizar función objetivo
+            if (campoFuncion) {
+                document.getElementById('funcion_objetivo_hidden').value = campoFuncion.value;
+            }
+            
+            console.log('Datos enviados:');
+            console.log('Variables:', variablesPersonalizadas);
+            console.log('Función objetivo:', campoFuncion.value);
+            console.log('Restricciones:', restricciones);
+        });
     </script>
 </body>
 </html>
