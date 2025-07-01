@@ -311,6 +311,25 @@
                     </ul>
                     <p><strong>💡 Si su problema no cumple estas condiciones, use el Método de la Gran M.</strong></p>
                 </div>
+
+                <!-- Ejemplos Precargados -->
+                <div style="margin-bottom: 20px;">
+                    <label><strong>📝 Ejemplos Precargados:</strong></label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="ejemplo1" style="background-color: var(--success); flex: 1; min-width: 200px;">
+                            📦 Ejemplo 1: Producción
+                        </button>
+                        <button type="button" id="ejemplo2" style="background-color: var(--info); flex: 1; min-width: 200px;">
+                            🚚 Ejemplo 2: Transporte
+                        </button>
+                        <button type="button" id="ejemplo3" style="background-color: var(--warning); color: var(--secondary); flex: 1; min-width: 200px;">
+                            🏭 Ejemplo 3: Manufactura
+                        </button>
+                    </div>
+                    <div class="alert alert-info" style="font-size: 0.9em; margin-top: 10px;">
+                        <strong>💡 Tip:</strong> Haz clic en cualquier ejemplo para cargar los datos automáticamente. Luego puedes editarlos antes de resolver.
+                    </div>
+                </div>
                 
                 <!-- Configuración de Variables -->
                 <div style="margin-bottom: 20px;">
@@ -913,6 +932,172 @@
             console.log('Variables:', variablesPersonalizadas);
             console.log('Función objetivo:', campoFuncion.value);
             console.log('Restricciones:', restricciones);
+        });
+
+        // Ejemplos precargados
+        const ejemplos = {
+            ejemplo1: {
+                nombre: "Problema de Producción",
+                variables: ["x1", "x2"],
+                funcionObjetivo: "3*x1 + 2*x2",
+                restricciones: [
+                    "2*x1 + x2 \\leq 4",
+                    "x1 + 2*x2 \\leq 3"
+                ]
+            },
+            ejemplo2: {
+                nombre: "Problema de Transporte",
+                variables: ["camiones", "barcos"],
+                funcionObjetivo: "40*camiones + 30*barcos",
+                restricciones: [
+                    "2*camiones + barcos \\leq 100",
+                    "camiones + 3*barcos \\leq 120",
+                    "camiones + barcos \\leq 80"
+                ]
+            },
+            ejemplo3: {
+                nombre: "Problema de Manufactura",
+                variables: ["producto_A", "producto_B", "producto_C"],
+                funcionObjetivo: "50*producto_A + 40*producto_B + 30*producto_C",
+                restricciones: [
+                    "2*producto_A + 3*producto_B + producto_C \\leq 120",
+                    "producto_A + 2*producto_B + 3*producto_C \\leq 100",
+                    "3*producto_A + producto_B + 2*producto_C \\leq 150"
+                ]
+            }
+        };
+
+        // Función para cargar ejemplo
+        function cargarEjemplo(ejemploId) {
+            const ejemplo = ejemplos[ejemploId];
+            if (!ejemplo) {
+                console.error('Ejemplo no encontrado:', ejemploId);
+                return;
+            }
+
+            console.log('Cargando ejemplo:', ejemplo.nombre);
+
+            // Limpiar todo primero
+            limpiarTodosSinConfirmar();
+
+            // Configurar variables
+            ejemplo.variables.forEach(function(variable, index) {
+                if (index < 2) {
+                    // Actualizar las variables existentes
+                    variablesPersonalizadas[index] = variable;
+                    const campo = document.getElementById(`nombreVariable${index + 1}`);
+                    if (campo) {
+                        campo.value = variable;
+                    }
+                } else {
+                    // Agregar variables adicionales
+                    if (variablesPersonalizadas.length < MAX_VARIABLES) {
+                        variablesPersonalizadas.push(variable);
+                        crearCampoVariable(variable, variablesPersonalizadas.length);
+                    }
+                }
+            });
+
+            actualizarVariablesHidden();
+            actualizarPlaceholdersYEjemplos();
+
+            // Cargar función objetivo
+            const campoFuncion = document.getElementById('campoFuncionObjetivo');
+            if (campoFuncion) {
+                campoFuncion.value = ejemplo.funcionObjetivo;
+            }
+
+            // Cargar restricciones
+            ejemplo.restricciones.forEach(function(restriccion, index) {
+                // Agregar restricción
+                document.getElementById('agregarRestricciones').click();
+                
+                // Esperar un poco para que se cree el elemento y luego asignar valor
+                setTimeout(function() {
+                    const campoRestriccion = document.getElementById(`restriccion${index + 1}`);
+                    if (campoRestriccion) {
+                        campoRestriccion.value = restriccion;
+                    }
+                }, 100 * (index + 1));
+            });
+
+            // Mostrar mensaje de confirmación
+            setTimeout(function() {
+                const mensaje = document.createElement('div');
+                mensaje.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--success);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                    font-weight: bold;
+                `;
+                mensaje.textContent = `✅ ${ejemplo.nombre} cargado exitosamente`;
+                document.body.appendChild(mensaje);
+
+                setTimeout(function() {
+                    document.body.removeChild(mensaje);
+                }, 3000);
+            }, 500);
+        }
+
+        // Función para limpiar todo sin confirmación
+        function limpiarTodosSinConfirmar() {
+            // Limpiar función objetivo
+            const campoFuncion = document.getElementById('campoFuncionObjetivo');
+            if (campoFuncion) {
+                campoFuncion.value = '';
+            }
+
+            // Restablecer tipo de objetivo a Maximizar
+            const tipoObjetivo = document.getElementById('tipo_objetivo');
+            if (tipoObjetivo) {
+                tipoObjetivo.value = 'Maximizar';
+                const textoObjetivo = document.getElementById('texto_objetivo');
+                textoObjetivo.textContent = 'Maximizar Z = ';
+            }
+
+            // Limpiar todas las restricciones
+            const listaRestricciones = document.getElementById('listaRestricciones');
+            if (listaRestricciones) {
+                listaRestricciones.innerHTML = '';
+                contadorRestricciones = 0;
+                actualizarContadorRestricciones();
+            }
+
+            // Reiniciar variables a las por defecto
+            const listaVariables = document.getElementById('listaVariables');
+            if (listaVariables) {
+                listaVariables.innerHTML = '';
+            }
+            variablesPersonalizadas = [];
+            agregarVariableInicial('x1');
+            agregarVariableInicial('x2');
+
+            // Limpiar campos hidden
+            const funcionObjetivoHidden = document.getElementById('funcion_objetivo_hidden');
+            const restriccionesHidden = document.getElementById('restricciones_hidden');
+            const variablesHidden = document.getElementById('variables_nombres_hidden');
+            if (funcionObjetivoHidden) funcionObjetivoHidden.value = '';
+            if (restriccionesHidden) restriccionesHidden.value = '';
+            if (variablesHidden) variablesHidden.value = '';
+        }
+
+        // Agregar event listeners para los botones de ejemplos
+        document.getElementById('ejemplo1').addEventListener('click', function() {
+            cargarEjemplo('ejemplo1');
+        });
+
+        document.getElementById('ejemplo2').addEventListener('click', function() {
+            cargarEjemplo('ejemplo2');
+        });
+
+        document.getElementById('ejemplo3').addEventListener('click', function() {
+            cargarEjemplo('ejemplo3');
         });
     </script>
 </body>
