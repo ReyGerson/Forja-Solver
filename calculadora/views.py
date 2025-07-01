@@ -2983,6 +2983,7 @@ def exportar_pdf(request):
 # Exportar a Excel
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
+from openpyxl import Workbook
 
 def exportar_excel(request):
     html = request.session.get('resultado_exportable', '')
