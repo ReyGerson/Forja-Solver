@@ -69,6 +69,17 @@
             display: flex;
             align-items: center;
         }
+
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 5px;
+        }
+
         .step-title i {
             margin-right: 10px;
             font-size: 1.1em;
@@ -119,6 +130,8 @@
     </style>
 </head>
 <body>
+         <a href="{% url 'index' %}">Inicio</a>
+
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-primary">
@@ -184,19 +197,49 @@
                   <span class="ms-3">{{ item.fecha_creacion|date:'Y-m-d H:i' }}</span>
                 </div>
                 <div class="card-body" style="background: #f8f9fa;">
-                  {% if item.procedimiento_html %}
-                    {{ item.procedimiento_html|safe }}
-                  {% elif item.procedimiento %}
+                  {% if item.procedimiento_steps %}
+                    <ol class="list-unstyled mb-0">
                     {% for paso in item.procedimiento_steps %}
-                      <div class="procedimiento-step mb-3">
+                      <li class="procedimiento-step mb-3">
                         <h5 class="step-title">
-                          <i class="fas fa-arrow-right"></i> Paso {{ forloop.counter }}
+                          <span class="badge bg-primary me-2" style="font-size:1em;">Paso {{ forloop.counter }}</span>
+                          <i class="fas fa-arrow-right"></i>
                         </h5>
                         <div class="step-content" style="white-space: pre-line;">
-                          {{ paso|linebreaksbr }}
+                          {% if 'Resolviendo el sistema:' in paso %}
+                            <div class="accordion" id="accordionHistInterseccion{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                              <div class="accordion-item" style="border-radius: 6px; overflow: hidden;">
+                                <h2 class="accordion-header" id="headingHist{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" aria-expanded="false" aria-controls="collapseHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" style="background:#f4f6fa;">
+                                    Ver desarrollo del sistema
+                                  </button>
+                                </h2>
+                                <div id="collapseHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="headingHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" data-bs-parent="#accordionHistInterseccion{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                                  <div class="accordion-body" style="white-space:pre-line; font-size:1em;">
+                                    {{ paso|linebreaksbr }}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          {% else %}
+                            {{ paso|linebreaksbr }}
+                          {% endif %}
                         </div>
-                      </div>
+                      </li>
                     {% endfor %}
+                    </ol>
+                  {% elif item.procedimiento_html %}
+                    {{ item.procedimiento_html|safe }}
+                  {% elif item.procedimiento %}
+                    <div class="procedimiento-step mb-3">
+                      <h5 class="step-title">
+                        <span class="badge bg-primary me-2" style="font-size:1em;">Procedimiento</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </h5>
+                      <div class="step-content" style="white-space: pre-line;">
+                        {{ item.procedimiento|linebreaksbr }}
+                      </div>
+                    </div>
                   {% else %}
                     <div class="alert alert-warning mb-0">No hay procedimiento detallado guardado para este ejercicio.</div>
                   {% endif %}
