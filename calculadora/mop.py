@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 from fractions import Fraction
 
-class MixedValue:
+class MixedValue: 
+    print()
     """Clase para manejar valores de la forma a + bM"""
     def __init__(self, coefficient=0, M_coefficient=0):
         self.coefficient = Fraction(coefficient).limit_denominator()
