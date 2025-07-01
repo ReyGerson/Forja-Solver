@@ -353,7 +353,7 @@
 
                 <div style="display: flex; gap: 10px; justify-content: center; margin: 20px auto 0; max-width: 450px;">
                     <button type="submit" style="flex: 1; max-width: 200px;">Resolver</button>
-                    <button type="button" id="nuevoProblema" style="flex: 1; max-width: 200px; background-color: var(--warning); color: var(--secondary);"> Nuevo Problema</button>
+                    <button onclick="window.location.href=`{% url 'simplex' %}`" type="button" id="nuevoProblema" style="flex: 1; max-width: 200px; background-color: var(--warning); color: var(--secondary);"> Nuevo Problema</button>
                 </div>
             </form>
         </div>
