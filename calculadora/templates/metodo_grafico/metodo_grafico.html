@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método Gráfico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4B848A;
+            --secondary: #4E6851;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        body {
+            background-color: var(--light);
+            padding-top: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border: none;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            font-weight: 600;
+            color: white;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+        
+        .bg-primary {
+            background-color: var(--primary) !important;
+            background: linear-gradient(135deg, var(--primary) 0%, #3a6a70 100%);
+        }
+        
+        .bg-success {
+            background-color: var(--secondary) !important;
+            background: linear-gradient(135deg, var(--secondary) 0%, #3d553f 100%);
+        }
+        
+        .procedimiento-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+        
+        .procedimiento-step {
+            background-color: white;
+            border-left: 5px solid var(--primary);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .procedimiento-step:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .step-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-title i {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+        
+        .step-content {
+            line-height: 1.6;
+        }
+        
+        .step-items {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        
+        .step-items li {
+            margin-bottom: 8px;
+            position: relative;
+            list-style-type: none;
+            padding-left: 1.5em;
+        }
+        
+        .step-items li:before {
+            content: "→";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .step-equation {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f4f6fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 3px 0;
+        }
+        
+        .step-point {
+            font-weight: 600;
+            color: var(--secondary);
+            background-color: rgba(78, 104, 81, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 3px 0;
+        }
+        
+        .table-solutions {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table-solutions th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            padding: 12px 15px;
+        }
+        
+        .table-solutions td {
+            padding: 10px 15px;
+            vertical-align: middle;
+        }
+        
+        .table-solutions tr:nth-child(even) {
+            background-color: rgba(75, 132, 138, 0.05);
+        }
+        
+        .table-solutions tr:hover {
+            background-color: rgba(75, 132, 138, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a6a70;
+            border-color: #3a6a70;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            border-color: var(--secondary);
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #3d553f;
+            border-color: #3d553f;
+            transform: translateY(-2px);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(75, 132, 138, 0.25);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .solution-highlight {
+            background-color: rgba(255, 215, 0, 0.2);
+            border: 2px solid gold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+        
+        .graph-container {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: white;
+            padding: 15px;
+        }
+        
+        h2, h3, h4, h5 {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .text-primary {
+            color: var(--primary) !important;
+        }
+        
+        .text-success {
+            color: var(--secondary) !important;
+        }
+        
+        .optimal-point {
+            font-weight: 600;
+            color: var(--primary);
+            background-color: rgba(75, 132, 138, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .optimal-value {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .premium-feature {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        
+        .premium-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .premium-icon {
+            font-size: 2.5rem;
+            color: gold;
+            margin-bottom: 15px;
+        }
+        
+        .history-data-badge {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .history-data-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if modo_repetir %}
+        <div class="alert alert-info mb-4 d-flex align-items-center">
+            <i class="fas fa-info-circle me-2"></i>
+            <div>
+                Estás viendo una repetición de un cálculo del historial.
+                <a href="{% url 'historialMetodoGrafico' %}" class="btn btn-sm btn-info ms-2">
+                    <i class="fas fa-arrow-left me-1"></i> Volver al Historial
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0 text-primary">
+                <i class="fas fa-chart-line me-2"></i> Método Gráfico
+                {% if modo_repetir %}<small class="text-muted fs-6">(Modo Repetición)</small>{% endif %}
+            </h2>
+            <div class="d-flex gap-2">
+                <a href="{% url 'historialMetodoGrafico' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-history me-1"></i> Ver Historial
+                </a>
+                <a href="{% url 'metodoGrafico' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i> Nuevo ejercicio
+                </a>
+            </div>
+        </div>
+        
+        {% if errors %}
+        <div class="alert alert-danger">
+            <h4 class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i> Errores:
+            </h4>
+            <ul class="mb-0">
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="card shadow">
+            <div class="card-header bg-primary">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-edit me-2"></i> Datos de Entrada
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="objective" class="form-label fw-medium">Función Objetivo (Z):</label>
+                        <input type="text" class="form-control" id="objective" name="objective"
+                            value="{% if modo_repetir and historial_data %}{{ historial_data.objective|default:'' }}{% else %}{{ objective|default:default_function|default:'' }}{% endif %}" required>
+                        <small class="form-text text-muted">Ejemplo: 3*x + 2*y</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Tipo de Optimización:</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="optimization" id="optimization_max" value="max"
+                                    {% if modo_repetir and historial_data %}{% if historial_data.optimization == 'max' %}checked{% endif %}{% else %}{% if optimization == 'max' %}checked{% endif %}{% endif %}>
+                                <label class="form-check-label" for="optimization_max">
+                                    <i class="fas fa-arrow-up me-1"></i> Maximizar
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="optimization" id="optimization_min" value="min"
+                                    {% if modo_repetir and historial_data %}{% if historial_data.optimization == 'min' %}checked{% endif %}{% else %}{% if optimization == 'min' %}checked{% endif %}{% endif %}>
+                                <label class="form-check-label" for="optimization_min">
+                                    <i class="fas fa-arrow-down me-1"></i> Minimizar
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="restrictions" class="form-label fw-medium">Restricciones (una por línea):</label>
+                        <textarea class="form-control" id="restrictions" name="restrictions" rows="5" required>{% if modo_repetir and historial_data %}{{ historial_data.restrictions|default:'' }}{% else %}{{ restrictions_text|default:default_restrictions|default:'' }}{% endif %}</textarea>
+                        <small class="form-text text-muted">Ejemplo: 2*x + y &lt;= 100</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator me-1"></i> Calcular Solución
+                        </button>
+                        
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb me-1"></i> Ingresa tus restricciones y obtén la solución óptima
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if show_results or modo_repetir %}
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-chart-bar me-2"></i> Resultados {% if modo_repetir %}(Historial){% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <div class="p-4 bg-light rounded-3 shadow-sm">
+                            <h4 class="text-success d-flex align-items-center mb-3">
+                                <i class="fas fa-trophy me-2"></i> Solución Óptima
+                            </h4>
+                            <div class="d-flex flex-column gap-3">
+                                <div>
+                                    <h6 class="fw-medium mb-1">Valor de Z:</h6>
+                                    <div class="optimal-value">{{ optimal.z|floatformat:4 }}</div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-medium mb-1">Punto Óptimo:</h6>
+                                    <div class="optimal-point">
+                                        ({{ optimal.x|floatformat:4 }}, {{ optimal.y|floatformat:4 }})
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-medium mb-1">Tipo:</h6>
+                                    <div>
+                                        {% if optimization == 'max' %}
+                                            <span class="badge bg-primary">Maximización</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Minimización</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if solutions %}
+                    <div class="col-lg-6">
+                        <div class="h-100">
+                            <h4 class="text-primary d-flex align-items-center mb-3">
+                                <i class="fas fa-map-marker-alt me-2"></i> Puntos Factibles Evaluados
+                            </h4>
+                            <div class="table-responsive">
+                                <table class="table table-solutions table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Punto</th>
+                                            <th>Coordenada X</th>
+                                            <th>Coordenada Y</th>
+                                            <th>Valor Z</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for sol in solutions %}
+                                        <tr {% if sol.is_optimal %}class="solution-highlight"{% endif %}>
+                                            <td><strong>V{{ sol.id }}</strong></td>
+                                            <td>{{ sol.x|floatformat:4 }}</td>
+                                            <td>{{ sol.y|floatformat:4 }}</td>
+                                            <td>
+                                                {% if sol.z is not None %}
+                                                    <strong>{{ sol.z|floatformat:4 }}</strong>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if is_premium %}
+                <div class="procedimiento-container mt-3">
+                    <h4 class="text-primary d-flex align-items-center mb-4">
+                        <i class="fas fa-list-ol me-2"></i> Procedimiento Detallado
+                    </h4>
+                    
+                    {% if modo_repetir and procedimiento_steps %}
+    {# Mostrar procedimiento almacenado como pasos #}
+    {% for paso in procedimiento_steps %}
+    <div class="procedimiento-step">
+        <div class="step-content" style="white-space: pre-line;">
+            {{ paso|linebreaksbr }}
+        </div>
+    </div>
+    {% endfor %}
+    {% elif modo_repetir and historial_data and historial_data.procedimiento %}
+    {# Fallback: mostrar como bloque si no se pudo parsear #}
+    <div class="procedimiento-step">
+        <h5 class="step-title">
+            <i class="fas fa-history me-2"></i> Procedimiento Almacenado
+        </h5>
+        <div class="step-content" style="white-space: pre-line;">
+            {{ historial_data.procedimiento|linebreaksbr }}
+        </div>
+    </div>
+    {% else %}
+                        {# Mostrar procedimiento generado en tiempo real #}
+                        <div class="procedimiento-step">
+                            <h5 class="step-title">
+                                <i class="fas fa-bullseye"></i> Paso 1: Definición del Problema
+                            </h5>
+                            <div class="step-content">
+                                <p>Se establece el problema de programación lineal con:</p>
+                                <ul class="step-items">
+                                    <li><strong>Función objetivo:</strong> <span class="step-equation">Z = {{ objective }}</span></li>
+                                    <li><strong>Tipo de optimización:</strong> {% if optimization == 'max' %}Maximización{% else %}Minimización{% endif %}</li>
+                                    <li><strong>Restricciones:</strong>
+                                        <ul class="step-items">
+                                            {% for restriction in restrictions %}
+                                            <li><span class="step-equation">{{ restriction }}</span></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="procedimiento-step">
+                            <h5 class="step-title">
+                                <i class="fas fa-sliders-h"></i> Paso 2: Graficar las Restricciones
+                            </h5>
+                            <div class="step-content">
+                                <p>Se grafican las restricciones para identificar la región factible:</p>
+                                <ul class="step-items">
+                                    {% for restriction in math_steps.1.items %}
+                                    <li>{{ restriction }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="procedimiento-step">
+                            <h5 class="step-title">
+                                <i class="fas fa-crosshairs"></i> Paso 3: Identificar Puntos de Intersección
+                            </h5>
+                            <div class="step-content">
+                                <p>Se calculan los puntos de intersección entre las restricciones:</p>
+                                <ul class="step-items">
+                                    {% for intersection in math_steps.2.intersections %}
+                                    <li>
+                                        <strong>Intersección entre:</strong>
+                                        <span class="step-equation">{{ intersection.equations.0 }}</span> y 
+                                        <span class="step-equation">{{ intersection.equations.1 }}</span>
+                                        <ul class="step-items">
+                                            {% for step in intersection.steps %}
+                                            <li>{{ step }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        <p>Punto obtenido: <span class="step-point">({{ intersection.point.0|floatformat:4 }}, {{ intersection.point.1|floatformat:4 }})</span></p>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="procedimiento-step">
+                            <h5 class="step-title">
+                                <i class="fas fa-check-circle"></i> Paso 4: Verificar Factibilidad
+                            </h5>
+                            <div class="step-content">
+                                <p>Se verifican qué puntos satisfacen todas las restricciones:</p>
+                                <ul class="step-items">
+                                    {% for point in math_steps.3.points %}
+                                    <li>
+                                        Punto <span class="step-point">({{ point.x|floatformat:4 }}, {{ point.y|floatformat:4 }})</span>
+                                        <ul>
+                                            {% for validation in point.validations %}
+                                            <li>{{ validation }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="procedimiento-step">
+                            <h5 class="step-title">
+                                <i class="fas fa-calculator"></i> Paso 5: Evaluar Función Objetivo
+                            </h5>
+                            <div class="step-content">
+                                <p>Se evalúa Z en cada punto factible:</p>
+                                <ul class="step-items">
+                                    {% for evaluation in math_steps.4.evaluations %}
+                                    <li>{{ evaluation }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="procedimiento-step">
+                            <h5 class="step-title">
+                                <i class="fas fa-star"></i> Paso 6: Determinar Solución Óptima
+                            </h5>
+                            <div class="step-content">
+                                <p>Se identifica la solución óptima:</p>
+                                <ul class="step-items">
+                                    <li>El valor {% if optimization == 'max' %}máximo{% else %}mínimo{% endif %} de Z es <span class="optimal-value">{{ optimal.z|floatformat:4 }}</span></li>
+                                    <li>Se alcanza en el punto <span class="step-point">({{ optimal.x|floatformat:4 }}, {{ optimal.y|floatformat:4 }})</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if show_graph and graph %}
+                <div class="mt-5">
+                    <h4 class="text-primary d-flex align-items-center mb-3">
+                        <i class="fas fa-chart-area me-2"></i> Representación Gráfica
+                    </h4>
+                    <div class="graph-container">
+                        {% if modo_repetir and historial_data and historial_data.grafico %}
+                            {# Mostrar gráfico almacenado en el historial #}
+                            {{ historial_data.grafico|safe }}
+                        {% else %}
+                            {# Mostrar gráfico generado en tiempo real #}
+                            {{ graph|safe }}
+                        {% endif %}
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i> La gráfica muestra la región factible (área verde), las restricciones (líneas azules) y el punto óptimo (estrella dorada).
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="premium-feature mt-4">
+                    <div class="procedimiento-container" style="position: relative;">
+                        <div class="premium-overlay">
+                            <div class="premium-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <h4 class="text-white">Procedimiento Detallado Premium</h4>
+                            <p class="text-white">Desbloquea el procedimiento paso a paso y la representación gráfica interactiva con una suscripción premium.</p>
+                            <a href="{% url 'tienda' %}" class="btn btn-warning mt-2">
+                                <i class="fas fa-gem me-1"></i> Actualizar a Premium
+                            </a>
+                        </div>
+                        
+                        <h4 class="text-primary d-flex align-items-center mb-4">
+                            <i class="fas fa-list-ol me-2"></i> Procedimiento Detallado
+                        </h4>
+                        <p>El procedimiento detallado paso a paso está disponible para usuarios premium. Incluye:</p>
+                        <ul>
+                            <li>Explicación detallada de cada paso del método gráfico</li>
+                            <li>Cálculo de intersecciones entre restricciones</li>
+                            <li>Verificación de puntos factibles</li>
+                            <li>Evaluación de la función objetivo</li>
+                            <li>Identificación de la solución óptima</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="premium-feature mt-5">
+                        <div class="graph-container" style="position: relative; min-height: 400px;">
+                            <div class="premium-overlay">
+                                <div class="premium-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <h4 class="text-white">Gráfico Interactivo Premium</h4>
+                                <p class="text-white">Visualiza la región factible, restricciones y punto óptimo con nuestra herramienta gráfica interactiva.</p>
+                                <a href="{% url 'tienda' %}" class="btn btn-warning mt-2">
+                                    <i class="fas fa-gem me-1"></i> Actualizar a Premium
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Validación básica en cliente
+            $('form').submit(function() {
+                const restrictions = $('#restrictions').val().trim();
+                if (!restrictions) {
+                    alert('Por favor ingresa al menos una restricción');
+                    return false;
+                }
+                return true;
+            });
+            
+            // Efecto de scroll suave
+            $('a[href^="#"]').on('click', function(event) {
+                event.preventDefault();
+                $('html, body').animate({
+                    scrollTop: $($(this).attr('href')).offset().top - 20
+                }, 500);
+            });
+            
+            // Resaltar la solución óptima en la tabla
+            $('.solution-highlight').hover(
+                function() {
+                    $(this).css('transform', 'scale(1.02)');
+                },
+                function() {
+                    $(this).css('transform', 'scale(1)');
+                }
+            );
+            
+            // Pasar modo_repetir a JS y hacer scroll si es necesario
+            var modoRepetir = "{{ modo_repetir|yesno:'true,false' }}";
+            if (modoRepetir === "true") {
+                setTimeout(function() {
+                    $('html, body').animate({
+                        scrollTop: $('.procedimiento-container').offset().top - 20
+                    }, 800);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

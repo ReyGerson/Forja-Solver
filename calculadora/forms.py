@@ -77,3 +77,18 @@ class EditarPerfilForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['nombre_completo', 'foto_perfil', 'carrera', 'carnet', 'ciclo']
+
+
+from django import forms
+
+class MetodoGraficoForm(forms.Form):
+    funcion_objetivo = forms.CharField(
+        label='Función objetivo (ej: max 3x + 4y)',
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'max 3x + 4y'})
+    )
+    restricciones = forms.CharField(
+        label='Restricciones (una por línea, ej: x + y <= 5)',
+        widget=forms.Textarea(attrs={'rows': 5, 'placeholder': 'x + y <= 5\n2x + y <= 8'}),
+        help_text='Una restricción por línea, variables x e y, desigualdades <=, >=, ='
+    )
