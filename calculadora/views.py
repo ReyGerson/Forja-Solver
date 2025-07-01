@@ -2871,3 +2871,300 @@ def repetir_metodo_grafico(request, id):
     except Exception as e:
         print(f"Error cargando historial del método gráfico: {e}")
         return redirect('metodoGrafico')
+
+#### gran m 
+
+
+from django.shortcuts import render
+from .mop import GranMSimplexExtended
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.utils.html import strip_tags
+from bs4 import BeautifulSoup
+from django.utils.html import strip_tags
+from openpyxl import Workbook
+from .models import GranMHistorial
+import json
+
+@login_required
+@csrf_exempt
+def metodo_gran_m(request):
+    resultado_html = None
+
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo', 'min')
+        objetivo = request.POST.get('objetivo', '')
+        minimizar = (tipo == 'min')
+
+        try:
+            obj_raw = objetivo.split(',')
+            if len(obj_raw) > 10:
+                raise ValueError("Máximo 10 variables permitidas en la función objetivo.")
+
+            obj = [float(v.strip()) for v in obj_raw if v.strip() != '']
+
+            restricciones = []
+            tipos = []
+
+            for i in range(10):
+                restr = request.POST.get(f'restriccion_{i}')
+                signo = request.POST.get(f'signo_{i}')
+                if restr and signo:
+                    partes = [x.strip() for x in restr.split(',')]
+                    if len(partes) != len(obj) + 1:
+                        raise ValueError(f"La restricción {i+1} debe tener {len(obj)+1} valores.")
+                    valores = [float(x) for x in partes]
+                    restricciones.append(valores)
+                    tipos.append(signo)
+
+            if len(restricciones) == 0:
+                raise ValueError("Debes ingresar al menos una restricción.")
+
+            solver = GranMSimplexExtended()
+            resultado_html = solver.solve(obj, restricciones, tipos, minimizar)
+
+            soup = BeautifulSoup(resultado_html, "html.parser")
+            for s in soup(["style", "script"]):
+                s.decompose()
+            request.session['resultado_exportable'] = str(soup)
+
+            # Guardar historial
+            GranMHistorial.objects.create(
+                user=request.user,
+                tipo=tipo,
+                funcion_objetivo=objetivo,
+                restricciones=json.dumps(restricciones),
+                signos=json.dumps(tipos),
+                resultado_html=str(soup)
+            )
+
+        except ValueError as ve:
+            resultado_html = f"<p style='color:red;'>Error de validación: {str(ve)}</p>"
+        except Exception as e:
+            resultado_html = f"<p style='color:red;'>Error inesperado: {str(e)}</p>"
+
+    return render(request, 'paginas/metodoGranM.html', {'resultado': resultado_html})
+
+from .models import GranMHistorial
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def historial_gran_m(request):
+    historial = GranMHistorial.objects.filter(user=request.user).order_by('-fecha')
+    return render(request, 'paginas/historialGranM.html', {'historial': historial})
+
+# Exportar a PDF
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+import io
+
+def exportar_pdf(request):
+    resultado = request.session.get('resultado_exportable', '')
+    if not resultado:
+        return HttpResponse("No hay resultado para exportar.", status=400)
+
+    html = render_to_string("paginas/export_template.html", {'resultado': resultado})
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="resultado.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF', status=500)
+    return response
+
+
+# Exportar a Excel
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+
+def exportar_excel(request):
+    html = request.session.get('resultado_exportable', '')
+    soup = BeautifulSoup(html, "html.parser")
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Gran M Resultado"
+    row = 1
+
+    bold_font = Font(bold=True)
+    blue_font = Font(bold=True, color="1F4E78")
+    gray_fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
+    wrap_center = Alignment(wrap_text=True, vertical="top")
+
+    encabezado = soup.find('h1') or soup.find('h2')
+    if encabezado:
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=6)
+        cell = ws.cell(row=row, column=1, value=encabezado.get_text(strip=True))
+        cell.font = Font(size=14, bold=True)
+        row += 2
+
+    for tag in soup.find_all(['h1', 'h2', 'h3', 'p', 'ul', 'ol', 'table']):
+        if tag.name in ['h1', 'h2']:
+            cell = ws.cell(row=row, column=1, value=tag.get_text(strip=True))
+            cell.font = blue_font
+            row += 1
+        elif tag.name == 'h3':
+            cell = ws.cell(row=row, column=1, value=tag.get_text(strip=True))
+            cell.font = Font(bold=True, color="4BACC6")
+            row += 1
+        elif tag.name == 'p':
+            text = tag.get_text(strip=True)
+            if text:
+                cell = ws.cell(row=row, column=1, value=text)
+                cell.alignment = wrap_center
+                row += 1
+        elif tag.name in ['ul', 'ol']:
+            for li in tag.find_all('li'):
+                cell = ws.cell(row=row, column=1, value=f"• {li.get_text(strip=True)}")
+                cell.alignment = wrap_center
+                row += 1
+        elif tag.name == 'table':
+            for tr in tag.find_all('tr'):
+                col = 1
+                for td in tr.find_all(['th', 'td']):
+                    text = td.get_text(strip=True)
+                    cell = ws.cell(row=row, column=col, value=text)
+                    cell.alignment = wrap_center
+                    if td.name == 'th':
+                        cell.font = bold_font
+                        cell.fill = gray_fill
+                    col += 1
+                row += 1
+            row += 1
+
+    for i, column_cells in enumerate(ws.columns, start=1):
+        max_length = 0
+        for cell in column_cells:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                continue
+        col_letter = get_column_letter(i)
+        ws.column_dimensions[col_letter].width = max(20, min(max_length + 5, 60))
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return HttpResponse(
+        output,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': 'attachment; filename="resultado_estilizado.xlsx"'}
+    )
+
+
+# Exportar a Word
+from docx import Document
+from docx.shared import Pt
+
+def exportar_word(request):
+    html = request.session.get('resultado_exportable', '')
+    soup = BeautifulSoup(html, "html.parser")
+
+    doc = Document()
+
+    encabezado = soup.find('h2') or soup.find('h1')
+    if encabezado:
+        titulo = doc.add_heading(encabezado.get_text(), level=1)
+
+    for tag in soup.find_all(['h1', 'h2', 'h3', 'p', 'ul', 'ol', 'table']):
+        if tag.name in ['h1', 'h2', 'h3']:
+            doc.add_heading(tag.get_text(strip=True), level=2)
+        elif tag.name == 'p':
+            doc.add_paragraph(tag.get_text(strip=True))
+        elif tag.name in ['ul', 'ol']:
+            for li in tag.find_all('li'):
+                doc.add_paragraph(f"• {li.get_text(strip=True)}", style='ListBullet')
+        elif tag.name == 'table':
+            rows = tag.find_all('tr')
+            if rows:
+                cols = rows[0].find_all(['td', 'th'])
+                table = doc.add_table(rows=len(rows), cols=len(cols))
+                for i, tr in enumerate(rows):
+                    for j, td in enumerate(tr.find_all(['td', 'th'])):
+                        table.cell(i, j).text = td.get_text(strip=True)
+
+    output = io.BytesIO()
+    doc.save(output)
+    output.seek(0)
+    return HttpResponse(output,
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        headers={'Content-Disposition': 'attachment; filename="resultado.docx"'}
+    )
+
+
+from django.utils.html import escape
+import json
+
+@login_required
+@csrf_exempt
+def editar_gran_m(request, pk):
+    registro = get_object_or_404(GranMHistorial, pk=pk, user=request.user)
+    resultado_html = None
+
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo', 'min')
+        objetivo = request.POST.get('objetivo', '')
+        minimizar = (tipo == 'min')
+
+        try:
+            obj_raw = objetivo.split(',')
+            if len(obj_raw) > 10:
+                raise ValueError("Máximo 10 variables permitidas.")
+
+            obj = [float(v.strip()) for v in obj_raw if v.strip()]
+            restricciones = []
+            tipos = []
+
+            for i in range(10):
+                restr = request.POST.get(f'restriccion_{i}')
+                signo = request.POST.get(f'signo_{i}')
+                if restr and signo:
+                    partes = [x.strip() for x in restr.split(',')]
+                    if len(partes) != len(obj) + 1:
+                        raise ValueError(f"Restricción {i+1} inválida.")
+                    restricciones.append([float(x) for x in partes])
+                    tipos.append(signo)
+
+            if not restricciones:
+                raise ValueError("Al menos una restricción es requerida.")
+
+            solver = GranMSimplexExtended()
+            resultado_html = solver.solve(obj, restricciones, tipos, minimizar)
+
+            GranMHistorial.objects.create(
+                user=request.user,
+                tipo=tipo,
+                funcion_objetivo=objetivo,
+                restricciones=json.dumps(restricciones),  
+                signos=json.dumps(tipos),                
+                resultado_html=resultado_html
+            )
+
+            soup = BeautifulSoup(resultado_html, "html.parser")
+            for tag in soup(["style", "script"]): tag.decompose()
+            request.session['resultado_exportable'] = str(soup)
+
+        except Exception as e:
+            resultado_html = f"<p style='color:red;'>Error: {str(e)}</p>"
+
+    try:
+        restricciones_parseadas = json.loads(registro.restricciones)
+        signos_parseados = json.loads(registro.signos)
+    except json.JSONDecodeError as e:
+        restricciones_parseadas = []
+        signos_parseados = []
+        resultado_html = f"<p style='color:red;'>Error cargando historial: {str(e)}</p>"
+
+    return render(request, 'paginas/metodoGranM.html', {
+        'resultado': resultado_html,
+        'editar': True,
+        'registro': {
+            'tipo': registro.tipo,
+            'funcion_objetivo': registro.funcion_objetivo,
+            'restricciones': restricciones_parseadas,
+            'signos': signos_parseados
+        }
+    })

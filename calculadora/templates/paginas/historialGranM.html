@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block nombre %}Historial de Gran M{% endblock %}
+
+{% block contenido %}
+<style>
+    .scroll-wrapper {
+        max-height: 75vh;
+        overflow-y: auto;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        background-color: #f9f9f9;
+    }
+
+    .historial-item {
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .historial-item strong {
+        color: #4B848A;
+    }
+
+    summary {
+        cursor: pointer;
+        font-weight: bold;
+        color: #333;
+        margin-top: 10px;
+    }
+
+    details {
+        margin-top: 8px;
+    }
+
+    details div {
+        max-width: 100%;
+    }
+</style>
+
+<div class="container">
+    <h2>Historial de Métodos - Gran M</h2>
+    {% if historial %}
+    <div class="scroll-wrapper">
+        <ul style="list-style: none; padding-left: 0;">
+            {% for item in historial %}
+            <li class="historial-item">
+                <strong>{{ item.fecha|date:"d/m/Y H:i" }}</strong><br>
+                Tipo: {{ item.tipo|upper }}<br>
+                Objetivo: {{ item.funcion_objetivo }}<br>
+                <details>
+                    <summary>📄 Ver Resultado</summary>
+                    <div style="overflow-x:auto;">{{ item.resultado_html|safe }}</div>
+                </details>
+                <form method="get" action="{% url 'editar_gran_m' item.id %}">
+    <button type="submit" class="btn btn-sm btn-primary mt-2">📝 Volver a Editar</button>
+</form>
+
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p>No hay cálculos registrados aún.</p>
+    {% endif %}
+</div>
+{% endblock %}

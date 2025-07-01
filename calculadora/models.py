@@ -103,3 +103,18 @@ class MetodoGraficoHistorial(models.Model):
 
     def __str__(self):
         return f"Método Gráfico - {self.fecha_creacion.strftime('%Y-%m-%d %H:%M')}"
+    
+from django.contrib.auth.models import User
+from django.db import models
+
+class GranMHistorial(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tipo = models.CharField(max_length=10)  # "min" o "max"
+    funcion_objetivo = models.TextField()
+    restricciones = models.TextField()  # Serializado como string CSV
+    signos = models.TextField()         # Lista de signos
+    resultado_html = models.TextField()  # Resultado como HTML limpio
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - Gran M - {self.fecha.strftime('%Y-%m-%d %H:%M')}"

@@ -2,8 +2,18 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import historial_gran_m
 
 urlpatterns = [
+
+    #RUTA DE M 
+    path('gran_m/', views.metodo_gran_m, name='gran_m'),
+    path('exportar/pdf/', views.exportar_pdf, name='exportar_pdf'),
+    path('exportar/excel/', views.exportar_excel, name='exportar_excel'),
+    path('exportar/word/', views.exportar_word, name='exportar_word'),
+    path('historial/gran_m/', historial_gran_m, name='historial_gran_m'),
+    path('gran_m/editar/<int:pk>/', views.editar_gran_m, name='editar_gran_m'),
+
     path('', views.login_view, name='login'),
     path('index/', views.index, name='index'),
     path('punto/', views.punto_fijo_view, name='puntoFijo'),

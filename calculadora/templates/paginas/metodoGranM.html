@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Método de la Gran M</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, Segoe UI, Arial, sans-serif;
+      background-color: #fefefe;
+      color: #222;
+      overflow-y: scroll;
+    }
+
+    .contenedor-completo {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      color: #1a3e44;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    input[type="text"], select {
+      background-color: #ffffff;
+      color: #222;
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 500;
+      width: 100%;
+    }
+
+    .resolver {
+      padding: 12px 20px;
+      border: none;
+      background-color: #0e7c86;
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 220px;
+      transition: background 0.3s ease;
+    }
+
+    .resolver:hover {
+      background-color: #0b5e65;
+    }
+
+    .restriccion-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .agregar-btn {
+      background-color: #555;
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      max-width: 220px;
+    }
+
+    .mensaje-limite {
+      color: #d50000;
+      font-weight: bold;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+
+    .restriccion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .eliminar-btn {
+      background-color: #c62828;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .resultado-scroll {
+      background-color: #fafafa;
+      color: #111;
+      padding: 24px;
+      border-radius: 14px;
+      margin-top: 40px;
+      overflow-x: auto;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .exportar-contenedor {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .exportar-contenedor .resolver {
+      background-color: #4B848A;
+    }
+
+    .exportar-contenedor .resolver:hover {
+      background-color: #366066;
+    }
+
+    a.resolver {
+      display: inline-block;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .restriccion-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .resolver, .agregar-btn {
+        width: 100%;
+      }
+
+      .contenedor-completo {
+        padding: 20px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor-completo">
+    <h2>Método de la Gran M</h2>
+
+    <form method="post" id="formulario-granm">
+      {% csrf_token %}
+      <div>
+        <label>Tipo de problema:</label>
+        <select name="tipo">
+          <option value="min">Minimizar</option>
+          <option value="max">Maximizar</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Función Objetivo (máx. 10 variables):</label>
+        <input type="text" id="objetivo" name="objetivo" placeholder="Ej: 2,3,1,0" required>
+        <div id="msg-var" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 variables.</div>
+      </div>
+
+      <div id="restricciones-container" class="restriccion-group"></div>
+      <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 restricciones.</div>
+
+      <button type="button" class="agregar-btn" onclick="agregarRestriccion()">+ Agregar restricción</button>
+      <button type="submit" class="resolver">Resolver</button>
+    </form>
+
+    {% if resultado %}
+    <div class="resultado-scroll">
+      {{ resultado|safe }}
+    </div>
+
+    <div class="exportar-contenedor">
+      <form method="post" action="{% url 'exportar_pdf' %}">
+        {% csrf_token %}
+        {% autoescape off %}
+        <textarea name="contenido" hidden>{{ resultado }}</textarea>
+        {% endautoescape %}
+        <button type="submit" class="resolver">Exportar PDF</button>
+      </form>
+
+      <form method="post" action="{% url 'exportar_excel' %}">
+        {% csrf_token %}
+        {% autoescape off %}
+        <textarea name="contenido" hidden>{{ resultado }}</textarea>
+        {% endautoescape %}
+        <button type="submit" class="resolver">Exportar Excel</button>
+      </form>
+
+      <form method="post" action="{% url 'exportar_word' %}">
+        {% csrf_token %}
+        {% autoescape off %}
+        <textarea name="contenido" hidden>{{ resultado }}</textarea>
+        {% endautoescape %}
+        <button type="submit" class="resolver">Exportar Word</button>
+      </form>
+
+      <a href="{% url 'historial_gran_m' %}" class="resolver">📚 Ver Historial</a>
+    </div>
+    {% endif %}
+  </div>
+<script>
+  let numRestricciones = 0;
+  const maxRestricciones = 10;
+
+  function agregarRestriccion() {
+    if (numRestricciones >= maxRestricciones) {
+      document.getElementById("msg-rest").style.display = "block";
+      return;
+    }
+
+    const container = document.getElementById("restricciones-container");
+    const div = document.createElement("div");
+    div.className = "restriccion-item";
+    div.id = `restriccion_item_${numRestricciones}`;
+    div.innerHTML = `
+      <label>Restricción ${numRestricciones + 1}:</label>
+      <input type="text" name="restriccion_${numRestricciones}" placeholder="Ej: 1,2,10" required>
+      <select name="signo_${numRestricciones}">
+        <option value="<=">&le;</option>
+        <option value=">=">&ge;</option>
+        <option value="=">=</option>
+      </select>
+      <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
+    `;
+    container.appendChild(div);
+    numRestricciones++;
+  }
+
+  function eliminarRestriccion(id) {
+    const div = document.getElementById(id);
+    if (div) {
+      div.remove();
+      numRestricciones--;
+      document.getElementById("msg-rest").style.display = "none";
+    }
+  }
+
+const esEdicion = "{{ editar|default:'false'|lower }}" === "true";
+const tipo_problema = "{{ registro.tipo|default:'min' }}";
+const funcion_objetivo = "{{ registro.funcion_objetivo|escapejs }}";
+const restricciones = JSON.parse(`{{ registro.restricciones|escapejs }}`);
+const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
+
+
+
+
+  window.onload = () => {
+    if (esEdicion && funcion_objetivo) {
+      document.querySelector("select[name='tipo']").value = tipo_problema;
+      document.getElementById("objetivo").value = funcion_objetivo;
+
+      for (let i = 0; i < restricciones.length; i++) {
+        agregarRestriccion();
+        const input = document.querySelector(`input[name='restriccion_${i}']`);
+        const select = document.querySelector(`select[name='signo_${i}']`);
+        if (input) input.value = restricciones[i].join(',');
+        if (select) select.value = signos[i];
+      }
+    } else {
+      agregarRestriccion();
+      agregarRestriccion();
+    }
+  };
+
+  const inputObjetivo = document.getElementById("objetivo");
+  const msgVar = document.getElementById("msg-var");
+
+  inputObjetivo.addEventListener("input", () => {
+    const valores = inputObjetivo.value.split(',').map(v => v.trim()).filter(v => v !== "");
+    if (valores.length > 10) {
+      msgVar.style.display = "block";
+      inputObjetivo.value = valores.slice(0, 10).join(', ');
+    } else {
+      msgVar.style.display = "none";
+    }
+  });
+
+  document.getElementById("formulario-granm").addEventListener("submit", function (e) {
+    const objetivo = document.getElementById("objetivo").value.trim();
+    const valores = objetivo.split(',').map(x => x.trim()).filter(x => x !== '');
+
+    if (valores.length === 0) {
+      alert("La función objetivo no puede estar vacía.");
+      e.preventDefault();
+      return;
+    }
+
+    if (valores.length > 10) {
+      alert("Máximo 10 variables permitidas en la función objetivo.");
+      e.preventDefault();
+      return;
+    }
+
+    for (let v of valores) {
+      if (isNaN(v)) {
+        alert("Todos los coeficientes en la función objetivo deben ser numéricos.");
+        e.preventDefault();
+        return;
+      }
+    }
+
+    const restricciones = document.querySelectorAll("#restricciones-container .restriccion-item");
+    for (let i = 0; i < restricciones.length; i++) {
+      const inputs = restricciones[i].querySelector('input[type="text"]').value.trim().split(',').map(x => x.trim());
+      if (inputs.length !== valores.length + 1) {
+        alert(`La restricción ${i + 1} debe tener ${valores.length + 1} valores (incluyendo el lado derecho).`);
+        e.preventDefault();
+        return;
+      }
+      for (let num of inputs) {
+        if (isNaN(num)) {
+          alert(`Todos los valores en la restricción ${i + 1} deben ser numéricos.`);
+          e.preventDefault();
+          return;
+        }
+      }
+    }
+  });
+</script>
+
+ 
+</body>
+</html>
