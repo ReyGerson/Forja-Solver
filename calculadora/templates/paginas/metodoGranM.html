@@ -146,6 +146,26 @@
       text-align: center;
     }
 
+    /* Nuevos estilos para botones principales y exportar */
+    .resolver.principal {
+      background: linear-gradient(90deg, #4B848A 60%, #0e7c86 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 8px #4B848A22;
+    }
+    .resolver.exportar-btn {
+      background: #e0e7ea;
+      color: #0e7c86;
+      font-weight: 600;
+      margin: 0 4px 8px 0;
+      border: 1px solid #4B848A;
+      transition: background 0.2s, color 0.2s;
+    }
+    .resolver.exportar-btn:hover {
+      background: #4B848A;
+      color: #fff;
+    }
+
     @media (max-width: 768px) {
       .restriccion-item {
         flex-direction: column;
@@ -164,62 +184,56 @@
 </head>
 <body>
   <div class="contenedor-completo">
-    <h2>Método de la Gran M</h2>
-
-    <form method="post" id="formulario-granm">
+    <h2 style="color:#4B848A; border-bottom:2px solid #DCC9A9;">Método de la Gran M</h2>
+    <form method="post" id="formulario-granm" style="background:#fff; border-radius:16px; box-shadow:0 4px 16px #0001; padding:32px 18px; margin-bottom:32px;">
       {% csrf_token %}
-      <div>
+      <div style="margin-bottom:18px;">
         <label>Tipo de problema:</label>
         <select name="tipo">
           <option value="min">Minimizar</option>
           <option value="max">Maximizar</option>
         </select>
       </div>
-
-      <div>
+      <div style="margin-bottom:18px;">
         <label>Función Objetivo (máx. 10 variables):</label>
         <input type="text" id="objetivo" name="objetivo" placeholder="Ej: 2,3,1,0" required>
         <div id="msg-var" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 variables.</div>
       </div>
-
       <div id="restricciones-container" class="restriccion-group"></div>
       <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 restricciones.</div>
-
-      <button type="button" class="agregar-btn" onclick="agregarRestriccion()">+ Agregar restricción</button>
-      <button type="submit" class="resolver">Resolver</button>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+        <button type="button" class="agregar-btn" onclick="agregarRestriccion()">+ Agregar restricción</button>
+        <button type="submit" class="resolver principal">Resolver</button>
+      </div>
     </form>
 
     {% if resultado %}
-    <div class="resultado-scroll">
+    <div class="resultado-scroll" style="border:1.5px solid #4B848A;">
       {{ resultado|safe }}
     </div>
-
-    <div class="exportar-contenedor">
-      <form method="post" action="{% url 'exportar_pdf' %}">
+    <div class="exportar-contenedor" style="margin-top:24px; justify-content:center;">
+      <form method="post" action="{% url 'exportar_pdf' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver">Exportar PDF</button>
+        <button type="submit" class="resolver exportar-btn">Exportar PDF</button>
       </form>
-
-      <form method="post" action="{% url 'exportar_excel' %}">
+      <form method="post" action="{% url 'exportar_excel' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver">Exportar Excel</button>
+        <button type="submit" class="resolver exportar-btn">Exportar Excel</button>
       </form>
-
-      <form method="post" action="{% url 'exportar_word' %}">
+      <form method="post" action="{% url 'exportar_word' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver">Exportar Word</button>
+        <button type="submit" class="resolver exportar-btn">Exportar Word</button>
       </form>
-
-      <a href="{% url 'historial_gran_m' %}" class="resolver">📚 Ver Historial</a>
+      <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn" style="background:#4B848A;">📚 Ver Historial</a>
     </div>
     {% endif %}
   </div>
