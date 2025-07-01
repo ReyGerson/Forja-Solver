@@ -73,6 +73,9 @@ urlpatterns = [
     path('metodo-grafico/historial/', views.historial_metodo_grafico, name='historialMetodoGrafico'),
     path('metodo-grafico/historial/pdf/<int:id>/', views.metodo_grafico_pdf, name='pdfMetodoGrafico'),
     path('metodo-grafico/historial/repetir/<int:id>/', views.repetir_metodo_grafico, name='repetirMetodoGrafico'),
+    
+    # Cambio de idioma
+    path('cambiar-idioma/', views.cambiar_idioma, name='cambiar_idioma'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

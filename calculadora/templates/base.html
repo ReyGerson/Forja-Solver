@@ -30,10 +30,28 @@
             </button>
         </div>
         <div class="navbar-nav">
-            <a class="nav-item rounded-pill" href="{% url 'index' %}">Inicio</a>
-            <a class="nav-item rounded-pill" href="{% url 'logout' %}">Logout</a>
+            <a class="nav-item rounded-pill" href="{% url 'index' %}">{{ translations.inicio }}</a>
+            
+            <!-- Botón de cambio de idioma simplificado -->
+            <form method="post" action="{% url 'cambiar_idioma' %}" style="display: inline-block; margin: 0;">
+                {% csrf_token %}
+                <input type="hidden" name="idioma" value="{% if current_language == 'es' %}en{% else %}es{% endif %}">
+                <button type="submit" class="nav-item rounded-pill language-toggle-btn" 
+                        style="background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 15px; cursor: pointer; font-family: inherit; font-size: inherit; border-radius: 25px; transition: all 0.3s ease;"
+                        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'; this.style.transform='scale(1.05)';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.transform='scale(1)';">
+                    {% if current_language == 'es' %}
+                        🇺🇸 EN
+                    {% else %}
+                        🇪🇸 ES
+                    {% endif %}
+                </button>
+            </form>
+            
+            <a class="nav-item rounded-pill" href="{% url 'logout' %}">{{ translations.logout }}</a>
         </div>
     </nav>
+    
     <div class="main-grid">
         {% block contenido %} {% endblock %}
     </div>

@@ -21,6 +21,7 @@ import pandas as pd
 import pandas as pd
 import os
 import time
+from django.contrib import messages
 
 @login_required
 def punto_fijo_view(request):
@@ -2871,6 +2872,31 @@ def repetir_metodo_grafico(request, id):
     except Exception as e:
         print(f"Error cargando historial del método gráfico: {e}")
         return redirect('metodoGrafico')
+
+@login_required
+def cambiar_idioma(request):
+    """
+    Cambia el idioma preferido del usuario entre español e inglés.
+    """
+    if request.method == 'POST':
+        nuevo_idioma = request.POST.get('idioma')
+        
+        # Validar que el idioma sea válido
+        if nuevo_idioma in ['es', 'en']:
+            # Obtener o crear el perfil del usuario
+            profile, created = UserProfile.objects.get_or_create(user=request.user)
+            profile.idioma_preferido = nuevo_idioma
+            profile.save()
+            
+            # Mensaje de confirmación según el idioma seleccionado
+            if nuevo_idioma == 'es':
+                messages.success(request, 'Idioma cambiado a Español exitosamente.')
+            else:
+                messages.success(request, 'Language changed to English successfully.')
+    
+    # Redirigir a la página anterior o al inicio
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
 
 #### gran m 
 
