@@ -183,19 +183,16 @@
   </style>
 </head>
 <body>
-  <div class="contenedor-completo">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
-        <a href="{% url 'index' %}" class="resolver exportar-btn" style="min-width:150px; background:#4B848A; color:#fff;">⏪ Regresar al inicio</a>
-        <button type="button" class="resolver exportar-btn" style="min-width:150px; background:#FBC359; color:#222;" onclick="window.location.reload()">🔄 Nuevo ejercicio</button>
+  <div class="container">
+      <div style="display:flex; justify-content:center; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px;">
+        <a href="{% url 'index' %}" class="resolver exportar-btn principal" style="min-width:170px;">⏪ Regresar al inicio</a>
+        <button type="button" class="resolver exportar-btn principal" style="min-width:170px;" onclick="nuevoEjercicio()">🔄 Nuevo ejercicio</button>
         {% if user.is_authenticated %}
-        <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn" style="min-width:170px; background:#4B848A;">📋 Ver Historial</a>
-        {% endif %}
-        {% if not user.is_authenticated or not user.userprofile.is_premium %}
-        <a href="{% url 'tienda' %}" class="resolver exportar-btn" style="min-width:170px; background:linear-gradient(90deg,#FBC359 60%,#E70103 100%); color:#222; font-weight:bold;">⭐ Desbloquear Premium</a>
+        <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal" style="min-width:170px;">📋 Ver Historial</a>
         {% endif %}
       </div>
       <h2 style="color:#4B848A; border-bottom:2px solid #DCC9A9;">Método de la Gran M</h2>
-      <form method="post" id="formulario-granm" style="background:#fff; border-radius:16px; box-shadow:0 4px 16px #0001; padding:32px 18px; margin-bottom:32px;">
+      <form method="post" id="formulario-granm" style="background:#fff; border-radius:16px; box-shadow:0 4px 16px #0001; padding:32px 18px; margin-bottom:32px; max-width:600px; margin-left:auto; margin-right:auto;">
         {% csrf_token %}
         {% if precarga %}
         <input type="hidden" id="precarga_tipo" value="{{ precarga.tipo_objetivo }}">
@@ -216,54 +213,42 @@
         </div>
         <div id="restricciones-container" class="restriccion-group"></div>
         <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 restricciones.</div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
-          <button type="button" class="agregar-btn" onclick="agregarRestriccion()">+ Agregar restricción</button>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; justify-content:center;">
+          <button type="button" class="agregar-btn principal" onclick="agregarRestriccion()">+ Agregar restricción</button>
           <button type="submit" class="resolver principal">Resolver</button>
         </div>
-        {% if not user.is_authenticated or not user.userprofile.is_premium %}
-        <div class="alert alert-warning" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba; border-radius:8px; padding:16px; margin-top:18px;">
-          <h4>⚠️ Versión Gratuita - Solo Resultado Final</h4>
-          <p>Estás viendo la versión limitada. Con <strong>Premium</strong> puedes acceder a:</p>
-          <ul>
-            <li>📊 Todas las iteraciones detalladas del algoritmo</li>
-            <li>🔧 Modelo matemático completo con variables de holgura</li>
-            <li>📝 Proceso paso a paso de cada operación</li>
-            <li>📋 Tabla inicial y todas las tablas intermedias</li>
-          </ul>
-          <a href="{% url 'tienda' %}" class="resolver exportar-btn" style="background:var(--warning); color:var(--secondary);">🔓 Actualizar a Premium</a>
-        </div>
-        {% endif %}
       </form>
-      {% if resultado %}
-      <div class="resultado-scroll" style="border:1.5px solid #4B848A;">
-        {{ resultado|safe }}
-      </div>
-      <div class="exportar-contenedor" style="margin-top:24px; justify-content:center;">
-        <form method="post" action="{% url 'exportar_pdf' %}" style="display:inline-block;">
-          {% csrf_token %}
-          {% autoescape off %}
-          <textarea name="contenido" hidden>{{ resultado }}</textarea>
-          {% endautoescape %}
-          <button type="submit" class="resolver exportar-btn">Exportar PDF</button>
-        </form>
-        <form method="post" action="{% url 'exportar_excel' %}" style="display:inline-block;">
-          {% csrf_token %}
-          {% autoescape off %}
-          <textarea name="contenido" hidden>{{ resultado }}</textarea>
-          {% endautoescape %}
-          <button type="submit" class="resolver exportar-btn">Exportar Excel</button>
-        </form>
-        <form method="post" action="{% url 'exportar_word' %}" style="display:inline-block;">
-          {% csrf_token %}
-          {% autoescape off %}
-          <textarea name="contenido" hidden>{{ resultado }}</textarea>
-          {% endautoescape %}
-          <button type="submit" class="resolver exportar-btn">Exportar Word</button>
-        </form>
-        <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn" style="background:#4B848A;">📚 Ver Historial</a>
-      </div>
-      {% endif %}
     </div>
+    {% if resultado %}
+    <div class="resultado-scroll" style="border:1.5px solid #4B848A;">
+      {{ resultado|safe }}
+    </div>
+    <div class="exportar-contenedor" style="margin-top:24px; justify-content:center;">
+      <form method="post" action="{% url 'exportar_pdf' %}" style="display:inline-block;">
+        {% csrf_token %}
+        {% autoescape off %}
+        <textarea name="contenido" hidden>{{ resultado }}</textarea>
+        {% endautoescape %}
+        <button type="submit" class="resolver exportar-btn principal">Exportar PDF</button>
+      </form>
+      <form method="post" action="{% url 'exportar_excel' %}" style="display:inline-block;">
+        {% csrf_token %}
+        {% autoescape off %}
+        <textarea name="contenido" hidden>{{ resultado }}</textarea>
+        {% endautoescape %}
+        <button type="submit" class="resolver exportar-btn principal">Exportar Excel</button>
+      </form>
+      <form method="post" action="{% url 'exportar_word' %}" style="display:inline-block;">
+        {% csrf_token %}
+        {% autoescape off %}
+        <textarea name="contenido" hidden>{{ resultado }}</textarea>
+        {% endautoescape %}
+        <button type="submit" class="resolver exportar-btn principal">Exportar Word</button>
+      </form>
+      <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal">📚 Ver Historial</a>
+    </div>
+    {% endif %}
+  </div>
 <script>
   let numRestricciones = 0;
   const maxRestricciones = 10;
@@ -293,6 +278,7 @@
   }
 
   function eliminarRestriccion(id) {
+    if (!confirm('¿Desea eliminar esta restricción?')) return;
     const div = document.getElementById(id);
     if (div) {
       div.remove();
@@ -310,23 +296,61 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
 
 
 
-  window.onload = () => {
-    if (esEdicion && funcion_objetivo) {
-      document.querySelector("select[name='tipo']").value = tipo_problema;
-      document.getElementById("objetivo").value = funcion_objetivo;
+  // Inicialización única: edición, precarga o nuevo
+  document.addEventListener('DOMContentLoaded', function() {
+    // Limpiar campos y contenedores
+    document.getElementById('objetivo').value = '';
+    document.getElementById('tipo_problema').value = 'min';
+    document.getElementById('restricciones-container').innerHTML = '';
+    numRestricciones = 0;
 
+    // Eliminar resultado y exportar si existen
+    const resultadoDiv = document.querySelector('.resultado-scroll');
+    if (resultadoDiv) resultadoDiv.remove();
+    const exportarDiv = document.querySelector('.exportar-contenedor');
+    if (exportarDiv) exportarDiv.remove();
+
+    // 1. Edición desde historial
+    if (esEdicion && funcion_objetivo && restricciones && signos && restricciones.length > 0) {
+      document.getElementById('tipo_problema').value = tipo_problema;
+      document.getElementById('objetivo').value = funcion_objetivo;
       for (let i = 0; i < restricciones.length; i++) {
         agregarRestriccion();
         const input = document.querySelector(`input[name='restriccion_${i}']`);
         const select = document.querySelector(`select[name='signo_${i}']`);
-        if (input) input.value = restricciones[i].join(',');
+        if (input) input.value = Array.isArray(restricciones[i]) ? restricciones[i].join(',') : restricciones[i];
         if (select) select.value = signos[i];
       }
-    } else {
+    }
+    // 2. Precarga desde historial (inputs ocultos)
+    else if (document.getElementById('precarga_funcion') && document.getElementById('precarga_funcion').value) {
+      document.getElementById('objetivo').value = document.getElementById('precarga_funcion').value;
+      const precargaTipo = document.getElementById('precarga_tipo');
+      if (precargaTipo && precargaTipo.value) {
+        document.getElementById('tipo_problema').value = precargaTipo.value;
+      }
+      const precargaRestricciones = document.getElementById('precarga_restricciones');
+      if (precargaRestricciones && precargaRestricciones.value) {
+        try {
+          const restricciones = JSON.parse(precargaRestricciones.value);
+          if (Array.isArray(restricciones)) {
+            restricciones.forEach((rest, i) => {
+              agregarRestriccion();
+              const input = document.querySelector(`input[name='restriccion_${i}']`);
+              if (input && rest.valores) input.value = Array.isArray(rest.valores) ? rest.valores.join(',') : rest.valores;
+              const select = document.querySelector(`select[name='signo_${i}']`);
+              if (select && rest.signo) select.value = rest.signo;
+            });
+          }
+        } catch (e) { console.error('Error precargando restricciones', e); }
+      }
+    }
+    // 3. Nuevo ejercicio: dos restricciones vacías
+    else {
       agregarRestriccion();
       agregarRestriccion();
     }
-  };
+  });
 
   const inputObjetivo = document.getElementById("objetivo");
   const msgVar = document.getElementById("msg-var");
@@ -383,43 +407,20 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
     }
   });
 
-// Precarga desde historial (si existe)
-window.addEventListener('DOMContentLoaded', function() {
-  const precargaTipo = document.getElementById('precarga_tipo');
-  const precargaFuncion = document.getElementById('precarga_funcion');
-  const precargaRestricciones = document.getElementById('precarga_restricciones');
-  if (precargaFuncion && precargaFuncion.value) {
-    // Limpiar campos
-    document.getElementById('objetivo').value = '';
-    document.getElementById('tipo_problema').value = 'min';
-    document.getElementById('restricciones-container').innerHTML = '';
-    numRestricciones = 0;
-
-    // Cargar función objetivo y tipo
-    document.getElementById('objetivo').value = precargaFuncion.value;
-    if (precargaTipo && precargaTipo.value) {
-      document.getElementById('tipo_problema').value = precargaTipo.value;
-    }
-    // Cargar restricciones
-    if (precargaRestricciones && precargaRestricciones.value) {
-      try {
-        const restricciones = JSON.parse(precargaRestricciones.value);
-        if (Array.isArray(restricciones)) {
-          restricciones.forEach((rest, i) => {
-            agregarRestriccion();
-            const input = document.querySelector(`input[name='restriccion_${i}']`);
-            if (input && rest.valores) input.value = Array.isArray(rest.valores) ? rest.valores.join(',') : rest.valores;
-            const select = document.querySelector(`select[name='signo_${i}']`);
-            if (select && rest.signo) select.value = rest.signo;
-          });
-        }
-      } catch (e) { console.error('Error precargando restricciones', e); }
-    }
-  }
-});
-
-
- 
+  function nuevoEjercicio() {
+  // Limpiar campos del formulario
+  document.getElementById('objetivo').value = '';
+  document.getElementById('tipo_problema').value = 'min';
+  document.getElementById('restricciones-container').innerHTML = '';
+  numRestricciones = 0;
+  agregarRestriccion();
+  agregarRestriccion();
+  // Ocultar/eliminar resultado y exportar
+  const resultadoDiv = document.querySelector('.resultado-scroll');
+  if (resultadoDiv) resultadoDiv.remove();
+  const exportarDiv = document.querySelector('.exportar-contenedor');
+  if (exportarDiv) exportarDiv.remove();
+}
 </script>
 </body>
 </html>
