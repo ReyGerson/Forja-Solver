@@ -1776,6 +1776,7 @@ def metodo_grafico(request):
             
             for i, point in enumerate(feasibility_details, 1):
 
+
                 vx, vy = point['x'], point['y']
                 z = coeff_x * vx + coeff_y * vy
                 solutions.append({
@@ -2078,221 +2079,795 @@ def cargar_simplex_historial(request, historial_id):
         return redirect('simplex')
 
 @login_required
+def exportar_simplex_pdf(request, historial_id):
+    """
+    Genera un PDF con el historial completo de un cálculo del método Simplex.
+    Solo disponible para usuarios premium.
+    """
+    # Verificar que el usuario sea premium
+    if not (hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium):
+        return HttpResponse("Acceso denegado. Esta funcionalidad requiere cuenta Premium.", status=403)
+    
+    try:
+        # Obtener el historial del usuario actual
+        historial = SimplexHistorial.objects.get(id=historial_id, user=request.user)
+    except SimplexHistorial.DoesNotExist:
+        return HttpResponse("Historial no encontrado.", status=404)
+    
+    # Función para limpiar texto LaTeX y convertirlo a texto legible
+    def limpiar_latex(texto):
+        if not texto:
+            return ""
+        
+        # Diccionario de reemplazos LaTeX comunes
+        import re
+        replacements = {
+            r'\\text\{([^}]+)\}': r'\1',  # \text{...} -> ...
+            r'\\geq': '≥',
+            r'\\leq': '≤',
+            r'\\le': '≤',
+            r'\\ge': '≥',
+            r'\\cdot': '·',
+            r'\\times': '×',
+            r'\\div': '÷',
+            r'\\pm': '±',
+            r'\\mp': '∓',
+            r'\\infty': '∞',
+            r'\\alpha': 'α',
+            r'\\beta': 'β',
+            r'\\gamma': 'γ',
+            r'\\delta': 'δ',
+            r'\\epsilon': 'ε',
+            r'\\theta': 'θ',
+            r'\\lambda': 'λ',
+            r'\\mu': 'μ',
+            r'\\pi': 'π',
+            r'\\sigma': 'σ',
+            r'\\tau': 'τ',
+            r'\\phi': 'φ',
+            r'\\omega': 'ω',
+            r'\\\{': '{',
+            r'\\\}': '}',
+            r'\\\\': '',
+            r'\$': '',
+            r'_\{([^}]+)\}': r'_\1',  # _{...} -> _...
+            r'\^{([^}]+)}': r'^\1',   # ^{...} -> ^...
+        }
+        
+        # Aplicar reemplazos
+        for pattern, replacement in replacements.items():
+            texto = re.sub(pattern, replacement, texto)
+        
+        # Limpiar espacios extra y caracteres problemáticos
+        texto = re.sub(r'\s+', ' ', texto).strip()
+        
+        return texto
+    
+    # Crear respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="simplex_historial_{historial.id}.pdf"'
+    
+    # Crear el PDF
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    import json
+    from datetime import datetime
+    import re
+    
+    # Configurar documento
+    doc = SimpleDocTemplate(response, pagesize=A4, 
+                           rightMargin=72, leftMargin=72, 
+                           topMargin=72, bottomMargin=18)
+    
+    # Estilos mejorados
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=20,
+        spaceAfter=30,
+        textColor=colors.darkblue,
+        alignment=1,  # Centrado
+        fontName='Helvetica-Bold'
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=15,
+        spaceBefore=20,
+        textColor=colors.darkgreen,
+        fontName='Helvetica-Bold'
+    )
+    
+    subheading_style = ParagraphStyle(
+        'CustomSubheading',
+        parent=styles['Heading3'],
+        fontSize=12,
+        spaceAfter=10,
+        spaceBefore=15,
+        textColor=colors.darkred,
+        fontName='Helvetica-Bold'
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=8,
+        leftIndent=0
+    )
+    
+    step_style = ParagraphStyle(
+        'StepStyle',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=5,
+        leftIndent=20,
+        bulletIndent=10
+    )
+    
+    code_style = ParagraphStyle(
+        'CodeStyle',
+        parent=styles['Normal'],
+        fontSize=9,
+        spaceAfter=5,
+        leftIndent=30,
+        fontName='Courier',
+        textColor=colors.darkblue
+    )
+    
+    # Contenido del PDF
+    story = []
+    
+    # Título principal
+    story.append(Paragraph("MÉTODO SIMPLEX - REPORTE COMPLETO", title_style))
+    story.append(Paragraph("Programación Lineal - Algoritmo Simplex", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Información básica
+    story.append(Paragraph("INFORMACIÓN DEL CÁLCULO", heading_style))
+    fecha_formato = historial.fecha.strftime("%d/%m/%Y %H:%M:%S")
+    story.append(Paragraph(f"<b>Fecha de cálculo:</b> {fecha_formato}", normal_style))
+    story.append(Paragraph(f"<b>ID del problema:</b> {historial.id}", normal_style))
+    story.append(Paragraph(f"<b>Usuario:</b> {request.user.username}", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Planteamiento del problema
+    story.append(Paragraph("PLANTEAMIENTO DEL PROBLEMA", heading_style))
+    
+    # Función objetivo limpia
+    funcion_limpia = limpiar_latex(historial.funcion_objetivo)
+    story.append(Paragraph(f"<b>Función Objetivo:</b>", subheading_style))
+    story.append(Paragraph(f"{historial.tipo_objetivo} Z = {funcion_limpia}", normal_style))
+    story.append(Spacer(1, 10))
+    
+    # Restricciones limpias
+    story.append(Paragraph(f"<b>Restricciones:</b>", subheading_style))
+    try:
+        restricciones = json.loads(historial.restricciones)
+        for i, restriccion in enumerate(restricciones, 1):
+            restriccion_limpia = limpiar_latex(restriccion)
+            story.append(Paragraph(f"  {i}. {restriccion_limpia}", normal_style))
+    except:
+        restricciones_texto = limpiar_latex(historial.restricciones)
+        story.append(Paragraph(f"  {restricciones_texto}", normal_style))
+    
+    # Restricciones de no negatividad - obtener nombres de variables reales
+    try:
+        solucion_temp = json.loads(historial.solucion_optima)
+        variables_nombres = [var for var in solucion_temp.keys() if not (var.startswith('s') and var[1:].isdigit())]
+        if variables_nombres:
+            variables_texto = ", ".join(variables_nombres)
+            story.append(Paragraph(f"  Restricciones de no negatividad: {variables_texto} ≥ 0", normal_style))
+        else:
+            story.append(Paragraph("  Restricciones de no negatividad: x₁, x₂, ... ≥ 0", normal_style))
+    except:
+        story.append(Paragraph("  Restricciones de no negatividad: x₁, x₂, ... ≥ 0", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Modelo matemático completo (forma estándar)
+    try:
+        modelo = json.loads(historial.modelo_matematico)
+        story.append(Paragraph("MODELO EN FORMA ESTÁNDAR", heading_style))
+        
+        if 'funcion_objetivo' in modelo:
+            funcion_limpia_modelo = limpiar_latex(modelo['funcion_objetivo'])
+            story.append(Paragraph(f"<b>Función objetivo:</b> {funcion_limpia_modelo}", normal_style))
+        
+        if 'funcion_z_estandar' in modelo:
+            z_estandar_limpia = limpiar_latex(modelo['funcion_z_estandar'])
+            story.append(Paragraph(f"<b>Ecuación Z:</b> {z_estandar_limpia}", normal_style))
+        
+        if 'restricciones' in modelo:
+            story.append(Paragraph("<b>Sistema de ecuaciones con variables de holgura:</b>", subheading_style))
+            for i, restriccion in enumerate(modelo['restricciones'], 1):
+                restriccion_limpia = limpiar_latex(restriccion)
+                story.append(Paragraph(f"  {i}. {restriccion_limpia}", normal_style))
+        
+        story.append(Spacer(1, 20))
+    except:
+        pass
+    
+    # Solución óptima detallada
+    story.append(Paragraph("SOLUCIÓN ÓPTIMA", heading_style))
+    
+    try:
+        solucion = json.loads(historial.solucion_optima)
+        
+        # Información general de la solución
+        valor_optimo = historial.valor_z
+        tipo_problema = 'máximo' if historial.tipo_objetivo == 'Maximizar' else 'mínimo'
+        story.append(Paragraph(f"<b>Valor {tipo_problema} de Z:</b> {valor_optimo:.4f}", subheading_style))
+        story.append(Spacer(1, 10))
+        
+        # Separar variables de decisión y de holgura
+        variables_decision = {}
+        variables_holgura = {}
+        
+        for var, valor in solucion.items():
+            if var.startswith('s') and var[1:].isdigit():
+                variables_holgura[var] = float(valor)
+            else:
+                variables_decision[var] = float(valor)
+        
+        # Tabla de variables de decisión
+        if variables_decision:
+            story.append(Paragraph("<b>Variables de Decisión:</b>", subheading_style))
+            decision_data = [['Variable', 'Valor Óptimo', 'Interpretación']]
+            for var, valor in variables_decision.items():
+                interpretacion = f"Valor óptimo de {var}"
+                decision_data.append([var, f"{valor:.4f}", interpretacion])
+            
+            decision_table = Table(decision_data, colWidths=[1.5*inch, 1.5*inch, 2.5*inch])
+            decision_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]))
+            story.append(decision_table)
+            story.append(Spacer(1, 15))
+        
+        # Tabla de variables de holgura
+        if variables_holgura:
+            story.append(Paragraph("<b>Variables de Holgura:</b>", subheading_style))
+            holgura_data = [['Variable', 'Valor', 'Estado de la Restricción']]
+            for var, valor in variables_holgura.items():
+                if valor > 0.0001:
+                    estado = f"Restricción no activa (sobra {valor:.4f})"
+                else:
+                    estado = "Restricción activa (en el límite)"
+                holgura_data.append([var, f"{valor:.4f}", estado])
+            
+            holgura_table = Table(holgura_data, colWidths=[1.5*inch, 1.5*inch, 2.5*inch])
+            holgura_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.lightblue),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]))
+            story.append(holgura_table)
+            story.append(Spacer(1, 20))
+    
+    except Exception as e:
+        story.append(Paragraph(f"<b>Solución:</b> {historial.solucion_optima}", normal_style))
+        story.append(Paragraph(f"<b>Valor de Z:</b> {historial.valor_z:.4f}", normal_style))
+        story.append(Spacer(1, 20))
+    
+    # Proceso de resolución detallado
+    try:
+        iteraciones = json.loads(historial.iteraciones_json)
+        if iteraciones:
+            story.append(Paragraph("PROCESO DE RESOLUCIÓN - ALGORITMO SIMPLEX", heading_style))
+            story.append(Paragraph(f"<b>Número total de iteraciones:</b> {len(iteraciones)}", normal_style))
+            story.append(Paragraph("El algoritmo simplex encontró la solución óptima mediante las siguientes iteraciones:", normal_style))
+            story.append(Spacer(1, 15))
+            
+            # Resumen de iteraciones
+            for i, iteracion in enumerate(iteraciones):
+                story.append(Paragraph(f"<b>Iteración {i}:</b>", subheading_style))
+                
+                if iteracion.get('es_optima', False):
+                    story.append(Paragraph("• ✅ <b>Solución óptima encontrada</b>", step_style))
+                    story.append(Paragraph("• Todos los coeficientes de la fila Z son no negativos", step_style))
+                    story.append(Paragraph("• El algoritmo termina exitosamente", step_style))
+                else:
+                    if 'variable_entra' in iteracion and 'variable_sale' in iteracion:
+                        var_entra = iteracion['variable_entra']
+                        var_sale = iteracion['variable_sale']
+                        elemento_pivote = iteracion.get('elemento_pivote', 'N/A')
+                        
+                        story.append(Paragraph(f"• Variable que entra a la base: <b>{var_entra}</b>", step_style))
+                        story.append(Paragraph(f"• Variable que sale de la base: <b>{var_sale}</b>", step_style))
+                        story.append(Paragraph(f"• Elemento pivote: <b>{elemento_pivote}</b>", step_style))
+                        
+                        if 'operaciones' in iteracion:
+                            operaciones = iteracion['operaciones']
+                            if operaciones:
+                                story.append(Paragraph("• Operaciones realizadas:", step_style))
+                                for op in operaciones[:3]:  # Limitar a las primeras 3 operaciones
+                                    if op.get('tipo') == 'normalizacion':
+                                        story.append(Paragraph(f"  - Normalización de fila {op.get('fila', '')}", code_style))
+                
+                story.append(Spacer(1, 10))
+            
+            story.append(Spacer(1, 20))
+        else:
+            story.append(Paragraph("PROCESO DE RESOLUCIÓN", heading_style))
+            story.append(Paragraph("El problema fue resuelto usando el método simplex estándar.", normal_style))
+            story.append(Paragraph("Las iteraciones detalladas están disponibles en la versión completa del sistema.", normal_style))
+            story.append(Spacer(1, 20))
+    except:
+        story.append(Paragraph("PROCESO DE RESOLUCIÓN", heading_style))
+        story.append(Paragraph("El problema fue resuelto exitosamente usando el algoritmo simplex.", normal_style))
+        story.append(Spacer(1, 20))
+    
+    # Interpretación de resultados
+    story.append(Paragraph("INTERPRETACIÓN DE RESULTADOS", heading_style))
+    
+    try:
+        solucion = json.loads(historial.solucion_optima)
+        variables_decision = {k: v for k, v in solucion.items() if not (k.startswith('s') and k[1:].isdigit())}
+        
+        if variables_decision:
+            story.append(Paragraph(f"La solución óptima del problema de {historial.tipo_objetivo.lower()} indica que:", normal_style))
+            story.append(Spacer(1, 10))
+            
+            for var, valor in variables_decision.items():
+                story.append(Paragraph(f"• La variable <b>{var}</b> debe tomar el valor <b>{valor:.4f}</b>", step_style))
+            
+            story.append(Spacer(1, 10))
+            story.append(Paragraph(f"Con esta asignación de variables, el valor {'máximo' if historial.tipo_objetivo == 'Maximizar' else 'mínimo'} de la función objetivo Z es <b>{historial.valor_z:.4f}</b>.", normal_style))
+            
+            # Análisis de holguras
+            variables_holgura = {k: v for k, v in solucion.items() if k.startswith('s') and k[1:].isdigit()}
+            if variables_holgura:
+                story.append(Spacer(1, 15))
+                story.append(Paragraph("<b>Análisis de restricciones:</b>", subheading_style))
+                
+                restricciones_activas = 0
+                for var, valor in variables_holgura.items():
+                    num_restriccion = var[1:]
+                    if float(valor) < 0.0001:
+                        story.append(Paragraph(f"• Restricción {num_restriccion}: <b>Activa</b> (se cumple con igualdad)", step_style))
+                        restricciones_activas += 1
+                    else:
+                        story.append(Paragraph(f"• Restricción {num_restriccion}: No activa (sobran {valor:.4f} unidades)", step_style))
+                
+                story.append(Spacer(1, 10))
+                story.append(Paragraph(f"Total de restricciones activas: <b>{restricciones_activas}</b>", normal_style))
+    
+    except:
+        story.append(Paragraph(f"El problema de {historial.tipo_objetivo.lower()} fue resuelto exitosamente.", normal_style))
+        story.append(Paragraph(f"El valor óptimo de la función objetivo es: <b>{historial.valor_z:.4f}</b>", normal_style))
+    
+    story.append(Spacer(1, 20))
+    
+    # Información técnica
+    story.append(Paragraph("INFORMACIÓN TÉCNICA", heading_style))
+    story.append(Paragraph("<b>Método utilizado:</b> Algoritmo Simplex Estándar", normal_style))
+    story.append(Paragraph("<b>Tipo de problema:</b> Programación Lineal", normal_style))
+    story.append(Paragraph("<b>Forma estándar:</b> Problema convertido con variables de holgura", normal_style))
+    story.append(Paragraph("<b>Precisión numérica:</b> Cálculos con precisión de punto flotante", normal_style))
+    
+    try:
+        solucion = json.loads(historial.solucion_optima)
+        variables_decision = len([k for k in solucion.keys() if not (k.startswith('s') and k[1:].isdigit())])
+        variables_holgura = len([k for k in solucion.keys() if k.startswith('s') and k[1:].isdigit()])
+        story.append(Paragraph(f"<b>Variables de decisión:</b> {variables_decision}", normal_style))
+        story.append(Paragraph(f"<b>Variables de holgura:</b> {variables_holgura}", normal_style))
+    except:
+        pass
+    
+    story.append(Spacer(1, 30))
+    
+    # Pie de página mejorado
+    story.append(Paragraph("_" * 80, normal_style))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("FORJA SOLVER", ParagraphStyle('FooterTitle', parent=styles['Normal'], fontSize=12, textColor=colors.darkblue, fontName='Helvetica-Bold', alignment=1)))
+    story.append(Paragraph("Sistema de Resolución de Métodos Numéricos", ParagraphStyle('FooterSubtitle', parent=styles['Normal'], fontSize=10, textColor=colors.grey, alignment=1)))
+    story.append(Spacer(1, 5))
+    story.append(Paragraph(f"Reporte generado el: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", ParagraphStyle('FooterDate', parent=styles['Normal'], fontSize=9, textColor=colors.grey, alignment=1)))
+    
+    # Construir PDF
+    doc.build(story)
+    
+    return response
+
+@login_required
 def metodo_grafico_pdf(request, id):
     """
-    Genera un PDF con el historial de un cálculo del Método Gráfico, incluyendo la gráfica si existe, con presentación profesional y procedimiento bien numerado.
+    Genera un PDF con el historial completo de un cálculo del método gráfico.
+    Solo disponible para usuarios premium.
     """
-    from reportlab.lib.utils import ImageReader
-    from reportlab.lib.pagesizes import letter
-    from reportlab.lib import colors
-    import glob
-    import os
-    import re
-    obj = get_object_or_404(MetodoGraficoHistorial, id=id, user=request.user)
+    # Verificar que el usuario sea premium
+    if not (hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium):
+        return HttpResponse("Acceso denegado. Esta funcionalidad requiere cuenta Premium.", status=403)
+    
+    try:
+        # Obtener el historial del usuario actual
+        historial = MetodoGraficoHistorial.objects.get(id=id, user=request.user)
+    except MetodoGraficoHistorial.DoesNotExist:
+        return HttpResponse("Historial no encontrado.", status=404)
+    
+    # Función para limpiar texto LaTeX y convertirlo a texto legible
+    def limpiar_latex(texto):
+        if not texto:
+            return ""
+        
+        # Diccionario de reemplazos LaTeX comunes
+        replacements = {
+            r'\\text\{([^}]+)\}': r'\1',  # \text{...} -> ...
+            r'\\geq': '≥',
+            r'\\leq': '≤',
+            r'\\le': '≤',
+            r'\\ge': '≥',
+            r'\\cdot': '·',
+            r'\\times': '×',
+            r'\\div': '÷',
+            r'\\pm': '±',
+            r'\\mp': '∓',
+            r'\\infty': '∞',
+            r'\\alpha': 'α',
+            r'\\beta': 'β',
+            r'\\gamma': 'γ',
+            r'\\delta': 'δ',
+            r'\\epsilon': 'ε',
+            r'\\theta': 'θ',
+            r'\\lambda': 'λ',
+            r'\\mu': 'μ',
+            r'\\pi': 'π',
+            r'\\sigma': 'σ',
+            r'\\tau': 'τ',
+            r'\\phi': 'φ',
+            r'\\omega': 'ω',
+            r'\\\{': '{',
+            r'\\\}': '}',
+            r'\\\\': '',
+            r'\$': '',
+            r'_\{([^}]+)\}': r'_\1',  # _{...} -> _...
+            r'\^{([^}]+)}': r'^\1',   # ^{...} -> ^...
+        }
+        
+        # Aplicar reemplazos
+        import re
+        for pattern, replacement in replacements.items():
+            texto = re.sub(pattern, replacement, texto)
+        
+        # Limpiar espacios extra y caracteres problemáticos
+        texto = re.sub(r'\s+', ' ', texto).strip()
+        
+        return texto
+    
+    # Crear respuesta PDF
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="metodo_grafico_{obj.id}.pdf"'
-    p = canvas.Canvas(response, pagesize=letter)
-    width, height = letter
-    y = height - 50
-
-    # --- Título principal ---
-    p.setFont("Helvetica-Bold", 18)
-    p.drawCentredString(width/2, y, "Historial Método Gráfico")
-    y -= 18
-    p.setStrokeColor(colors.grey)
-    p.setLineWidth(1)
-    p.line(40, y, width-40, y)
-    y -= 25
-
-    # --- Datos generales ---
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, y, f"Función objetivo:")
-    p.setFont("Helvetica", 11)
-    p.drawString(180, y, obj.funcion)
-    y -= 18
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, y, f"Optimización:")
-    p.setFont("Helvetica", 11)
-    p.drawString(180, y, obj.optimizacion)
-    y -= 18
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, y, f"Restricciones:")
-    y -= 15
-    p.setFont("Helvetica", 11)
-    for line in obj.restricciones.split('\n'):
-        p.drawString(70, y, line)
-        y -= 13
-        if y < 70:
-            p.showPage()
-            y = height - 50
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, y, f"Solución óptima:")
-    p.setFont("Helvetica", 11)
-    p.drawString(180, y, f"{obj.solucion} en {obj.punto_optimo}")
-    y -= 18
-    p.setFont("Helvetica-Bold", 12)
-    p.drawString(50, y, "Puntos factibles:")
-    y -= 15
-    p.setFont("Helvetica", 11)
-    for line in obj.puntos_factibles.split('\n'):
-        p.drawString(70, y, line)
-        y -= 13
-        if y < 70:
-            p.showPage()
-            y = height - 50
-    # --- Separador visual ---
-    y -= 5
-    p.setStrokeColor(colors.lightgrey)
-    p.setLineWidth(0.5)
-    p.line(40, y, width-40, y)
-    y -= 20
-
-    # --- Procedimiento completo con numeración y formato mejorado ---
-    if obj.iteraciones:
-        p.setFont("Helvetica-Bold", 13)
-        p.drawString(50, y, "Procedimiento completo:")
-        y -= 18
-        lines = obj.iteraciones.split('\n')
-        for linea in lines:
-            if y < 70:
-                p.showPage()
-                y = height - 50
-            # Detectar títulos de paso principal (ej: '1. ...', '2. ...')
-            if re.match(r"^\d+\. ", linea.strip()):
-                p.setFont("Helvetica-Bold", 11)
-                p.drawString(60, y, linea.strip())
-
-                y -= 14
-            # Detectar subtítulos (ej: 'Intersección entre:', 'Método de reducción:')
-            elif re.match(r"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ].*:$", linea.strip()):
-                p.setFont("Helvetica-Oblique", 10)
-                p.drawString(75, y, linea.strip())
-                y -= 12
-            # Resto del contenido (detalles, ecuaciones, validaciones, etc.)
+    response['Content-Disposition'] = f'attachment; filename="metodo_grafico_{historial.id}.pdf"'
+    
+    # Crear el PDF
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    import json
+    from datetime import datetime
+    import re
+    
+    # Configurar documento
+    doc = SimpleDocTemplate(response, pagesize=A4, 
+                           rightMargin=72, leftMargin=72, 
+                           topMargin=72, bottomMargin=18)
+    
+    # Estilos mejorados
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=20,
+        spaceAfter=30,
+        textColor=colors.darkblue,
+        alignment=1,  # Centrado
+        fontName='Helvetica-Bold'
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=15,
+        spaceBefore=20,
+        textColor=colors.darkgreen,
+        fontName='Helvetica-Bold'
+    )
+    
+    subheading_style = ParagraphStyle(
+        'CustomSubheading',
+        parent=styles['Heading3'],
+        fontSize=12,
+        spaceAfter=10,
+        spaceBefore=15,
+        textColor=colors.darkred,
+        fontName='Helvetica-Bold'
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=8,
+        leftIndent=0
+    )
+    
+    step_style = ParagraphStyle(
+        'StepStyle',
+        parent=styles['Normal'],
+        fontSize=10,
+        spaceAfter=5,
+        leftIndent=20,
+        bulletIndent=10
+    )
+    
+    # Contenido del PDF
+    story = []
+    
+    # Título principal
+    story.append(Paragraph("MÉTODO GRÁFICO - REPORTE COMPLETO", title_style))
+    story.append(Paragraph("Programación Lineal - Resolución por Método Gráfico", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Información básica
+    story.append(Paragraph("INFORMACIÓN DEL CÁLCULO", heading_style))
+    fecha_formato = historial.fecha_creacion.strftime("%d/%m/%Y %H:%M:%S")
+    story.append(Paragraph(f"<b>Fecha de cálculo:</b> {fecha_formato}", normal_style))
+    story.append(Paragraph(f"<b>ID del problema:</b> {historial.id}", normal_style))
+    story.append(Paragraph(f"<b>Usuario:</b> {request.user.username}", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Planteamiento del problema
+    story.append(Paragraph("PLANTEAMIENTO DEL PROBLEMA", heading_style))
+    
+    # Función objetivo limpia
+    funcion_limpia = limpiar_latex(historial.funcion)
+    tipo_optimizacion = 'Maximizar' if historial.optimizacion == 'max' else 'Minimizar'
+    story.append(Paragraph(f"<b>Función Objetivo:</b>", subheading_style))
+    story.append(Paragraph(f"{tipo_optimizacion} Z = {funcion_limpia}", normal_style))
+    story.append(Spacer(1, 10))
+    
+    # Restricciones limpias
+    story.append(Paragraph(f"<b>Restricciones:</b>", subheading_style))
+    restricciones_lineas = historial.restricciones.strip().split('\n')
+    for i, restriccion in enumerate(restricciones_lineas, 1):
+        if restriccion.strip():
+            restriccion_limpia = limpiar_latex(restriccion.strip())
+            story.append(Paragraph(f"  {i}. {restriccion_limpia}", normal_style))
+    
+    # Restricciones de no negatividad - obtener nombres de variables reales
+    try:
+        # Para método gráfico normalmente son 2 variables
+        if hasattr(historial, 'vertices') and historial.vertices:
+            # Intentar extraer nombres de variables de la función objetivo
+            import re
+            funcion_texto = historial.funcion if hasattr(historial, 'funcion') else ""
+            variables_match = re.findall(r'([a-zA-Z_][a-zA-Z0-9_]*)', funcion_texto)
+            variables_unicas = []
+            for var in variables_match:
+                if var not in ['text', 'max', 'min'] and var not in variables_unicas:
+                    variables_unicas.append(var)
+            
+            if len(variables_unicas) >= 2:
+                variables_texto = ", ".join(variables_unicas[:2])  # Solo las primeras 2
+                story.append(Paragraph(f"  Restricciones de no negatividad: {variables_texto} ≥ 0", normal_style))
             else:
-                p.setFont("Helvetica", 10)
-                p.drawString(85, y, linea.strip())
-                y -= 11
-        y -= 10
-    # --- Separador visual ---
-    p.setStrokeColor(colors.lightgrey)
-    p.setLineWidth(0.5)
-    p.line(40, y, width-40, y)
-    y -= 20
-
-    # --- Insertar gráfica PNG si existe ---
-    user_id = obj.user.id if obj.user else 'anon'
-    graficas_dir = os.path.join('calculadora', 'static', 'graficas_tmp')
-    pattern = os.path.join(graficas_dir, f"grafica_{user_id}_*.png")
-    png_files = sorted(glob.glob(pattern), key=os.path.getmtime, reverse=True)
-    if png_files:
-        png_path = png_files[0]
-        try:
-            img = ImageReader(png_path)
-            img_width, img_height = img.getSize()
-            max_width = 400
-            max_height = 260
-            scale = min(max_width / img_width, max_height / img_height, 1)
-            width_img = img_width * scale
-            height_img = img_height * scale
-            if y - height_img < 70:
-                p.showPage()
-                y = height - 50
-            p.setFont("Helvetica-Bold", 12)
-            p.drawCentredString(width/2, y, "Gráfica del Método Gráfico")
-            y -= 18
-            # Centrar imagen
-            x_img = (width - width_img) / 2
-            p.drawImage(img, x_img, y - height_img, width=width_img, height=height_img)
-            y -= height_img + 20
-            # Borrar el PNG temporal después de usarlo
-            try:
-                os.remove(png_path)
-            except Exception:
-                pass
-        except Exception as e:
-            p.setFont("Helvetica", 10)
-            p.drawString(50, y, f"[No se pudo mostrar la gráfica en el PDF: {e}]")
-            y -= 20
-    else:
-        p.setFont("Helvetica", 10)
-        p.drawString(50, y, "[No se encontró imagen PNG de la gráfica para exportar]")
-        y -= 20
-    # --- Pie de página con paginación ---
-    for page_num in range(1, p.getPageNumber()+1):
-        p.showPage()
-        p.setFont("Helvetica-Oblique", 8)
-        p.setFillColor(colors.grey)
-        p.drawCentredString(width/2, 20, f"Página {page_num}")
-        p.setFillColor(colors.black)
-    p.save()
+                story.append(Paragraph("  Restricciones de no negatividad: x ≥ 0, y ≥ 0", normal_style))
+        else:
+            story.append(Paragraph("  Restricciones de no negatividad: x ≥ 0, y ≥ 0", normal_style))
+    except:
+        story.append(Paragraph("  Restricciones de no negatividad: x ≥ 0, y ≥ 0", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Análisis de la región factible
+    story.append(Paragraph("ANÁLISIS DE LA REGIÓN FACTIBLE", heading_style))
+    
+    # Vértices encontrados
+    if historial.vertices:
+        story.append(Paragraph("<b>Vértices de la región factible:</b>", subheading_style))
+        vertices_lineas = historial.vertices.strip().split('\n')
+        for i, vertice in enumerate(vertices_lineas, 1):
+            if vertice.strip():
+                story.append(Paragraph(f"  V{i}: {vertice.strip()}", normal_style))
+        story.append(Spacer(1, 15))
+    
+    # Validación de puntos factibles
+    if historial.puntos_factibles:
+        story.append(Paragraph("<b>Evaluación de puntos factibles:</b>", subheading_style))
+        puntos_lineas = historial.puntos_factibles.strip().split('\n')
+        for punto in puntos_lineas:
+            if punto.strip():
+                story.append(Paragraph(f"  • {punto.strip()}", normal_style))
+        story.append(Spacer(1, 15))
+    
+    # Procedimiento paso a paso
+    if historial.iteraciones:
+        story.append(Paragraph("PROCEDIMIENTO DETALLADO PASO A PASO", heading_style))
+        
+        # Procesar el texto de iteraciones para hacerlo más legible
+        procedimiento_texto = historial.iteraciones.strip()
+        
+        # Dividir en secciones por pasos numerados
+        secciones = procedimiento_texto.split('\n\n')
+        
+        for seccion in secciones:
+            if seccion.strip():
+                lineas = seccion.strip().split('\n')
+                
+                # Identificar si es un título de paso
+                primera_linea = lineas[0].strip()
+                if re.match(r'^\d+\.', primera_linea):
+                    # Es un paso numerado - usar como subtítulo
+                    titulo_limpio = limpiar_latex(primera_linea)
+                    story.append(Paragraph(titulo_limpio, subheading_style))
+                    
+                    # Procesar el resto de líneas del paso
+                    for linea in lineas[1:]:
+                        if linea.strip():
+                            linea_limpia = limpiar_latex(linea.strip())
+                            if linea_limpia.startswith('•') or linea_limpia.startswith('-'):
+                                story.append(Paragraph(f"  {linea_limpia}", step_style))
+                            else:
+                                story.append(Paragraph(linea_limpia, normal_style))
+                else:
+                    # No es un paso numerado, procesar todas las líneas
+                    for linea in lineas:
+                        if linea.strip():
+                            linea_limpia = limpiar_latex(linea.strip())
+                            if ':' in linea_limpia and not linea_limpia.startswith(' '):
+                                # Parece ser un subtítulo
+                                story.append(Paragraph(f"<b>{linea_limpia}</b>", normal_style))
+                            else:
+                                story.append(Paragraph(linea_limpia, normal_style))
+                
+                story.append(Spacer(1, 10))
+        
+        story.append(Spacer(1, 20))
+    
+    # Solución óptima destacada
+    story.append(Paragraph("SOLUCIÓN ÓPTIMA", heading_style))
+    
+    # Crear tabla con la solución
+    punto_limpio = limpiar_latex(historial.punto_optimo)
+    solucion_limpia = limpiar_latex(historial.solucion)
+    
+    # Datos de la tabla de solución
+    solution_data = [
+        ['Concepto', 'Valor'],
+        ['Punto Óptimo (x, y)', punto_limpio],
+        ['Valor de la Función Objetivo', solucion_limpia.replace('Z = ', '')],
+        ['Tipo de Optimización', tipo_optimizacion]
+    ]
+    
+    solution_table = Table(solution_data, colWidths=[3*inch, 2*inch])
+    solution_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.lightgrey),
+        ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
+    
+    story.append(solution_table)
+    story.append(Spacer(1, 20))
+    
+    # Interpretación de resultados
+    story.append(Paragraph("INTERPRETACIÓN DE RESULTADOS", heading_style))
+    story.append(Paragraph(f"El problema de {tipo_optimizacion.lower()} la función objetivo Z = {funcion_limpia} sujeto a las restricciones dadas tiene como solución óptima:", normal_style))
+    story.append(Spacer(1, 10))
+    
+    # Extraer coordenadas del punto óptimo para interpretación
+    try:
+        punto_coords = re.findall(r'[-+]?\d*\.?\d+', punto_limpio)
+        if len(punto_coords) >= 2:
+            x_opt = float(punto_coords[0])
+            y_opt = float(punto_coords[1])
+            story.append(Paragraph(f"• <b>Variable x:</b> {x_opt:.4f}", normal_style))
+            story.append(Paragraph(f"• <b>Variable y:</b> {y_opt:.4f}", normal_style))
+    except:
+        story.append(Paragraph(f"• <b>Punto óptimo:</b> {punto_limpio}", normal_style))
+    
+    # Extraer valor óptimo
+    try:
+        valor_z = re.findall(r'[-+]?\d*\.?\d+', solucion_limpia)
+        if valor_z:
+            z_opt = float(valor_z[0])
+            story.append(Paragraph(f"• <b>Valor {'máximo' if historial.optimizacion == 'max' else 'mínimo'} de Z:</b> {z_opt:.4f}", normal_style))
+    except:
+        story.append(Paragraph(f"• <b>Valor óptimo:</b> {solucion_limpia}", normal_style))
+    
+    story.append(Spacer(1, 15))
+    story.append(Paragraph("Este resultado representa la mejor solución posible dentro de la región factible definida por las restricciones del problema.", normal_style))
+    story.append(Spacer(1, 20))
+    
+    # Nota sobre la gráfica
+    if historial.grafica:
+        story.append(Paragraph("REPRESENTACIÓN GRÁFICA", heading_style))
+        story.append(Paragraph("La representación gráfica interactiva de la región factible, las restricciones y la solución óptima está disponible en la versión digital del sistema.", normal_style))
+        story.append(Paragraph("La gráfica muestra:", normal_style))
+        story.append(Paragraph("• Las líneas de restricción que delimitan la región factible", step_style))
+        story.append(Paragraph("• La región factible sombreada", step_style))
+        story.append(Paragraph("• Los vértices de la región factible marcados como puntos", step_style))
+        story.append(Paragraph("• El punto óptimo destacado con una estrella dorada", step_style))
+        story.append(Spacer(1, 20))
+    
+    # Información adicional
+    story.append(Paragraph("INFORMACIÓN TÉCNICA", heading_style))
+    story.append(Paragraph("<b>Método utilizado:</b> Método Gráfico para Programación Lineal", normal_style))
+    story.append(Paragraph("<b>Algoritmo:</b> Evaluación exhaustiva de vértices de la región factible", normal_style))
+    story.append(Paragraph("<b>Precisión:</b> Cálculos realizados con precisión de punto flotante", normal_style))
+    story.append(Paragraph(f"<b>Número de restricciones:</b> {len(restricciones_lineas) + 2} (incluyendo no negatividad)", normal_style))
+    story.append(Paragraph(f"<b>Variables de decisión:</b> 2 (x, y)", normal_style))
+    story.append(Spacer(1, 30))
+    
+    # Pie de página mejorado
+    story.append(Paragraph("_" * 80, normal_style))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("FORJA SOLVER", ParagraphStyle('FooterTitle', parent=styles['Normal'], fontSize=12, textColor=colors.darkblue, fontName='Helvetica-Bold', alignment=1)))
+    story.append(Paragraph("Sistema de Resolución de Métodos Numéricos", ParagraphStyle('FooterSubtitle', parent=styles['Normal'], fontSize=10, textColor=colors.grey, alignment=1)))
+    story.append(Spacer(1, 5))
+    story.append(Paragraph(f"Reporte generado el: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", ParagraphStyle('FooterDate', parent=styles['Normal'], fontSize=9, textColor=colors.grey, alignment=1)))
+    
+    # Construir PDF
+    doc.build(story)
+    
     return response
 
 @login_required
 def repetir_metodo_grafico(request, id):
     """
-    Permite repetir un cálculo del Método Gráfico guardado en el historial.
-    Carga los datos del historial y los muestra en el formulario en modo repetición.
+    Cargar un problema del historial del método gráfico para resolverlo nuevamente
     """
-    obj = get_object_or_404(MetodoGraficoHistorial, id=id, user=request.user)
-    initial_data = {
-        'objective': obj.funcion,
-        'optimization': obj.optimizacion,
-        'restrictions': obj.restricciones,
-    }
-    historial_data = obj
-    optimal = {'x': None, 'y': None, 'z': None}
-    import re
-    if obj.punto_optimo:
-        match = re.match(r'\((?P<x>[-+]?\d*\.?\d+),\s*(?P<y>[-+]?\d*\.?\d+)\)', obj.punto_optimo)
-        if match:
-            optimal['x'] = float(match.group('x'))
-            optimal['y'] = float(match.group('y'))
-    if obj.solucion:
-        match = re.search(r'([-+]?\d*\.?\d+)', obj.solucion)
-        if match:
-            optimal['z'] = float(match.group(1))
-    # Parsear puntos factibles si existen
-    solutions = None
-    if obj.puntos_factibles:
-        solutions = []
-        for i, linea in enumerate(obj.puntos_factibles.split('\n'), 1):
-            if '(' in linea and ')' in linea:
-                try:
-                    punto = linea.split(':')[1].strip().replace('(','').replace(')','').split(',')
-                    x = float(punto[0])
-                    y = float(punto[1])
-                    solutions.append({'id': i, 'x': x, 'y': y, 'z': None})
-                except:
-                    continue
-        if not solutions:
-            solutions = None
-    # Parsear procedimiento almacenado en pasos si existe
-    procedimiento_steps = []
-    if obj.iteraciones:
-        lines = re.split(r'(?m)^(\d+\.)', obj.iteraciones)
-        temp_step = ''
-        for part in lines:
-            if re.match(r'^\d+\.$', part):
-                if temp_step:
-                    procedimiento_steps.append(temp_step.strip())
-                temp_step = part
-            else:
-                temp_step += part
-        if temp_step:
-            procedimiento_steps.append(temp_step.strip())
-    else:
-        procedimiento_steps = []
-    context = {
-        'form': {'initial': initial_data},
-        'modo_repetir': True,
-        'show_results': True,
-        'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium,
-        'optimal': optimal,
-        'solutions': solutions,
-        'graph': obj.grafica if obj.grafica else None,
-        'show_graph': bool(obj.grafica),
-        'historial_data': historial_data,
-        'procedimiento_steps': procedimiento_steps,
-    }
-    return render(request, 'metodo_grafico/metodo_grafico.html', context)
+    try:
+        historial_item = get_object_or_404(MetodoGraficoHistorial, id=id, user=request.user)
+        
+        # Preparar datos para precargar el formulario
+        contexto = {
+            'historial_data': {
+                'objective': historial_item.funcion,
+                'optimization': historial_item.optimizacion,
+                'restrictions': historial_item.restricciones
+            },
+            'default_function': historial_item.funcion,
+            'default_restrictions': historial_item.restricciones,
+            'default_optimization': historial_item.optimizacion,
+            'steps': [],
+            'errors': [],
+            'show_results': False,
+            'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium,
+            'show_graph': False
+        }
+        
+        return render(request, 'metodo_grafico/metodo_grafico.html', contexto)
+        
+    except Exception as e:
+        print(f"Error cargando historial del método gráfico: {e}")
+        return redirect('metodoGrafico')

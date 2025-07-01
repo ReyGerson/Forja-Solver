@@ -135,6 +135,18 @@
             color: var(--secondary);
         }
 
+        .btn:disabled {
+            background-color: #ccc !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+        }
+
+        .btn:disabled:hover {
+            background-color: #ccc !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
         .premium-badge {
             background: var(--warning);
             color: var(--secondary);
@@ -298,6 +310,11 @@
                 
                 <div style="margin-top: 20px; text-align: right;">
                     <a href="{% url 'cargar_simplex_historial' item.id %}" class="btn">🔄 Cargar Problema</a>
+                    {% if is_premium %}
+                    <a href="{% url 'exportar_simplex_pdf' item.id %}" class="btn" style="background-color: var(--danger);">📄 Exportar PDF</a>
+                    {% else %}
+                    <button class="btn" style="background-color: #ccc; cursor: not-allowed;" disabled title="Funcionalidad Premium">🔒 Exportar PDF</button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
