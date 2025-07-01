@@ -2874,15 +2874,11 @@ def repetir_metodo_grafico(request, id):
 
 #### gran m 
 
-
 from django.shortcuts import render
 from .mop import GranMSimplexExtended
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.utils.html import strip_tags
 from bs4 import BeautifulSoup
-from django.utils.html import strip_tags
-from openpyxl import Workbook
 from .models import GranMHistorial
 import json
 
@@ -2923,6 +2919,7 @@ def metodo_gran_m(request):
             solver = GranMSimplexExtended()
             resultado_html = solver.solve(obj, restricciones, tipos, minimizar)
 
+            # Limpiar HTML para exportar
             soup = BeautifulSoup(resultado_html, "html.parser")
             for s in soup(["style", "script"]):
                 s.decompose()
@@ -2943,8 +2940,16 @@ def metodo_gran_m(request):
         except Exception as e:
             resultado_html = f"<p style='color:red;'>Error inesperado: {str(e)}</p>"
 
-    return render(request, 'paginas/metodoGranM.html', {'resultado': resultado_html})
+        return render(request, 'paginas/metodoGranM.html', {
+            'resultado': resultado_html
+        })
 
+    # ✅ GET (nuevo ejercicio): activa modo_nuevo en la plantilla
+    return render(request, 'paginas/metodoGranM.html', {
+        'nuevo': True
+    })
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
 from .models import GranMHistorial
 from django.contrib.auth.decorators import login_required
 

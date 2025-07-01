@@ -194,6 +194,10 @@
       <h2 style="color:#4B848A; border-bottom:2px solid #DCC9A9;">Método de la Gran M</h2>
       <form method="post" id="formulario-granm" style="background:#fff; border-radius:16px; box-shadow:0 4px 16px #0001; padding:32px 18px; margin-bottom:32px; max-width:600px; margin-left:auto; margin-right:auto;">
         {% csrf_token %}
+        {% if nuevo %}
+        <input type="hidden" id="modo_nuevo" value="true">
+        {% endif %}
+
         {% if precarga %}
         <input type="hidden" id="precarga_tipo" value="{{ precarga.tipo_objetivo }}">
         <input type="hidden" id="precarga_funcion" value="{{ precarga.funcion_objetivo }}">
@@ -421,6 +425,24 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
   const exportarDiv = document.querySelector('.exportar-contenedor');
   if (exportarDiv) exportarDiv.remove();
 }
+window.onload = () => {
+  if (esEdicion && funcion_objetivo) {
+    document.querySelector("select[name='tipo']").value = tipo_problema;
+    document.getElementById("objetivo").value = funcion_objetivo;
+
+    for (let i = 0; i < restricciones.length; i++) {
+      agregarRestriccion();
+      const input = document.querySelector(`input[name='restriccion_${i}']`);
+      const select = document.querySelector(`select[name='signo_${i}']`);
+      if (input) input.value = restricciones[i].join(',');
+      if (select) select.value = signos[i];
+    }
+  } else if (document.getElementById("modo_nuevo")) {
+    agregarRestriccion();
+    agregarRestriccion();
+  }
+};
+
 </script>
 </body>
 </html>
