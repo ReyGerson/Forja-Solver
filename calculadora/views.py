@@ -738,7 +738,7 @@ def parse_latex_to_numbers(funcion_latex, restricciones_latex):
         # Valores por defecto en caso de error
         return [20, 40], [[2, 3, 110], [4, 1, 130]]
 
-def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> Tuple[List[List[float]], List[str]]:
+def prepare_initial_table(obj: List[float], constraints: List[List[float]], variables_nombres: List[str] = None) -> Tuple[List[List[float]], List[str]]:
     """Prepara la tabla inicial del método simplex"""
     num_vars = len(obj)
     num_constraints = len(constraints)
@@ -769,7 +769,12 @@ def prepare_initial_table(obj: List[float], constraints: List[List[float]]) -> T
     z_row = [-c for c in obj] + [0] * (num_constraints + 1)
     matrix.append(z_row)
 
-    var_names = [f"x{i+1}" for i in range(num_vars)]
+    # Usar nombres personalizados si están disponibles, sino usar nombres por defecto
+    if variables_nombres and len(variables_nombres) >= num_vars:
+        var_names = variables_nombres[:num_vars]
+    else:
+        var_names = [f"x{i+1}" for i in range(num_vars)]
+    
     return matrix, var_names
 
 def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]], tipo_objetivo: str = "Maximizar") -> dict:
@@ -843,7 +848,7 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
     resultado['modelo_holgura'] = transformed_expr
     
     # Tabla inicial
-    tabla_inicial_html = generar_tabla_html(table, basis, 0)
+    tabla_inicial_html = generar_tabla_html(table, basis, 0, var_names, var_names)
     resultado['tabla_inicial'] = tabla_inicial_html
 
     # Iteraciones del algoritmo simplex
@@ -852,7 +857,7 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
         # Crear datos de la iteración actual
         iteracion_data = {
             'numero': iteration,
-            'tabla_html': generar_tabla_html(table, basis, iteration),
+            'tabla_html': generar_tabla_html(table, basis, iteration, var_names, var_names),
             'es_optima': False,
             'variable_entra': None,
             'variable_sale': None,
@@ -942,9 +947,9 @@ def generate_simplex_solution(matrix: List[List[float]], var_names: List[str], o
     
     # Agregar variables de decisión (personalizadas)
     for i, var_personalizada in enumerate(variables_nombres):
-        var_original = f"x{i+1}"  # x1, x2, etc.
-        if var_original in basis:
-            idx = basis.index(var_original)
+        # Usar directamente el nombre personalizado que está en var_names
+        if i < len(var_names) and var_names[i] in basis:
+            idx = basis.index(var_names[i])
             solution[var_personalizada] = table.at[idx, "B"]
         else:
             solution[var_personalizada] = 0.0
@@ -1184,7 +1189,7 @@ def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_na
     resultado['modelo_holgura'] = transformed_expr
     
     # Tabla inicial
-    tabla_inicial_html = generar_tabla_html(table, basis, 0)
+    tabla_inicial_html = generar_tabla_html(table, basis, 0, var_names, var_names)
     resultado['tabla_inicial'] = tabla_inicial_html
 
     # Iteraciones del algoritmo simplex
@@ -1193,7 +1198,7 @@ def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_na
         # Crear datos de la iteración actual
         iteracion_data = {
             'numero': iteration,
-            'tabla_html': generar_tabla_html(table, basis, iteration),
+            'tabla_html': generar_tabla_html(table, basis, iteration, var_names, var_names),
             'es_optima': False,
             'variable_entra': None,
             'variable_sale': None,
@@ -1283,9 +1288,9 @@ def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_na
     
     # Agregar variables de decisión (personalizadas)
     for i, var_personalizada in enumerate(variables_nombres):
-        var_original = f"x{i+1}"  # x1, x2, etc.
-        if var_original in basis:
-            idx = basis.index(var_original)
+        # Usar directamente el nombre personalizado que está en var_names
+        if i < len(var_names) and var_names[i] in basis:
+            idx = basis.index(var_names[i])
             solution[var_personalizada] = table.at[idx, "B"]
         else:
             solution[var_personalizada] = 0.0
@@ -1310,21 +1315,47 @@ def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_na
     
     return resultado
 
-def generar_tabla_html(table, basis, iteration_num):
-    """Genera HTML para una tabla del simplex"""
+def convertir_nombre_variable_a_personalizado(nombre_variable, var_names, variables_nombres):
+    """
+    Convierte un nombre de variable del DataFrame a su nombre personalizado
+    """
+    if variables_nombres and nombre_variable in var_names:
+        # Encontrar el índice en var_names y obtener el nombre personalizado
+        try:
+            index = var_names.index(nombre_variable)
+            if index < len(variables_nombres):
+                return variables_nombres[index]
+        except ValueError:
+            pass
+    return nombre_variable
+
+def generar_tabla_html(table, basis, iteration_num, variables_nombres=None, var_names=None):
+    """Genera HTML para una tabla del simplex con nombres de variables personalizados"""
     html = f'<div class="tabla-iteracion">'
     html += f'<h4>Iteración {iteration_num}</h4>'
     html += '<table class="simplex-table">'
     html += '<thead><tr><th>Base</th>'
     
-    for col in table.columns:
-        html += f'<th>{col}</th>'
+    # Usar nombres personalizados para las columnas si están disponibles
+    columnas = list(table.columns)
+    for i, col in enumerate(columnas):
+        if variables_nombres and var_names and col in var_names:
+            # Convertir a nombre personalizado
+            display_name = convertir_nombre_variable_a_personalizado(col, var_names, variables_nombres)
+        else:
+            display_name = col
+        html += f'<th>{display_name}</th>'
     html += '</tr></thead><tbody>'
 
     for i in range(len(table)):
         html += '<tr>'
+        # Para la base también usar nombres personalizados si es una variable original
         base_name = basis[i] if i < len(basis) else 'Z'
-        html += f'<td><strong>{base_name}</strong></td>'
+        if variables_nombres and var_names and base_name in var_names:
+            base_display = convertir_nombre_variable_a_personalizado(base_name, var_names, variables_nombres)
+        else:
+            base_display = base_name
+        html += f'<td><strong>{base_display}</strong></td>'
         
         for col in table.columns:
             val = table.at[i, col]
@@ -1401,8 +1432,8 @@ def simplex(request):
             if tipo_objetivo == "Minimizar":
                 objetivo = [-coef for coef in objetivo]
             
-            # Preparar tabla inicial
-            matrix, var_names = prepare_initial_table(objetivo, constraints)
+            # Preparar tabla inicial con variables personalizadas
+            matrix, var_names = prepare_initial_table(objetivo, constraints, variables_nombres)
             
             # Resolver el problema simplex con variables personalizadas
             resultado = generate_simplex_solution_with_custom_vars(matrix, var_names, objetivo, constraints, tipo_objetivo, variables_nombres)
@@ -1744,6 +1775,7 @@ def metodo_grafico(request):
             evaluation_steps = []
             
             for i, point in enumerate(feasibility_details, 1):
+
                 vx, vy = point['x'], point['y']
                 z = coeff_x * vx + coeff_y * vy
                 solutions.append({
