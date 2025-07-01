@@ -6,181 +6,145 @@
   <title>Método de la Gran M</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    html, body {
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, Segoe UI, Arial, sans-serif;
-      background-color: #fefefe;
-      color: #222;
-      overflow-y: scroll;
-    }
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(160deg, #e6f1f2, #fefefe);
+    color: #222;
+    overflow-y: scroll;
+  }
 
-    .contenedor-completo {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px 20px;
+  }
 
-    h2 {
-      color: #1a3e44;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 10px;
-      margin-bottom: 30px;
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      text-align: center;
-    }
+  h2 {
+    color: #0e7c86;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
+  form {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 32px 24px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    max-width: 640px;
+    margin: auto;
+    backdrop-filter: blur(8px);
+  }
+
+  label {
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  input[type="text"], select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .resolver, .agregar-btn, .eliminar-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .resolver {
+    background: linear-gradient(to right, #00796b, #009688);
+    color: #fff;
+  }
+
+  .resolver:hover {
+    background: linear-gradient(to right, #004d40, #00796b);
+    transform: scale(1.02);
+  }
+
+  .agregar-btn {
+    background: #555;
+    color: white;
+  }
+
+  .agregar-btn:hover {
+    background: #333;
+  }
+
+  .eliminar-btn {
+    background-color: #c62828;
+    color: white;
+  }
+
+  .resultado-scroll {
+    background: #fff;
+    color: #111;
+    padding: 24px;
+    border-radius: 14px;
+    margin-top: 40px;
+    overflow-x: auto;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .exportar-contenedor {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 12px;
+  }
+
+  .resolver.exportar-btn {
+    background-color: #f0f4f5;
+    color: #00796b;
+    border: 1px solid #00796b;
+  }
+
+  .resolver.exportar-btn:hover {
+    background-color: #00796b;
+    color: white;
+  }
+
+  .mensaje-limite {
+    font-size: 14px;
+    color: #d32f2f;
+    font-weight: bold;
+    margin-top: -12px;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 768px) {
     form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      padding: 24px 16px;
     }
 
-    label {
-      font-weight: bold;
-      color: #333;
-    }
-
-    input[type="text"], select {
-      background-color: #ffffff;
-      color: #222;
-      border: 1px solid #aaa;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 15px;
-      font-weight: 500;
+    .resolver, .agregar-btn {
       width: 100%;
-    }
-
-    .resolver {
-      padding: 12px 20px;
-      border: none;
-      background-color: #0e7c86;
-      color: white;
-      font-weight: bold;
-      border-radius: 10px;
-      cursor: pointer;
-      width: 100%;
-      max-width: 220px;
-      transition: background 0.3s ease;
-    }
-
-    .resolver:hover {
-      background-color: #0b5e65;
-    }
-
-    .restriccion-group {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .agregar-btn {
-      background-color: #555;
-      color: #fff;
-      border-radius: 8px;
-      padding: 10px;
-      cursor: pointer;
-      border: none;
-      width: 100%;
-      max-width: 220px;
-    }
-
-    .mensaje-limite {
-      color: #d50000;
-      font-weight: bold;
-      margin-top: -10px;
-      margin-bottom: 10px;
     }
 
     .restriccion-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: flex-start;
     }
+  }
+</style>
 
-    .eliminar-btn {
-      background-color: #c62828;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .resultado-scroll {
-      background-color: #fafafa;
-      color: #111;
-      padding: 24px;
-      border-radius: 14px;
-      margin-top: 40px;
-      overflow-x: auto;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .exportar-contenedor {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    .exportar-contenedor .resolver {
-      background-color: #4B848A;
-    }
-
-    .exportar-contenedor .resolver:hover {
-      background-color: #366066;
-    }
-
-    a.resolver {
-      display: inline-block;
-      text-decoration: none;
-      text-align: center;
-    }
-
-    /* Nuevos estilos para botones principales y exportar */
-    .resolver.principal {
-      background: linear-gradient(90deg, #4B848A 60%, #0e7c86 100%);
-      color: #fff;
-      font-size: 1.1rem;
-      box-shadow: 0 2px 8px #4B848A22;
-    }
-    .resolver.exportar-btn {
-      background: #e0e7ea;
-      color: #0e7c86;
-      font-weight: 600;
-      margin: 0 4px 8px 0;
-      border: 1px solid #4B848A;
-      transition: background 0.2s, color 0.2s;
-    }
-    .resolver.exportar-btn:hover {
-      background: #4B848A;
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      .restriccion-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .resolver, .agregar-btn {
-        width: 100%;
-      }
-
-      .contenedor-completo {
-        padding: 20px 10px;
-      }
-    }
-  </style>
 </head>
 <body>
   <div class="container">
