@@ -3,67 +3,117 @@
 
 {% block contenido %}
 <style>
-    .scroll-wrapper {
-        max-height: 75vh;
-        overflow-y: auto;
-        padding: 15px;
-        border: 1px solid #ccc;
-        border-radius: 12px;
-        background-color: #f9f9f9;
-    }
+  body {
+    background-color: #f7f7f7 !important; /* asegura fondo claro */
+  }
 
-    .historial-item {
-        margin-bottom: 20px;
-        padding: 10px;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    }
+  .scroll-wrapper {
+    max-height: 75vh;
+    overflow-y: auto;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
+  }
 
-    .historial-item strong {
-        color: #4B848A;
-    }
+  .historial-item {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease;
+  }
 
-    summary {
-        cursor: pointer;
-        font-weight: bold;
-        color: #333;
-        margin-top: 10px;
-    }
+  .historial-item:hover {
+    transform: translateY(-2px);
+  }
 
-    details {
-        margin-top: 8px;
-    }
+  .historial-item strong {
+    font-size: 1.05rem;
+    color: #1a3e44;
+  }
 
-    details div {
-        max-width: 100%;
-    }
+  .historial-item span {
+    display: block;
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 5px;
+  }
+
+  summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #2e6d73;
+    margin-top: 10px;
+    font-size: 0.95rem;
+  }
+
+  details {
+    margin-top: 10px;
+  }
+
+  details div {
+    overflow-x: auto;
+    background: #f4f4f4;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 6px;
+    font-size: 0.9rem;
+  }
+
+  .editar-btn {
+    margin-top: 12px;
+    background: #4B848A;
+    color: white;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .editar-btn:hover {
+    background: #366066;
+  }
+
+  h2 {
+    color: #4B848A;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 6px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
 </style>
 
 <div class="container">
-    <h2>Historial de Métodos - Gran M</h2>
-    {% if historial %}
-    <div class="scroll-wrapper">
-        <ul style="list-style: none; padding-left: 0;">
-            {% for item in historial %}
-            <li class="historial-item">
-                <strong>{{ item.fecha|date:"d/m/Y H:i" }}</strong><br>
-                Tipo: {{ item.tipo|upper }}<br>
-                Objetivo: {{ item.funcion_objetivo }}<br>
-                <details>
-                    <summary>📄 Ver Resultado</summary>
-                    <div style="overflow-x:auto;">{{ item.resultado_html|safe }}</div>
-                </details>
-                <form method="get" action="{% url 'editar_gran_m' item.id %}">
-    <button type="submit" class="btn btn-sm btn-primary mt-2">📝 Volver a Editar</button>
-</form>
+  <h2>Historial de Métodos - Gran M</h2>
+  {% if historial %}
+  <div class="scroll-wrapper">
+    <ul style="list-style: none; padding: 0;">
+      {% for item in historial %}
+      <li class="historial-item">
+        <strong>{{ item.fecha|date:"d/m/Y H:i" }}</strong>
+        <span><strong>Tipo:</strong> {{ item.tipo|upper }}</span>
+        <span><strong>Objetivo:</strong> {{ item.funcion_objetivo }}</span>
 
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% else %}
-    <p>No hay cálculos registrados aún.</p>
-    {% endif %}
+        <details>
+          <summary>📄 Ver resultados</summary>
+          <div>{{ item.resultado_html|safe }}</div>
+        </details>
+
+        <form method="get" action="{% url 'editar_gran_m' item.id %}">
+          <button type="submit" class="editar-btn">✏️ Volver a editar</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <p>No hay cálculos registrados aún.</p>
+  {% endif %}
 </div>
 {% endblock %}
