@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Método de la Gran M</title>
 
-  
-<style>
+  <style>
   * {
     box-sizing: border-box;
   }
@@ -145,6 +144,7 @@
     }
   }
 </style>
+
 </head>
 <body>
   <div class="container">
@@ -217,50 +217,145 @@
     </div>
     {% endif %}
   </div>
- <script>
-    const esEdicion = "{{ editar|default:'false'|lower }}" === "true";
-    const tipo_problema = "{{ registro.tipo|default:'min' }}";
-    const funcion_objetivo = "{{ registro.funcion_objetivo|escapejs }}";
-    const restricciones = JSON.parse(`{{ registro.restricciones|escapejs }}`);
-    const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
+<script>
+  let numRestricciones = 0;
+  const maxRestricciones = 10;
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const inputObjetivo = document.getElementById("objetivo");
-      const tipoSelect = document.getElementById("tipo_problema");
-      const contenedor = document.getElementById("restricciones-container");
+  function agregarRestriccion(valores = '', signo = '<=') {
+    if (numRestricciones >= maxRestricciones) {
+      document.getElementById("msg-rest").style.display = "block";
+      return;
+    }
 
-      numRestricciones = 0;
-      contenedor.innerHTML = '';
+    const container = document.getElementById("restricciones-container");
+    const div = document.createElement("div");
+    div.className = "restriccion-item";
+    div.id = `restriccion_item_${numRestricciones}`;
+    div.innerHTML = `
+      <label>Restricción ${numRestricciones + 1}:</label>
+      <input type="text" name="restriccion_${numRestricciones}" placeholder="Ej: 1,2,10" required value="${valores}">
+      <select name="signo_${numRestricciones}">
+        <option value="<=" ${signo === "<=" ? "selected" : ""}>&le;</option>
+        <option value=">=" ${signo === ">=" ? "selected" : ""}>&ge;</option>
+        <option value="=" ${signo === "=" ? "selected" : ""}>=</option>
+      </select>
+      <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
+    `;
+    container.appendChild(div);
+    numRestricciones++;
+  }
 
-      if (esEdicion && funcion_objetivo && Array.isArray(restricciones)) {
-        inputObjetivo.value = funcion_objetivo;
-        tipoSelect.value = tipo_problema;
+  function eliminarRestriccion(id) {
+    if (!confirm('¿Desea eliminar esta restricción?')) return;
+    const div = document.getElementById(id);
+    if (div) {
+      div.remove();
+      numRestricciones--;
+      document.getElementById("msg-rest").style.display = "none";
+    }
+  }
 
-        for (let i = 0; i < restricciones.length; i++) {
-          const valores = Array.isArray(restricciones[i]) ? restricciones[i].join(',') : restricciones[i];
-          const signo = signos[i] || '<=';
-          agregarRestriccion(valores, signo);
-        }
+ const esEdicion = "{{ editar|default:'false'|lower }}" === "true";
+const tipo_problema = "{{ registro.tipo|default:'min' }}";
+const funcion_objetivo = "{{ registro.funcion_objetivo|escapejs }}";
+const restricciones = JSON.parse(`{{ registro.restricciones|escapejs }}`);
+const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputObjetivo = document.getElementById("objetivo");
+    const msgVar = document.getElementById("msg-var");
+
+    inputObjetivo.addEventListener("input", () => {
+      const valores = inputObjetivo.value.split(',').map(v => v.trim()).filter(v => v !== "");
+      if (valores.length > 10) {
+        msgVar.style.display = "block";
+        inputObjetivo.value = valores.slice(0, 10).join(', ');
       } else {
-        agregarRestriccion();
-        agregarRestriccion();
+        msgVar.style.display = "none";
       }
     });
 
-    function nuevoEjercicio() {
-      document.getElementById('objetivo').value = '';
-      document.getElementById('tipo_problema').value = 'min';
-      document.getElementById('restricciones-container').innerHTML = '';
-      numRestricciones = 0;
-      agregarRestriccion();
-      agregarRestriccion();
+    // Inicializar formulario
+    document.getElementById('objetivo').value = '';
+    document.getElementById('tipo_problema').value = 'min';
+    document.getElementById('restricciones-container').innerHTML = '';
+    numRestricciones = 0;
 
-      const resultadoDiv = document.querySelector('.resultado-scroll');
-      if (resultadoDiv) resultadoDiv.remove();
-      const exportarDiv = document.querySelector('.exportar-contenedor');
-      if (exportarDiv) exportarDiv.remove();
+    // EDICIÓN: Cargar datos desde base de datos
+    if (esEdicion && funcion_objetivo && Array.isArray(restricciones)) {
+      document.getElementById('objetivo').value = funcion_objetivo;
+      document.getElementById('tipo_problema').value = tipo_problema;
+
+      for (let i = 0; i < restricciones.length; i++) {
+        const valores = Array.isArray(restricciones[i]) ? restricciones[i].join(',') : restricciones[i];
+        const signo = signos[i] || '<=';
+        agregarRestriccion(valores, signo);
+      }
+    } else {
+      // NUEVO: Cargar 2 restricciones vacías
+      agregarRestriccion();
+      agregarRestriccion();
     }
-  </script>
+
+    // Validación al enviar
+    document.getElementById("formulario-granm").addEventListener("submit", function (e) {
+      const objetivo = inputObjetivo.value.trim();
+      const valores = objetivo.split(',').map(x => x.trim()).filter(x => x !== '');
+
+      if (valores.length === 0) {
+        alert("La función objetivo no puede estar vacía.");
+        e.preventDefault();
+        return;
+      }
+
+      if (valores.length > 10) {
+        alert("Máximo 10 variables permitidas en la función objetivo.");
+        e.preventDefault();
+        return;
+      }
+
+      for (let v of valores) {
+        if (isNaN(v)) {
+          alert("Todos los coeficientes en la función objetivo deben ser numéricos.");
+          e.preventDefault();
+          return;
+        }
+      }
+
+      const restricciones = document.querySelectorAll("#restricciones-container .restriccion-item");
+      for (let i = 0; i < restricciones.length; i++) {
+        const inputs = restricciones[i].querySelector('input[type="text"]').value.trim().split(',').map(x => x.trim());
+        if (inputs.length !== valores.length + 1) {
+          alert(`La restricción ${i + 1} debe tener ${valores.length + 1} valores (incluyendo el lado derecho).`);
+          e.preventDefault();
+          return;
+        }
+        for (let num of inputs) {
+          if (isNaN(num)) {
+            alert(`Todos los valores en la restricción ${i + 1} deben ser numéricos.`);
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+    });
+  });
+
+  function nuevoEjercicio() {
+    document.getElementById('objetivo').value = '';
+    document.getElementById('tipo_problema').value = 'min';
+    document.getElementById('restricciones-container').innerHTML = '';
+    numRestricciones = 0;
+    agregarRestriccion();
+    agregarRestriccion();
+
+    const resultadoDiv = document.querySelector('.resultado-scroll');
+    if (resultadoDiv) resultadoDiv.remove();
+    const exportarDiv = document.querySelector('.exportar-contenedor');
+    if (exportarDiv) exportarDiv.remove();
+  }
+</script>
 
 </body>
 </html>
