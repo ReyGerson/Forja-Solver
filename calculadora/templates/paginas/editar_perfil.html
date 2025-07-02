@@ -440,8 +440,24 @@
         </div>
     </div>
     <script src="https://unpkg.com/darkmode-js/lib/darkmode-js.min.js"></script>
-    <script>
-        new Darkmode().showWidget();
-    </script>
+<script>
+  const options = {
+    bottom: '32px', // posición vertical del botón
+    right: '32px',  // posición horizontal del botón
+    left: 'unset',
+    time: '0.5s', // duración de la transición
+    mixColor: '#fff', // color de mezcla (para la animación)
+    backgroundColor: '#fff',  // color claro por defecto
+    buttonColorDark: '#100f2c',  // color del botón en modo oscuro
+    buttonColorLight: '#fff',    // color del botón en modo claro
+    saveInCookies: true, // guarda la preferencia del usuario
+    label: '🌓', // emoji o texto del botón
+    autoMatchOsTheme: true // usar el modo del sistema automáticamente
+  }
+
+  const darkmode = new Darkmode(options);
+  darkmode.showWidget();
+</script>
+
 </body>
 </html>

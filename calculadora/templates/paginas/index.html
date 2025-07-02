@@ -4,6 +4,15 @@
 {% block nombre %}Index{% endblock %}
 
 {% block contenido %}
+<!-- Theme Toggle Button for Index -->
+<div class="theme-controls" style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
+    <button id="indexThemeToggle" class="theme-toggle-btn" 
+            style="background: rgba(75, 132, 138, 0.9); border: 1px solid #4B848A; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 25px; transition: all 0.3s ease;"
+            title="Toggle Theme">
+        <span class="theme-icon">🌓</span>
+    </button>
+</div>
+
 <div class="main-scroll-wrapper">
     <div class="container">
         <h2> . </h2>
