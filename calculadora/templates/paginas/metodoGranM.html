@@ -234,15 +234,17 @@
     div.className = "restriccion-item";
     div.id = `restriccion_item_${numRestricciones}`;
     div.innerHTML = `
-      <label>Restricción ${numRestricciones + 1}:</label>
-      <input type="text" name="restriccion_${numRestricciones}" placeholder="Ej: 1,2,10" required value="${valores}">
-      <select name="signo_${numRestricciones}">
-        <option value="<=" ${signo === "<=" ? "selected" : ""}>&le;</option>
-        <option value=">=" ${signo === ">=" ? "selected" : ""}>&ge;</option>
-        <option value="=" ${signo === "=" ? "selected" : ""}>=</option>
-      </select>
-      <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
-    `;
+  <label>Restricción ${numRestricciones + 1}:</label>
+  <input type="text" name="restriccion_${numRestricciones}" id="restriccion_${numRestricciones}" placeholder="Ej: 1,2" required value="${valores}">
+  <select name="signo_${numRestricciones}" id="signo_${numRestricciones}">
+    <option value="<=" ${signo === "<=" ? "selected" : ""}>&le;</option>
+    <option value=">=" ${signo === ">=" ? "selected" : ""}>&ge;</option>
+    <option value="=" ${signo === "=" ? "selected" : ""}>=</option>
+  </select>
+  <input type="text" name="b_${numRestricciones}" id="b_${numRestricciones}" placeholder="Ej: 10" required>
+  <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
+`;
+
     container.appendChild(div);
     numRestricciones++;
   }
@@ -374,17 +376,23 @@ window.onload = function () {
 
     for (let i = 0; i < restriccionesJSON.length; i++) {
       agregarRestriccion();
-      const fila = restriccionesJSON[i];
-      const b = fila[fila.length - 1];
-      const coef = fila.slice(0, -1).join(', ');
 
-      document.getElementById(`restriccion_${i}`).value = coef;
-      document.getElementById(`b_${i}`).value = b;
-      document.getElementById(`signo_${i}`).value = signosJSON[i];
+      const fila = restriccionesJSON[i];
+      const coef = fila.slice(0, -1).join(', ');
+      const b = fila[fila.length - 1];
+
+      const inputRestriccion = document.getElementById(`restriccion_${i}`);
+      const inputB = document.getElementById(`b_${i}`);
+      const inputSigno = document.getElementById(`signo_${i}`);
+
+      if (inputRestriccion) inputRestriccion.value = coef;
+      if (inputB) inputB.value = b;
+      if (inputSigno) inputSigno.value = signosJSON[i];
     }
   }
 };
 </script>
+
 
 
 </body>
