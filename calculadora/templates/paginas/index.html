@@ -4,14 +4,6 @@
 {% block nombre %}Index{% endblock %}
 
 {% block contenido %}
-<!-- Theme Toggle Button for Index -->
-<div class="theme-controls" style="position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; gap: 10px;">
-    <button id="indexThemeToggle" class="theme-toggle-btn" 
-            style="background: rgba(75, 132, 138, 0.9); border: 1px solid #4B848A; color: #fff; padding: 8px 15px; cursor: pointer; border-radius: 25px; transition: all 0.3s ease;"
-            title="Toggle Theme">
-        <span class="theme-icon">🌓</span>
-    </button>
-</div>
 
 <div class="main-scroll-wrapper">
     <div class="container">
@@ -90,15 +82,33 @@
                     <p>{{ translations.project_credits_desc }}</p>
                 </div>
             </a>
+            
             <a href="{% url 'simplex' %}" class="nav-card">
-                <div class="nav-card-icon">💡</div>
+                <div class="nav-card-icon">✅</div>
                 <div class="nav-card-content">
                     <h3>{{ translations.simplex_method }}</h3>
                     <p>{{ translations.simplex_method_desc }}</p>
                 </div>
             </a>
+            
+            <a href="{% url 'gran_m' %}" class="nav-card">
+                <div class="nav-card-icon">Ⓜ️</div>
+                <div class="nav-card-content">
+                    <h3>{{ translations.big_m_method }}</h3>
+                    <p>{{ translations.big_m_method_desc }}</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'metodoGrafico' %}" class="nav-card">
+                <div class="nav-card-icon">📈</div>
+                <div class="nav-card-content">
+                    <h3>{{ translations.graphic_method_nav }}</h3>
+                    <p>{{ translations.graphic_method_desc }}</p>
+                </div>
+            </a>
+            
             <a href="{% url 'documentacionSimplex' %}" class="nav-card">
-                <div class="nav-card-icon">📝</div>
+                <div class="nav-card-icon">📌</div>
                 <div class="nav-card-content">
                     <h3>{{ translations.docs_simplex }}</h3>
                     <p>{{ translations.docs_simplex_desc }}</p>
@@ -106,7 +116,7 @@
             </a>
 
             <a href="{% url 'documentacionM' %}" class="nav-card">
-                <div class="nav-card-icon">📝</div>
+                <div class="nav-card-icon">💽</div>
                 <div class="nav-card-content">
                     <h3>{{ translations.docs_big_m }}</h3>
                     <p>{{ translations.docs_big_m_desc }}</p>
@@ -114,29 +124,10 @@
             </a>
 
             <a href="{% url 'documentacionGrafico' %}" class="nav-card">
-                <div class="nav-card-icon">📝</div>
+                <div class="nav-card-icon">🗂️</div>
                 <div class="nav-card-content">
                     <h3>{{ translations.docs_graphic }}</h3>
                     <p>{{ translations.docs_graphic_desc }}</p>
-                </div>
-            </a>
-            <a href="{% url 'metodoGrafico' %}" class="nav-card">
-                <div class="nav-card-icon">📝</div>
-                <div class="nav-card-content">
-                    <h3>{{ translations.graphic_method_nav }}</h3>
-                    <p>{{ translations.docs_graphic_desc }}</p>
-                </div>
-            </a>
-            <a href="{% url 'gran_m' %}" class="nav-card">
-                <div class="nav-card-icon">💡</div>
-                <div class="nav-card-content">
-<<<<<<< HEAD
-                    <h3>{{ translations.big_m_method }}</h3>
-                    <p>{{ translations.docs_big_m_desc }}</p>
-=======
-                    <h3>Método de la M</h3>
-                    <p>Resuelve problemas de programación lineal con el método de la M grande</p>
->>>>>>> dce143bee2ebf69030695bdd31faa1dd803444f1
                 </div>
             </a>
         </div>

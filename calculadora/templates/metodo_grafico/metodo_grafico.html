@@ -310,14 +310,6 @@
     </style>
 </head>
 <body>
-    <!-- Botón de tema en la esquina superior derecha -->
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
-        <button id="theme-toggle" class="btn btn-outline-secondary btn-sm theme-toggle-btn" title="{{ translations.theme }}">
-            <i class="fas fa-sun theme-icon-light"></i>
-            <i class="fas fa-moon theme-icon-dark d-none"></i>
-            <span class="ms-1 theme-text">{{ translations.light_mode }}</span>
-        </button>
-    </div>
 
     <a href="{% url 'index' %}">{{ translations.back_to_home }}</a>
     <div class="container">

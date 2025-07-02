@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block nombre %}Historial de Gran M{% endblock %}
+{% block nombre %}{{ translations.big_m_history }}{% endblock %}
 
 {% block contenido %}
+
 
 <style>
   @keyframes fadeInCard {
@@ -111,23 +112,23 @@
 </style>
 
 <div class="container">
-  <h2>Historial de Métodos - Gran M</h2>
+  <h2>{{ translations.big_m_history_title }}</h2>
   {% if historial %}
   <div class="scroll-wrapper">
     <ul style="list-style: none; padding: 0;">
       {% for item in historial %}
       <li class="historial-item">
         <strong>{{ item.fecha|date:"d/m/Y H:i" }}</strong>
-        <span><strong>Tipo:</strong> {{ item.tipo|upper }}</span>
-        <span><strong>Objetivo:</strong> {{ item.funcion_objetivo }}</span>
+        <span><strong>{{ translations.type }}:</strong> {{ item.tipo|upper }}</span>
+        <span><strong>{{ translations.objective }}:</strong> {{ item.funcion_objetivo }}</span>
 
         <details>
-          <summary>📄 Ver resultados</summary>
+          <summary>📄 {{ translations.view_results }}</summary>
           <div>{{ item.resultado_html|safe }}</div>
         </details>
 
          <form method="get" action="{% url 'editar_gran_m' item.id %}">
-      <button type="submit" class="editar-btn">✏️ Editar</button>
+      <button type="submit" class="editar-btn">✏️ {{ translations.edit }}</button>
     </form>
 
       </li>
@@ -135,7 +136,7 @@
     </ul>
   </div>
   {% else %}
-  <p>No hay cálculos registrados aún.</p>
+  <p>{{ translations.no_calculations_registered }}</p>
   {% endif %}
 </div>
 <script src="https://unpkg.com/darkmode-js/lib/darkmode-js.min.js"></script>

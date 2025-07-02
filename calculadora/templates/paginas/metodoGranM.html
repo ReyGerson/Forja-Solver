@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Método de la Gran M</title>
+  <title>{{ translations.big_m_method }}</title>
+  {% load static %}
+  <link rel="stylesheet" href='{% static "css/themes.css" %}'>
 
   <style>
   * {
@@ -27,6 +29,10 @@
     transform: scale(0.95);
   }
   100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
     opacity: 1;
     transform: scale(1);
   }
@@ -191,15 +197,16 @@ input[type="text"]:focus, select:focus {
 
 </head>
 <body>
+
   <div class="container">
       <div style="display:flex; justify-content:center; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px;">
-        <a href="{% url 'index' %}" class="resolver exportar-btn principal" style="min-width:170px;">⏪ Regresar al inicio</a>
-        <button type="button" class="resolver exportar-btn principal" style="min-width:170px;" onclick="nuevoEjercicio()">🔄 Nuevo ejercicio</button>
+        <a href="{% url 'index' %}" class="resolver exportar-btn principal" style="min-width:170px;">⏪ {{ translations.back_to_home }}</a>
+        <button type="button" class="resolver exportar-btn principal" style="min-width:170px;" onclick="nuevoEjercicio()">🔄 {{ translations.new_exercise }}</button>
         {% if user.is_authenticated %}
-        <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal" style="min-width:170px;">📋 Ver Historial</a>
+        <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal" style="min-width:170px;">📋 {{ translations.view_history }}</a>
         {% endif %}
       </div>
-      <h2 style="color:#4B848A; border-bottom:2px solid #DCC9A9;">Método de la Gran M</h2>
+      <h2 style="color:#4B848A; border-bottom:2px solid #DCC9A9;">{{ translations.big_m_method }}</h2>
       <form method="post" id="formulario-granm" style="background:#fff; border-radius:16px; box-shadow:0 4px 16px #0001; padding:32px 18px; margin-bottom:32px; max-width:600px; margin-left:auto; margin-right:auto;">
         {% csrf_token %}
         {% if nuevo %}
@@ -214,22 +221,22 @@ input[type="text"]:focus, select:focus {
 {% endif %}
 
         <div style="margin-bottom:18px;">
-          <label>Tipo de problema:</label>
+          <label>{{ translations.problem_type }}:</label>
           <select name="tipo" id="tipo_problema">
-            <option value="min">Minimizar</option>
-            <option value="max">Maximizar</option>
+            <option value="min">{{ translations.minimize }}</option>
+            <option value="max">{{ translations.maximize }}</option>
           </select>
         </div>
         <div style="margin-bottom:18px;">
-          <label>Función Objetivo (máx. 10 variables):</label>
-          <input type="text" id="objetivo" name="objetivo" placeholder="Ej: 2,3,1,0" required>
-          <div id="msg-var" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 variables.</div>
+          <label>{{ translations.objective_function }} ({{ translations.max_10_variables }}):</label>
+          <input type="text" id="objetivo" name="objetivo" placeholder="{{ translations.example_objective_placeholder }}" required>
+          <div id="msg-var" class="mensaje-limite" style="display: none;">⚠ {{ translations.variable_limit_reached }}</div>
         </div>
         <div id="restricciones-container" class="restriccion-group"></div>
-        <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 restricciones.</div>
+        <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ {{ translations.constraint_limit_reached }}</div>
         <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; justify-content:center;">
-          <button type="button" class="agregar-btn principal" onclick="agregarRestriccion()">+ Agregar restricción</button>
-          <button type="submit" class="resolver principal">Resolver</button>
+          <button type="button" class="agregar-btn principal" onclick="agregarRestriccion()">+ {{ translations.add_constraint }}</button>
+          <button type="submit" class="resolver principal">{{ translations.solve }}</button>
         </div>
       </form>
     </div>
@@ -243,23 +250,23 @@ input[type="text"]:focus, select:focus {
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver exportar-btn principal">Exportar PDF</button>
+        <button type="submit" class="resolver exportar-btn principal">{{ translations.export_pdf }}</button>
       </form>
       <form method="post" action="{% url 'exportar_excel' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver exportar-btn principal">Exportar Excel</button>
+        <button type="submit" class="resolver exportar-btn principal">{{ translations.export_excel }}</button>
       </form>
       <form method="post" action="{% url 'exportar_word' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver exportar-btn principal">Exportar Word</button>
+        <button type="submit" class="resolver exportar-btn principal">{{ translations.export_word }}</button>
       </form>
-      <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal">📚 Ver Historial</a>
+      <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal">📚 {{ translations.view_history }}</a>
     </div>
     {% endif %}
   </div>
@@ -278,14 +285,14 @@ input[type="text"]:focus, select:focus {
     div.className = "restriccion-item";
     div.id = `restriccion_item_${numRestricciones}`;
     div.innerHTML = `
-  <label>Restricción ${numRestricciones + 1}:</label>
-  <input type="text" name="restriccion_${numRestricciones}" id="restriccion_${numRestricciones}" placeholder="Ej: 1,2" required value="${valores}">
+  <label>{{ translations.constraint_label }} ${numRestricciones + 1}:</label>
+  <input type="text" name="restriccion_${numRestricciones}" id="restriccion_${numRestricciones}" placeholder="{{ translations.constraint_placeholder }}" required value="${valores}">
   <select name="signo_${numRestricciones}" id="signo_${numRestricciones}">
     <option value="<=" ${signo === "<=" ? "selected" : ""}>&le;</option>
     <option value=">=" ${signo === ">=" ? "selected" : ""}>&ge;</option>
     <option value="=" ${signo === "=" ? "selected" : ""}>=</option>
   </select>
-  <input type="text" name="b_${numRestricciones}" id="b_${numRestricciones}" placeholder="Ej: 10" required>
+  <input type="text" name="b_${numRestricciones}" id="b_${numRestricciones}" placeholder="{{ translations.constraint_value_placeholder }}" required>
   <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
 `;
 
@@ -294,7 +301,7 @@ input[type="text"]:focus, select:focus {
   }
 
   function eliminarRestriccion(id) {
-    if (!confirm('¿Desea eliminar esta restricción?')) return;
+    if (!confirm('{{ translations.confirm_delete_constraint }}')) return;
     const div = document.getElementById(id);
     if (div) {
       div.remove();
@@ -352,20 +359,20 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
       const valores = objetivo.split(',').map(x => x.trim()).filter(x => x !== '');
 
       if (valores.length === 0) {
-        alert("La función objetivo no puede estar vacía.");
+        alert("{{ translations.objective_function_required }}");
         e.preventDefault();
         return;
       }
 
       if (valores.length > 10) {
-        alert("Máximo 10 variables permitidas en la función objetivo.");
+        alert("{{ translations.max_10_variables_allowed }}");
         e.preventDefault();
         return;
       }
 
       for (let v of valores) {
         if (isNaN(v)) {
-          alert("Todos los coeficientes en la función objetivo deben ser numéricos.");
+          alert("{{ translations.coefficients_must_be_numeric }}");
           e.preventDefault();
           return;
         }
@@ -375,13 +382,13 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
       for (let i = 0; i < restricciones.length; i++) {
         const inputs = restricciones[i].querySelector('input[type="text"]').value.trim().split(',').map(x => x.trim());
         if (inputs.length !== valores.length + 1) {
-          alert(`La restricción ${i + 1} debe tener ${valores.length + 1} valores (incluyendo el lado derecho).`);
+          alert(`{{ translations.constraint_values_mismatch }} ${i + 1} {{ translations.must_have_values }} ${valores.length + 1} {{ translations.including_right_side }}`);
           e.preventDefault();
           return;
         }
         for (let num of inputs) {
           if (isNaN(num)) {
-            alert(`Todos los valores en la restricción ${i + 1} deben ser numéricos.`);
+            alert(`{{ translations.constraint_values_numeric }} ${i + 1} {{ translations.must_be_numeric }}`);
             e.preventDefault();
             return;
           }
