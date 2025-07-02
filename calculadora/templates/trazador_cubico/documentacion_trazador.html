@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interpolación de Trazadores Cúbicos</title>
+    <title>{{ translations.cubic_spline_interpolation }}</title>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/themes.css' %}">
     <style>
         :root {
             --primary: #DCC9A9;
@@ -165,42 +167,52 @@
 </head>
 
 <body>
-    <a href="{% url 'index' %}">Inicio</a>
-    <h1>Interpolación de Trazadores Cúbicos</h1>
+    <!-- Theme Toggle Button -->
+    <div class="theme-controls">
+        <button id="themeToggle" class="theme-toggle-btn" title="{{ translations.toggle_theme }}">
+            <span class="theme-icon">🌓</span>
+        </button>
+        <button id="languageToggle" class="language-toggle-btn" title="{{ translations.toggle_language }}">
+            <span class="language-text">{{ translations.current_language }}</span>
+        </button>
+    </div>
+
+    <a href="{% url 'index' %}">{{ translations.home }}</a>
+    <h1>{{ translations.cubic_spline_interpolation }}</h1>
     
     <section>
-        <h2>Objetivo del método</h2>
-        <p>Construir una función que interpole un conjunto de puntos dados, asegurando que sea continua en la función, primera y segunda derivada en cada punto.</p>
+        <h2>{{ translations.method_objective }}</h2>
+        <p>{{ translations.cubic_spline_description }}</p>
     </section>
 
     <section>
-        <h2>Pasos del Algoritmo</h2>
+        <h2>{{ translations.algorithm_steps }}</h2>
         <ol>
             <li>
-                <strong>Datos de entrada:</strong>
-                <p>Conjunto de \( n + 1 \) puntos ordenados:</p>
+                <strong>{{ translations.input_data }}:</strong>
+                <p>{{ translations.ordered_points_set }}</p>
                 <div class="formula">
                     \[ (x_0, y_0), (x_1, y_1), \ldots, (x_n, y_n) \quad \text{con} \quad x_0 < x_1 < \ldots < x_n \]
                 </div>
             </li>
             <li>
-                <strong>Calcular longitudes de subintervalos:</strong>
+                <strong>{{ translations.calculate_subinterval_lengths }}:</strong>
                 <div class="formula">
                     \[ h_i = x_{i+1} - x_i \quad \text{para} \quad i = 0, 1, \ldots, n-1 \]
                 </div>
             </li>
             <li>
-                <strong>Sistema de ecuaciones para \( M_i \):</strong>
+                <strong>{{ translations.equations_system_for_mi }}:</strong>
                 <div class="formula">
                     \[ \frac{h_{i-1}}{6}M_{i-1} + \frac{h_{i-1} + h_i}{3}M_i + \frac{h_i}{6}M_{i+1} = \frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}} \]
                 </div>
-                <p>Condición natural: \( M_0 = M_n = 0 \).</p>
+                <p>{{ translations.natural_condition }}</p>
             </li>
             <li>
-                <strong>Resolver el sistema lineal</strong> para obtener \( M_0, M_1, \ldots, M_n \).
+                <strong>{{ translations.solve_linear_system }}</strong> {{ translations.to_obtain_m_values }}
             </li>
             <li>
-                <strong>Fórmula del trazador cúbico \( S_i(x) \):</strong>
+                <strong>{{ translations.cubic_spline_formula }}:</strong>
                 <div class="formula">
                     \[ S_i(x) = \frac{M_{i+1}}{6h_i}(x - x_i)^3 + \frac{M_i}{6h_i}(x_{i+1} - x)^3 + \left( \frac{y_{i+1}}{h_i} - \frac{M_{i+1}h_i}{6} \right)(x - x_i) + \left( \frac{y_i}{h_i} - \frac{M_i h_i}{6} \right)(x_{i+1} - x) \]
                 </div>
@@ -209,9 +221,9 @@
     </section>
 
     <section>
-        <h2>Ejemplo Teórico</h2>
+        <h2>{{ translations.theoretical_example }}</h2>
         <div class="example">
-            <h3>Paso 1: Datos iniciales</h3>
+            <h3>{{ translations.step }} 1: {{ translations.initial_data }}</h3>
             <table>
                 <tr>
                     <th>\( i \)</th>
@@ -239,11 +251,11 @@
                     <td>8</td>
                 </tr>
             </table>
-            <p>Subintervalos: \( h_0 = h_1 = h_2 = 1 \).</p>
+            <p>{{ translations.subintervals }}</p>
 
-            <h3>Paso 2: Construir el sistema para las segundas derivadas \( M_i \)</h3>
+            <h3>{{ translations.step }} 2: {{ translations.construct_system_second_derivatives }}</h3>
             <div class="formula">
-                <p>La fórmula general para construir el sistema tridiagonal es:</p>
+                <p>{{ translations.general_formula_tridiagonal }}</p>
                 \[
                 \frac{h_{i-1}}{6}M_{i-1} + \frac{h_{i-1} + h_i}{3}M_i + \frac{h_i}{6}M_{i+1} = \frac{y_{i+1} - y_i}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}
                 \]

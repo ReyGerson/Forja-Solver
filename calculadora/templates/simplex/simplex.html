@@ -531,8 +531,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
     <script src='{% static "js/simplex.js" %}'></script>
+    <script src="https://unpkg.com/darkmode-js/lib/darkmode-js.min.js"></script>
+
 
     <script>
+        new Darkmode().showWidget();
         // Traducciones para JavaScript
         const translations = {
             please_enter_objective_function: "{{ translations.please_enter_objective_function }}",
