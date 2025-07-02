@@ -22,6 +22,10 @@ from .context_processors import language_context
 import pandas as pd
 import os
 import time
+import re
+import numpy as np
+import plotly.graph_objs as go
+import glob
 from django.contrib import messages
 
 @login_required
@@ -1552,12 +1556,14 @@ def parse_expression(expr_str, variables):
     except Exception as e:
         raise ValueError(f"Error al analizar expresión: {expr_str}. {str(e)}")
 
+
+@login_required
 def metodo_grafico(request):
     x, y = symbols('x y')
     is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium
     # Valores por defecto
-    default_objective = '3*x + 2*y'
-    default_restrictions = '2*x + y <= 100\nx + y <= 80'
+    default_objective = ''
+    default_restrictions = ''
     default_optimization = 'max'
     context = {
         'default_function': default_objective,
@@ -2018,9 +2024,9 @@ def metodo_grafico(request):
     # Asegurar que historial_data siempre esté en el contexto para la plantilla
     if 'historial_data' not in context or not context['historial_data']:
         context['historial_data'] = {
-            'objective': '',
-            'optimization': '',
-            'restrictions': '',
+            'objective': 'historial.funcion',
+            'optimization': 'historial.optimizacion',
+            'restrictions': 'historial.restricciones',
         }
     else:
         # Si falta alguna clave, la agregamos vacía
@@ -2854,33 +2860,107 @@ def metodo_grafico_pdf(request, id):
 @login_required
 def repetir_metodo_grafico(request, id):
     """
-    Cargar un problema del historial del método gráfico para resolverlo nuevamente
+    Permite repetir un cálculo del Método Gráfico guardado en el historial.
+    Carga los datos del historial y los muestra en el formulario en modo repetición.
+    Si el usuario edita y envía, recalcula y guarda como nuevo historial.
     """
-    try:
-        historial_item = get_object_or_404(MetodoGraficoHistorial, id=id, user=request.user)
-        
-        # Preparar datos para precargar el formulario
-        contexto = {
-            'historial_data': {
-                'objective': historial_item.funcion,
-                'optimization': historial_item.optimizacion,
-                'restrictions': historial_item.restricciones
-            },
-            'default_function': historial_item.funcion,
-            'default_restrictions': historial_item.restricciones,
-            'default_optimization': historial_item.optimizacion,
-            'steps': [],
-            'errors': [],
-            'show_results': False,
-            'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium,
-            'show_graph': False
+    obj = get_object_or_404(MetodoGraficoHistorial, id=id, user=request.user)
+    if request.method == 'POST':
+        # Tomar los datos editados por el usuario
+        objective = request.POST.get('objective', obj.funcion)
+        optimization = request.POST.get('optimization', obj.optimizacion)
+        restrictions = request.POST.get('restrictions', obj.restricciones)
+        # Reutilizar la lógica de metodo_grafico para procesar y guardar
+        # Puedes importar la función o copiar la lógica aquí para evitar duplicidad
+        from sympy import symbols
+        x, y = symbols('x y')
+        # ... Copia aquí la lógica de procesamiento de metodo_grafico ...
+        # Para simplificar, redirigimos a la vista principal con los datos POST
+        # pero en modo POST, así se guarda el nuevo historial y se muestra el resultado
+        request.POST = request.POST.copy()
+        request.POST['objective'] = objective
+        request.POST['optimization'] = optimization
+        request.POST['restrictions'] = restrictions
+        return metodo_grafico(request)
+    else:
+        initial_data = {
+            'objective': obj.funcion,
+            'optimization': obj.optimizacion,
+            'restrictions': obj.restricciones,
         }
-        
-        return render(request, 'metodo_grafico/metodo_grafico.html', contexto)
-        
-    except Exception as e:
-        print(f"Error cargando historial del método gráfico: {e}")
-        return redirect('metodoGrafico')
+        historial_data = {
+            'objective': obj.funcion,
+            'restrictions': obj.restricciones,
+            'optimization': obj.optimizacion,
+            'grafico': obj.grafica if hasattr(obj, 'grafica') else None,
+            'procedimiento': obj.iteraciones if hasattr(obj, 'iteraciones') else None,
+        }
+        optimal = {'x': None, 'y': None, 'z': None}
+        import re
+        if obj.punto_optimo:
+            match = re.match(r'\((?P<x>[-+]?\d*\.?\d+),\s*(?P<y>[-+]?\d*\.?\d+)\)', obj.punto_optimo)
+            if match:
+                optimal['x'] = float(match.group('x'))
+                optimal['y'] = float(match.group('y'))
+        if obj.solucion:
+            match = re.search(r'([-+]?\d*\.?\d+)', obj.solucion)
+            if match:
+                optimal['z'] = float(match.group(1))
+        # Parsear puntos factibles si existen
+        solutions = None
+        if obj.puntos_factibles:
+            solutions = []
+            # Preparar para evaluar la función objetivo
+            import re
+            import numexpr as ne
+            funcion = obj.funcion
+            # Extraer coeficientes de x e y (asume formato ax + by)
+            def eval_z(expr, x, y):
+                try:
+                    return float(ne.evaluate(expr, local_dict={'x': x, 'y': y}))
+                except Exception:
+                    return None
+            for i, linea in enumerate(obj.puntos_factibles.split('\n'), 1):
+                if '(' in linea and ')' in linea:
+                    try:
+                        punto = linea.split(':')[1].strip().replace('(','').replace(')','').split(',')
+                        x_ = float(punto[0])
+                        y_ = float(punto[1])
+                        z_ = eval_z(funcion, x_, y_)
+                        solutions.append({'id': i, 'x': x_, 'y': y_, 'z': z_})
+                    except:
+                        continue
+            if not solutions:
+                solutions = None
+        # Parsear procedimiento almacenado en pasos si existe
+        procedimiento_steps = []
+        if obj.iteraciones:
+            lines = re.split(r'(?m)^(\d+\.)', obj.iteraciones)
+            temp_step = ''
+            for part in lines:
+                if re.match(r'^\d+\.$', part):
+                    if temp_step:
+                        procedimiento_steps.append(temp_step.strip())
+                    temp_step = part
+                else:
+                    temp_step += part
+            if temp_step:
+                procedimiento_steps.append(temp_step.strip())
+        else:
+            procedimiento_steps = []
+        context = {
+            'form': {'initial': initial_data},
+            'modo_repetir': True,
+            'show_results': True,
+            'is_premium': hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium,
+            'optimal': optimal,
+            'solutions': solutions,
+            'graph': obj.grafica if obj.grafica else None,
+            'show_graph': bool(obj.grafica),
+            'historial_data': historial_data,
+            'procedimiento_steps': procedimiento_steps,
+        }
+        return render(request, 'metodo_grafico/metodo_grafico.html', context)
 
 @login_required
 def cambiar_idioma(request):
