@@ -6,220 +6,260 @@
   <title>Método de la Gran M</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+  * {
+  box-sizing: border-box;
+}
 
-    html, body {
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, Segoe UI, Arial, sans-serif;
-      background-color: #fefefe;
-      color: #222;
-      overflow-y: scroll;
-    }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    .contenedor-completo {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
-    h2 {
-      color: #1a3e44;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 10px;
-      margin-bottom: 30px;
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      text-align: center;
-    }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(160deg, #e0f7fa, #ffffff);
+  color: #222;
+  overflow-y: scroll;
+  animation: fadeInUp 0.6s ease-in-out;
+}
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 30px 20px;
+}
 
-    label {
-      font-weight: bold;
-      color: #333;
-    }
+h2 {
+  color: #00838f;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #b2ebf2;
+  padding-bottom: 6px;
+}
 
-    input[type="text"], select {
-      background-color: #ffffff;
-      color: #222;
-      border: 1px solid #aaa;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 15px;
-      font-weight: 500;
-      width: 100%;
-    }
+form {
+  background: rgba(255, 255, 255, 0.88);
+  padding: 32px 24px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  max-width: 640px;
+  margin: auto;
+  backdrop-filter: blur(8px);
+  animation: scaleIn 0.5s ease;
+}
 
-    .resolver {
-      padding: 12px 20px;
-      border: none;
-      background-color: #0e7c86;
-      color: white;
-      font-weight: bold;
-      border-radius: 10px;
-      cursor: pointer;
-      width: 100%;
-      max-width: 220px;
-      transition: background 0.3s ease;
-    }
+label {
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: block;
+  color: #006064;
+}
 
-    .resolver:hover {
-      background-color: #0b5e65;
-    }
+input[type="text"], select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
 
-    .restriccion-group {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: #00acc1;
+  box-shadow: 0 0 8px rgba(0,172,193,0.4);
+  transform: scale(1.02);
+}
 
-    .agregar-btn {
-      background-color: #555;
-      color: #fff;
-      border-radius: 8px;
-      padding: 10px;
-      cursor: pointer;
-      border: none;
-      width: 100%;
-      max-width: 220px;
-    }
+.resolver, .agregar-btn, .eliminar-btn {
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.25s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
 
-    .mensaje-limite {
-      color: #d50000;
-      font-weight: bold;
-      margin-top: -10px;
-      margin-bottom: 10px;
-    }
+.resolver {
+  background: linear-gradient(to right, #00796b, #009688);
+  color: #fff;
+}
 
-    .restriccion-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+.resolver:hover {
+  background: linear-gradient(to right, #004d40, #00796b);
+  transform: scale(1.05);
+}
 
-    .eliminar-btn {
-      background-color: #c62828;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+.agregar-btn {
+  background: #607d8b;
+  color: white;
+}
 
-    .resultado-scroll {
-      background-color: #fafafa;
-      color: #111;
-      padding: 24px;
-      border-radius: 14px;
-      margin-top: 40px;
-      overflow-x: auto;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    }
+.agregar-btn:hover {
+  background: #455a64;
+  transform: translateY(-2px);
+}
 
-    .exportar-contenedor {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 25px;
-    }
+.eliminar-btn {
+  background-color: #e53935;
+  color: white;
+}
 
-    .exportar-contenedor .resolver {
-      background-color: #4B848A;
-    }
+.eliminar-btn:hover {
+  background-color: #b71c1c;
+  transform: scale(1.03);
+}
 
-    .exportar-contenedor .resolver:hover {
-      background-color: #366066;
-    }
+.resultado-scroll {
+  background: #ffffff;
+  color: #111;
+  padding: 24px;
+  border-radius: 14px;
+  margin-top: 40px;
+  overflow-x: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.6s ease;
+}
 
-    a.resolver {
-      display: inline-block;
-      text-decoration: none;
-      text-align: center;
-    }
+.exportar-contenedor {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 12px;
+}
 
-    @media (max-width: 768px) {
-      .restriccion-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+.resolver.exportar-btn {
+  background: linear-gradient(to right, #00796b, #009688);
+  color: #fff;
+  border: none;
+}
 
-      .resolver, .agregar-btn {
-        width: 100%;
-      }
+.resolver.exportar-btn:hover {
+  background: linear-gradient(to right, #004d40, #00796b);
+  transform: scale(1.05);
+}
 
-      .contenedor-completo {
-        padding: 20px 10px;
-      }
-    }
-  </style>
+.mensaje-limite {
+  font-size: 14px;
+  color: #d32f2f;
+  font-weight: bold;
+  margin-top: -12px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  form {
+    padding: 24px 16px;
+  }
+
+  .resolver, .agregar-btn {
+    width: 100%;
+  }
+
+  .restriccion-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+</style>
+
 </head>
 <body>
-  <div class="contenedor-completo">
-    <h2>Método de la Gran M</h2>
-
-    <form method="post" id="formulario-granm">
-      {% csrf_token %}
-      <div>
-        <label>Tipo de problema:</label>
-        <select name="tipo">
-          <option value="min">Minimizar</option>
-          <option value="max">Maximizar</option>
-        </select>
+  <div class="container">
+      <div style="display:flex; justify-content:center; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px;">
+        <a href="{% url 'index' %}" class="resolver exportar-btn principal" style="min-width:170px;">⏪ Regresar al inicio</a>
+        <button type="button" class="resolver exportar-btn principal" style="min-width:170px;" onclick="nuevoEjercicio()">🔄 Nuevo ejercicio</button>
+        {% if user.is_authenticated %}
+        <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal" style="min-width:170px;">📋 Ver Historial</a>
+        {% endif %}
       </div>
+      <h2 style="color:#4B848A; border-bottom:2px solid #DCC9A9;">Método de la Gran M</h2>
+      <form method="post" id="formulario-granm" style="background:#fff; border-radius:16px; box-shadow:0 4px 16px #0001; padding:32px 18px; margin-bottom:32px; max-width:600px; margin-left:auto; margin-right:auto;">
+        {% csrf_token %}
+        {% if nuevo %}
+        <input type="hidden" id="modo_nuevo" value="true">
+        {% endif %}
+ 
+        {% if precarga %}
+  <input type="hidden" id="precarga_tipo" value="{{ precarga.tipo_objetivo }}">
+  <input type="hidden" id="precarga_funcion" value="{{ precarga.funcion_objetivo }}">
+  <input type="hidden" id="precarga_restricciones" value="{{ precarga.restricciones_json }}">
+  <input type="hidden" id="precarga_signos" value="{{ precarga.signos }}">
+{% endif %}
 
-      <div>
-        <label>Función Objetivo (máx. 10 variables):</label>
-        <input type="text" id="objetivo" name="objetivo" placeholder="Ej: 2,3,1,0" required>
-        <div id="msg-var" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 variables.</div>
-      </div>
-
-      <div id="restricciones-container" class="restriccion-group"></div>
-      <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 restricciones.</div>
-
-      <button type="button" class="agregar-btn" onclick="agregarRestriccion()">+ Agregar restricción</button>
-      <button type="submit" class="resolver">Resolver</button>
-    </form>
-
+        <div style="margin-bottom:18px;">
+          <label>Tipo de problema:</label>
+          <select name="tipo" id="tipo_problema">
+            <option value="min">Minimizar</option>
+            <option value="max">Maximizar</option>
+          </select>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label>Función Objetivo (máx. 10 variables):</label>
+          <input type="text" id="objetivo" name="objetivo" placeholder="Ej: 2,3,1,0" required>
+          <div id="msg-var" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 variables.</div>
+        </div>
+        <div id="restricciones-container" class="restriccion-group"></div>
+        <div id="msg-rest" class="mensaje-limite" style="display: none;">⚠ Ya consumió su límite de 10 restricciones.</div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; justify-content:center;">
+          <button type="button" class="agregar-btn principal" onclick="agregarRestriccion()">+ Agregar restricción</button>
+          <button type="submit" class="resolver principal">Resolver</button>
+        </div>
+      </form>
+    </div>
     {% if resultado %}
-    <div class="resultado-scroll">
+    <div class="resultado-scroll" style="border:1.5px solid #4B848A;">
       {{ resultado|safe }}
     </div>
-
-    <div class="exportar-contenedor">
-      <form method="post" action="{% url 'exportar_pdf' %}">
+    <div class="exportar-contenedor" style="margin-top:24px; justify-content:center;">
+      <form method="post" action="{% url 'exportar_pdf' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver">Exportar PDF</button>
+        <button type="submit" class="resolver exportar-btn principal">Exportar PDF</button>
       </form>
-
-      <form method="post" action="{% url 'exportar_excel' %}">
+      <form method="post" action="{% url 'exportar_excel' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver">Exportar Excel</button>
+        <button type="submit" class="resolver exportar-btn principal">Exportar Excel</button>
       </form>
-
-      <form method="post" action="{% url 'exportar_word' %}">
+      <form method="post" action="{% url 'exportar_word' %}" style="display:inline-block;">
         {% csrf_token %}
         {% autoescape off %}
         <textarea name="contenido" hidden>{{ resultado }}</textarea>
         {% endautoescape %}
-        <button type="submit" class="resolver">Exportar Word</button>
+        <button type="submit" class="resolver exportar-btn principal">Exportar Word</button>
       </form>
-
-      <a href="{% url 'historial_gran_m' %}" class="resolver">📚 Ver Historial</a>
+      <a href="{% url 'historial_gran_m' %}" class="resolver exportar-btn principal">📚 Ver Historial</a>
     </div>
     {% endif %}
   </div>
@@ -227,7 +267,7 @@
   let numRestricciones = 0;
   const maxRestricciones = 10;
 
-  function agregarRestriccion() {
+  function agregarRestriccion(valores = '', signo = '<=') {
     if (numRestricciones >= maxRestricciones) {
       document.getElementById("msg-rest").style.display = "block";
       return;
@@ -238,20 +278,23 @@
     div.className = "restriccion-item";
     div.id = `restriccion_item_${numRestricciones}`;
     div.innerHTML = `
-      <label>Restricción ${numRestricciones + 1}:</label>
-      <input type="text" name="restriccion_${numRestricciones}" placeholder="Ej: 1,2,10" required>
-      <select name="signo_${numRestricciones}">
-        <option value="<=">&le;</option>
-        <option value=">=">&ge;</option>
-        <option value="=">=</option>
-      </select>
-      <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
-    `;
+  <label>Restricción ${numRestricciones + 1}:</label>
+  <input type="text" name="restriccion_${numRestricciones}" id="restriccion_${numRestricciones}" placeholder="Ej: 1,2" required value="${valores}">
+  <select name="signo_${numRestricciones}" id="signo_${numRestricciones}">
+    <option value="<=" ${signo === "<=" ? "selected" : ""}>&le;</option>
+    <option value=">=" ${signo === ">=" ? "selected" : ""}>&ge;</option>
+    <option value="=" ${signo === "=" ? "selected" : ""}>=</option>
+  </select>
+  <input type="text" name="b_${numRestricciones}" id="b_${numRestricciones}" placeholder="Ej: 10" required>
+  <button type="button" class="eliminar-btn" onclick="eliminarRestriccion('${div.id}')">🗑️</button>
+`;
+
     container.appendChild(div);
     numRestricciones++;
   }
 
   function eliminarRestriccion(id) {
+    if (!confirm('¿Desea eliminar esta restricción?')) return;
     const div = document.getElementById(id);
     if (div) {
       div.remove();
@@ -260,87 +303,138 @@
     }
   }
 
-const esEdicion = "{{ editar|default:'false'|lower }}" === "true";
+ const esEdicion = "{{ editar|default:'false'|lower }}" === "true";
 const tipo_problema = "{{ registro.tipo|default:'min' }}";
 const funcion_objetivo = "{{ registro.funcion_objetivo|escapejs }}";
 const restricciones = JSON.parse(`{{ registro.restricciones|escapejs }}`);
 const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
 
 
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputObjetivo = document.getElementById("objetivo");
+    const msgVar = document.getElementById("msg-var");
 
+    inputObjetivo.addEventListener("input", () => {
+      const valores = inputObjetivo.value.split(',').map(v => v.trim()).filter(v => v !== "");
+      if (valores.length > 10) {
+        msgVar.style.display = "block";
+        inputObjetivo.value = valores.slice(0, 10).join(', ');
+      } else {
+        msgVar.style.display = "none";
+      }
+    });
 
-  window.onload = () => {
-    if (esEdicion && funcion_objetivo) {
-      document.querySelector("select[name='tipo']").value = tipo_problema;
-      document.getElementById("objetivo").value = funcion_objetivo;
+    // Inicializar formulario
+    document.getElementById('objetivo').value = '';
+    document.getElementById('tipo_problema').value = 'min';
+    document.getElementById('restricciones-container').innerHTML = '';
+    numRestricciones = 0;
+
+    // EDICIÓN: Cargar datos desde base de datos
+    if (esEdicion && funcion_objetivo && Array.isArray(restricciones)) {
+      document.getElementById('objetivo').value = funcion_objetivo;
+      document.getElementById('tipo_problema').value = tipo_problema;
 
       for (let i = 0; i < restricciones.length; i++) {
-        agregarRestriccion();
-        const input = document.querySelector(`input[name='restriccion_${i}']`);
-        const select = document.querySelector(`select[name='signo_${i}']`);
-        if (input) input.value = restricciones[i].join(',');
-        if (select) select.value = signos[i];
+        const valores = Array.isArray(restricciones[i]) ? restricciones[i].join(',') : restricciones[i];
+        const signo = signos[i] || '<=';
+        agregarRestriccion(valores, signo);
       }
     } else {
+      // NUEVO: Cargar 2 restricciones vacías
       agregarRestriccion();
       agregarRestriccion();
     }
-  };
 
-  const inputObjetivo = document.getElementById("objetivo");
-  const msgVar = document.getElementById("msg-var");
+    // Validación al enviar
+    document.getElementById("formulario-granm").addEventListener("submit", function (e) {
+      const objetivo = inputObjetivo.value.trim();
+      const valores = objetivo.split(',').map(x => x.trim()).filter(x => x !== '');
 
-  inputObjetivo.addEventListener("input", () => {
-    const valores = inputObjetivo.value.split(',').map(v => v.trim()).filter(v => v !== "");
-    if (valores.length > 10) {
-      msgVar.style.display = "block";
-      inputObjetivo.value = valores.slice(0, 10).join(', ');
-    } else {
-      msgVar.style.display = "none";
-    }
-  });
-
-  document.getElementById("formulario-granm").addEventListener("submit", function (e) {
-    const objetivo = document.getElementById("objetivo").value.trim();
-    const valores = objetivo.split(',').map(x => x.trim()).filter(x => x !== '');
-
-    if (valores.length === 0) {
-      alert("La función objetivo no puede estar vacía.");
-      e.preventDefault();
-      return;
-    }
-
-    if (valores.length > 10) {
-      alert("Máximo 10 variables permitidas en la función objetivo.");
-      e.preventDefault();
-      return;
-    }
-
-    for (let v of valores) {
-      if (isNaN(v)) {
-        alert("Todos los coeficientes en la función objetivo deben ser numéricos.");
+      if (valores.length === 0) {
+        alert("La función objetivo no puede estar vacía.");
         e.preventDefault();
         return;
       }
-    }
 
-    const restricciones = document.querySelectorAll("#restricciones-container .restriccion-item");
-    for (let i = 0; i < restricciones.length; i++) {
-      const inputs = restricciones[i].querySelector('input[type="text"]').value.trim().split(',').map(x => x.trim());
-      if (inputs.length !== valores.length + 1) {
-        alert(`La restricción ${i + 1} debe tener ${valores.length + 1} valores (incluyendo el lado derecho).`);
+      if (valores.length > 10) {
+        alert("Máximo 10 variables permitidas en la función objetivo.");
         e.preventDefault();
         return;
       }
-      for (let num of inputs) {
-        if (isNaN(num)) {
-          alert(`Todos los valores en la restricción ${i + 1} deben ser numéricos.`);
+
+      for (let v of valores) {
+        if (isNaN(v)) {
+          alert("Todos los coeficientes en la función objetivo deben ser numéricos.");
           e.preventDefault();
           return;
         }
       }
-    }
+
+      const restricciones = document.querySelectorAll("#restricciones-container .restriccion-item");
+      for (let i = 0; i < restricciones.length; i++) {
+        const inputs = restricciones[i].querySelector('input[type="text"]').value.trim().split(',').map(x => x.trim());
+        if (inputs.length !== valores.length + 1) {
+          alert(`La restricción ${i + 1} debe tener ${valores.length + 1} valores (incluyendo el lado derecho).`);
+          e.preventDefault();
+          return;
+        }
+        for (let num of inputs) {
+          if (isNaN(num)) {
+            alert(`Todos los valores en la restricción ${i + 1} deben ser numéricos.`);
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+    });
   });
+
+  function nuevoEjercicio() {
+    document.getElementById('objetivo').value = '';
+    document.getElementById('tipo_problema').value = 'min';
+    document.getElementById('restricciones-container').innerHTML = '';
+    numRestricciones = 0;
+    agregarRestriccion();
+    agregarRestriccion();
+
+    const resultadoDiv = document.querySelector('.resultado-scroll');
+    if (resultadoDiv) resultadoDiv.remove();
+    const exportarDiv = document.querySelector('.exportar-contenedor');
+    if (exportarDiv) exportarDiv.remove();
+  }
+</script>
+<script>
+window.onload = function () {
+  const tipo = document.getElementById('precarga_tipo')?.value;
+  const funcion = document.getElementById('precarga_funcion')?.value;
+  const restricciones = document.getElementById('precarga_restricciones')?.value;
+  const signos = document.getElementById('precarga_signos')?.value;
+
+  if (tipo && funcion && restricciones && signos) {
+    document.getElementById('tipo_problema').value = tipo;
+    document.getElementById('objetivo').value = funcion;
+
+    const restriccionesJSON = JSON.parse(restricciones.replace(/'/g, '"'));
+    const signosJSON = JSON.parse(signos.replace(/'/g, '"'));
+
+    for (let i = 0; i < restriccionesJSON.length; i++) {
+      agregarRestriccion();
+
+      const fila = restriccionesJSON[i];
+      const coef = fila.slice(0, -1).join(', ');
+      const b = fila[fila.length - 1];
+
+      const inputRestriccion = document.getElementById(`restriccion_${i}`);
+      const inputB = document.getElementById(`b_${i}`);
+      const inputSigno = document.getElementById(`signo_${i}`);
+
+      if (inputRestriccion) inputRestriccion.value = coef;
+      if (inputB) inputB.value = b;
+      if (inputSigno) inputSigno.value = signosJSON[i];
+    }
+  }
+};
 </script>
 <script src="https://unpkg.com/darkmode-js/lib/darkmode-js.min.js"></script>
 <script>
@@ -362,6 +456,7 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
   darkmode.showWidget();
 </script>
 
- 
+
+
 </body>
 </html>
