@@ -3165,7 +3165,7 @@ def editar_gran_m(request, pk):
         resultado_html = f"<p style='color:red;'>Error cargando historial: {str(e)}</p>"
 
     return render(request, 'paginas/metodoGranM.html', {
-        'resultado': resultado_html,
+        'resultado': resultado_html if request.method == 'POST' else None,
         'editar': True,
         'registro': {
             'tipo': registro.tipo,
