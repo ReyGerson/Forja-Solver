@@ -3116,7 +3116,7 @@ def editar_gran_m(request, pk):
         restricciones_lista = ast.literal_eval(historial.restricciones)
         signos_lista = ast.literal_eval(historial.signos)
 
-        return render(request, 'metodoGranM.html', {
+        return render(request, 'paginas/metodoGranM.html', {
             'precarga': {
                 'tipo_objetivo': historial.tipo,
                 'funcion_objetivo': historial.funcion_objetivo,
