@@ -161,12 +161,14 @@
         {% if nuevo %}
         <input type="hidden" id="modo_nuevo" value="true">
         {% endif %}
-
+ 
         {% if precarga %}
-        <input type="hidden" id="precarga_tipo" value="{{ precarga.tipo_objetivo }}">
-        <input type="hidden" id="precarga_funcion" value="{{ precarga.funcion_objetivo }}">
-        <input type="hidden" id="precarga_restricciones" value="{{ precarga.restricciones_json }}">
-        {% endif %}
+  <input type="hidden" id="precarga_tipo" value="{{ precarga.tipo_objetivo }}">
+  <input type="hidden" id="precarga_funcion" value="{{ precarga.funcion_objetivo }}">
+  <input type="hidden" id="precarga_restricciones" value="{{ precarga.restricciones_json }}">
+  <input type="hidden" id="precarga_signos" value="{{ precarga.signos }}">
+{% endif %}
+
         <div style="margin-bottom:18px;">
           <label>Tipo de problema:</label>
           <select name="tipo" id="tipo_problema">
@@ -356,6 +358,34 @@ const signos = JSON.parse(`{{ registro.signos|escapejs }}`);
     if (exportarDiv) exportarDiv.remove();
   }
 </script>
+<script>
+window.onload = function () {
+  const tipo = document.getElementById('precarga_tipo')?.value;
+  const funcion = document.getElementById('precarga_funcion')?.value;
+  const restricciones = document.getElementById('precarga_restricciones')?.value;
+  const signos = document.getElementById('precarga_signos')?.value;
+
+  if (tipo && funcion && restricciones && signos) {
+    document.getElementById('tipo_problema').value = tipo;
+    document.getElementById('objetivo').value = funcion;
+
+    const restriccionesJSON = JSON.parse(restricciones.replace(/'/g, '"'));
+    const signosJSON = JSON.parse(signos.replace(/'/g, '"'));
+
+    for (let i = 0; i < restriccionesJSON.length; i++) {
+      agregarRestriccion();
+      const fila = restriccionesJSON[i];
+      const b = fila[fila.length - 1];
+      const coef = fila.slice(0, -1).join(', ');
+
+      document.getElementById(`restriccion_${i}`).value = coef;
+      document.getElementById(`b_${i}`).value = b;
+      document.getElementById(`signo_${i}`).value = signosJSON[i];
+    }
+  }
+};
+</script>
+
 
 </body>
 </html>

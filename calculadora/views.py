@@ -3120,8 +3120,8 @@ def editar_gran_m(request, pk):
             'precarga': {
                 'tipo_objetivo': historial.tipo,
                 'funcion_objetivo': historial.funcion_objetivo,
-                'restricciones_json': restricciones_lista,
-                'signos': signos_lista,
+                'restricciones_json': historial.restricciones,
+                'signos': historial.signos,
             },
             'nuevo': True,
         })
