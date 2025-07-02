@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación del Método Simplex - Forja Solver</title>
+    <title>{{ translations.simplex_documentation }} - Forja Solver</title>
     <style>
         :root {
             --primary: #DCC9A9;
@@ -208,139 +208,139 @@
 
 <body>
     <div class="container">
-        <h1>Documentación del Método Simplex</h1>
-        <a href="{% url 'index' %}" class="btn">Inicio</a>
+        <h1>{{ translations.simplex_documentation }}</h1>
+        <a href="{% url 'index' %}" class="btn">{{ translations.back_to_home }}</a>
         <div class="content-box">
-            <h2>Objetivo del método</h2>
-            <p>Encontrar la solución óptima para un problema de programación lineal, ya sea maximización o minimización a una función de costos, ganancias, producción, estando sujetos a ciertas restricciones. Buscando el mejor punto dentro de un espacio definido con respecto a dichas restricciones que cumplan con el criterio de optimización.</p>
+            <h2>{{ translations.method_objective }}</h2>
+            <p>{{ translations.method_objective_desc }}</p>
         </div>
         
         <div class="content-box">
-            <h2>Ventajas</h2>
+            <h2>{{ translations.advantages }}</h2>
             <ul class="advantages-list">
-                <li>Es basado en consideraciones geométricas y no requiere el uso de derivadas de la función objetivo.</li>
-                <li>Es fácil de usar y tiene un alto grado de efectividad.</li>
-                <li>Se puede usar con funciones objetivo ya que las primeras iteraciones se busca el mínimo ampliamente y evitan mínimos fácilmente.</li>
-                <li>Es eficaz y se ajusta a varios parámetros.</li>
-                <li>Garantiza una solución óptima o determina que no hay una solución.</li>
+                <li>{{ translations.adv_1 }}</li>
+                <li>{{ translations.adv_2 }}</li>
+                <li>{{ translations.adv_3 }}</li>
+                <li>{{ translations.adv_4 }}</li>
+                <li>{{ translations.adv_5 }}</li>
             </ul>
             
-            <h2>Desventajas</h2>
+            <h2>{{ translations.disadvantages }}</h2>
             <ul class="disadvantages-list">
-                <li>Aunque es eficiente para problemas lineales, puede no ser adecuado para problemas con funciones no lineales o restricciones no lineales.</li>
-                <li>La elección inicial de la solución básica puede afectar el rendimiento del método, encontrar una buena solución inicial puede ser difícil en ciertos casos.</li>
-                <li>En problemas muy grandes o complejos el método simplex puede necesitar una cantidad importante de recursos computacionales lo que puede llegar a limitar su aplicación.</li>
+                <li>{{ translations.disadv_1 }}</li>
+                <li>{{ translations.disadv_2 }}</li>
+                <li>{{ translations.disadv_3 }}</li>
             </ul>
         </div>
         
         <div class="content-box">
-            <h2>Situaciones de uso</h2>
+            <h2>{{ translations.use_situations }}</h2>
             <div class="use-cases">
                 <div class="use-case">
-                    <h4>Planificación de producción</h4>
-                    <p>Determinar la cantidad óptima de diferentes productos a fabricar para maximizar ganancias o minimizar costos.</p>
+                    <h4>{{ translations.use_case_production }}</h4>
+                    <p>{{ translations.use_case_production_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Gestión de inventario</h4>
-                    <p>Decidir los niveles óptimos de inventario para satisfacer la demanda mientras se minimizan los costos de almacenamiento.</p>
+                    <h4>{{ translations.use_case_inventory }}</h4>
+                    <p>{{ translations.use_case_inventory_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Asignación de recursos</h4>
-                    <p>Ayuda a asignar presupuesto de manera óptima entre diferentes canales y medios.</p>
+                    <h4>{{ translations.use_case_resources }}</h4>
+                    <p>{{ translations.use_case_resources_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Optimización de costos</h4>
-                    <p>Encontrar la forma más económica de realizar una tarea o proceso, considerando diferentes variables y restricciones.</p>
+                    <h4>{{ translations.use_case_costs }}</h4>
+                    <p>{{ translations.use_case_costs_desc }}</p>
                 </div>
             </div>
         </div>
         
         <div class="content-box">
-            <h2>Pasos para realizar el algoritmo</h2>
+            <h2>{{ translations.algorithm_steps }}</h2>
             
-            <h3>1. Definir el problema en la forma estándar y generar matriz</h3>
-            <p>Un programa de programación lineal tiene la siguiente forma:</p>
+            <h3>{{ translations.step_1 }}</h3>
+            <p>{{ translations.step_1_desc }}</p>
             
             <div class="math-formula">
-                <p><strong>Función objetivo:</strong></p>
-                <p>(Maximizar o minimizar)</p>
+                <p><strong>{{ translations.objective_function_doc }}</strong></p>
+                <p>{{ translations.maximize_minimize }}</p>
                 <code>Z = c₁x₁ + c₂x₂ + ... + cₙxₙ</code>
                 
-                <p><strong>Sujeto a:</strong></p>
+                <p><strong>{{ translations.subject_to_doc }}</strong></p>
                 <code>c₁₁x₁ + c₁₂x₂ + ... + c₁ₙxₙ (≥, ≤, =) b₁</code>
                 <code>c₂₁x₁ + c₂₂x₂ + ... + c₂ₙxₙ (≥, ≤, =) b₂</code>
                 <code>...</code>
                 <code>cₘ₁x₁ + cₘ₂x₂ + ... + cₘₙxₙ (≥, ≤, =) bₘ</code>
                 <code>x₁ ≥ 0, x₂ ≥ 0, ..., xₙ ≥ 0</code>
                 
-                <p>Donde x₁, x₂, ..., xₙ son las variables del problema y luego se verifica que todas las restricciones tienen el lado derecho no negativo, es decir:</p>
+                <p>{{ translations.where_variables }}</p>
                 <code>b₁ + b₂ + ... + bₘ ≥ 0</code>
             </div>
             
-            <p><strong>Agregar variables de holgura:</strong> Convierte las restricciones en ecuaciones.</p>
+            <p><strong>{{ translations.add_slack_variables }}</strong> {{ translations.converts_restrictions }}</p>
             <div class="math-formula">
-                <p><strong>Ejemplo:</strong></p>
+                <p><strong>{{ translations.example_doc }}</strong></p>
                 <code>2x₁ + x₂ ≤ 8 → 2x₁ + x₂ + s₁ = 8</code>
             </div>
             
-            <h3>2. Construir la tabla inicial del Simplex</h3>
-            <p>Incluye:</p>
+            <h3>{{ translations.step_2 }}</h3>
+            <p>{{ translations.includes }}</p>
             <ul>
-                <li>Variables básicas (VB)</li>
-                <li>Coeficientes de la función objetivo (Z)</li>
-                <li>Coeficientes de las restricciones</li>
-                <li>Resultados del lado derecho (LD)</li>
-                <li>Fila de "Z - C"</li>
+                <li>{{ translations.basic_variables }}</li>
+                <li>{{ translations.objective_coefficients }}</li>
+                <li>{{ translations.restriction_coefficients }}</li>
+                <li>{{ translations.right_side_results }}</li>
+                <li>{{ translations.z_c_row }}</li>
             </ul>
             
-            <h3>3. Identificar la columna pivote (variable entrante)</h3>
+            <h3>{{ translations.step_3 }}</h3>
             <ul>
-                <li>Selecciona el coeficiente más negativo en la fila Z - C. Es la variable que entrará a la base.</li>
+                <li>{{ translations.step_3_desc }}</li>
             </ul>
             
-            <h3>4. Identificar la fila pivote (variable saliente)</h3>
+            <h3>{{ translations.step_4 }}</h3>
             <ul>
-                <li>Divide los valores del lado derecho entre los valores positivos de la columna pivote.</li>
-                <li>Elige el menor coeficiente positivo. Esa fila corresponde a la variable que sale de la base.</li>
+                <li>{{ translations.step_4_desc_1 }}</li>
+                <li>{{ translations.step_4_desc_2 }}</li>
             </ul>
             
-            <h3>5. Realizar el pivoteo (actualizar la tabla)</h3>
+            <h3>{{ translations.step_5 }}</h3>
             <ul>
-                <li>Cuando todos los elementos de Z - C sean mayores o iguales a 0 (para maximización), la solución es óptima.</li>
-                <li>El valor óptimo está en la columna LD, correspondiente a Z.</li>
-                <li>Las variables básicas dan su valor en la solución, las no básicas son cero.</li>
+                <li>{{ translations.step_5_desc_1 }}</li>
+                <li>{{ translations.step_5_desc_2 }}</li>
+                <li>{{ translations.step_5_desc_3 }}</li>
             </ul>
         </div>
         
         <div class="content-box">
-            <h2>Ejemplo</h2>
+            <h2>{{ translations.example }}</h2>
             
             <div class="math-formula">
-                <p><strong>Función objetivo:</strong></p>
+                <p><strong>{{ translations.objective_function_doc }}</strong></p>
                 <code>Maximizar Z = 3x₁ + 2x₂</code>
                 
-                <p><strong>Sujeto a:</strong></p>
+                <p><strong>{{ translations.subject_to_doc }}</strong></p>
                 <code>x₁ + x₂ ≤ 4</code>
                 <code>x₁ + 3x₂ ≤ 6</code>
                 <code>x₁, x₂ ≥ 0</code>
             </div>
             
-            <p><strong>Agregar variables de holgura s₁ y s₂</strong></p>
+            <p><strong>{{ translations.add_slack_variables_example }}</strong></p>
             <div class="math-formula">
                 <code>x₁ + x₂ + s₁ = 4</code>
                 <code>x₁ + 3x₂ + s₂ = 6</code>
             </div>
             
-            <p><strong>Reescribir la función objetivo:</strong></p>
+            <p><strong>{{ translations.rewrite_objective }}</strong></p>
             <div class="math-formula">
                 <code>Z = 3x₁ + 2x₂ + s₁ + s₂</code>
             </div>
             
-            <h3>Tabla inicial del Simplex</h3>
+            <h3>{{ translations.initial_simplex_table }}</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Base</th>
+                        <th>{{ translations.base }}</th>
                         <th>x₁</th>
                         <th>x₂</th>
                         <th>s₁</th>
@@ -377,13 +377,13 @@
             </table>
             
             <p>Fila 1: 4/1 = 4<br>Fila 2: 6/1 = 6</p>
-            <p>Variable saliente: s₁, Número pivote: <strong>1</strong></p>
+            <p>{{ translations.outgoing_variable }} s₁, {{ translations.pivot_number }} <strong>1</strong></p>
             
-            <h3>Actualizar la tabla (pivoteo)</h3>
+            <h3>{{ translations.update_table }}</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Base</th>
+                        <th>{{ translations.base }}</th>
                         <th>x₁</th>
                         <th>x₂</th>
                         <th>s₁</th>
@@ -419,7 +419,7 @@
                 </tbody>
             </table>
             
-            <h4>Nueva fila 1</h4>
+            <h4>{{ translations.new_row }} 1</h4>
             <div class="math-formula">
                 <code>x₁ = 1/1 = 1</code>
                 <code>x₂ = 1/1 = 1</code>
@@ -428,7 +428,7 @@
                 <code>b(j) = 4/1 = 4</code>
             </div>
             
-            <h4>Nueva fila 2</h4>
+            <h4>{{ translations.new_row }} 2</h4>
             <div class="math-formula">
                 <code>x₁ = 1 - (1 × 1) = 0</code>
                 <code>x₂ = 3 - (1 × 1) = 2</code>
@@ -437,7 +437,7 @@
                 <code>b(j) = 6 - (1 × 4) = 2</code>
             </div>
             
-            <h4>Nueva fila Z</h4>
+            <h4>{{ translations.new_row }} Z</h4>
             <div class="math-formula">
                 <code>x₁ = -3 + (3 × 1) = 0</code>
                 <code>x₂ = -2 + (3 × 1) = 1</code>
@@ -446,7 +446,7 @@
                 <code>b(j) = 0 + (3 × 4) = 12</code>
             </div>
             
-            <h3>Resultado final</h3>
+            <h3>{{ translations.final_result }}</h3>
             <div class="math-formula">
                 <code>x₁ = 4, x₂ = 0, Z = 12</code>
             </div>

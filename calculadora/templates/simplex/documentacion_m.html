@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación del Método de la M - Forja Solver</title>
+    <title>{{ translations.big_m_documentation }} - Forja Solver</title>
     <style>
         :root {
             --primary: #DCC9A9;
@@ -208,112 +208,112 @@
 
 <body>
     <div class="container">
-        <h1>Documentación del Método de la M</h1>
-        <a href="{% url 'index' %}" class="btn">Inicio</a>
+        <h1>{{ translations.big_m_documentation }}</h1>
+        <a href="{% url 'index' %}" class="btn">{{ translations.back_to_home }}</a>
         
         <div class="content-box">
-            <h2>Objetivo del método</h2>
-            <p>El objetivo principal del método de la "M" es resolver problemas de programación lineal donde la solución inicial factible no está disponible, especialmente cuando se trata de restricciones de igualdad o desigualdad "mayor o igual que".</p>
+            <h2>{{ translations.method_objective }}</h2>
+            <p>{{ translations.big_m_method_objective }}</p>
         </div>
         
         <div class="content-box">
-            <h2>Ventajas</h2>
+            <h2>{{ translations.big_m_advantages_title }}</h2>
             <ul class="advantages-list">
-                <li>Es capaz de solucionar cualquier modelo, sin importar si el origen no pertenece a la región factible.</li>
-                <li>No existe un límite de variables.</li>
-                <li>Se basa en el algoritmo sencillo del método simplex.</li>
-                <li>Detecta cualquier tipo de solución del problema.</li>
+                <li>{{ translations.big_m_adv_1 }}</li>
+                <li>{{ translations.big_m_adv_2 }}</li>
+                <li>{{ translations.big_m_adv_3 }}</li>
+                <li>{{ translations.big_m_adv_4 }}</li>
             </ul>
             
-            <h2>Desventajas</h2>
+            <h2>{{ translations.big_m_disadvantages_title }}</h2>
             <ul class="disadvantages-list">
-                <li>Al meter variables artificiales implica que el modelo incrementa en tamaño.</li>
-                <li>El manejo de la M puede hacer confuso u orilla a cometer errores.</li>
-                <li>Implica más pasos que en el método simplex.</li>
+                <li>{{ translations.big_m_disadv_1 }}</li>
+                <li>{{ translations.big_m_disadv_2 }}</li>
+                <li>{{ translations.big_m_disadv_3 }}</li>
             </ul>
         </div>
         
         <div class="content-box">
-            <h2>Situaciones de uso</h2>
+            <h2>{{ translations.big_m_use_situations }}</h2>
             <div class="use-cases">
                 <div class="use-case">
-                    <h4>Restricciones de tipo "≥" (mayor o igual)</h4>
-                    <p>Cuando una restricción tiene el signo ≥, se resta una variable de holgura y se agrega una variable artificial para convertirla en ecuación.</p>
+                    <h4>{{ translations.big_m_use_case_gte }}</h4>
+                    <p>{{ translations.big_m_use_case_gte_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Restricciones de tipo "=" (igualdad)</h4>
-                    <p>Las restricciones de igualdad no permiten utilizar variables de holgura de forma directa, entonces se debe agregar una variable artificial para poder tener una base inicial.</p>
+                    <h4>{{ translations.big_m_use_case_eq }}</h4>
+                    <p>{{ translations.big_m_use_case_eq_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Cuando no se puede encontrar una base inicial factible</h4>
-                    <p>El método de la gran M fuerza una solución inicial artificial, penalizándola con un valor muy grande (la constante M) en la función objetivo.</p>
+                    <h4>{{ translations.big_m_use_case_no_base }}</h4>
+                    <p>{{ translations.big_m_use_case_no_base_desc }}</p>
                 </div>
             </div>
         </div>
         
         <div class="content-box">
-            <h2>Pasos para realizar el método</h2>
+            <h2>{{ translations.big_m_steps_title }}</h2>
             
-            <h3>1. Escribir el problema en su forma estándar</h3>
-            <p>Convertir todas las restricciones en igualdades:</p>
+            <h3>{{ translations.big_m_step_1 }}</h3>
+            <p>{{ translations.big_m_step_1_desc }}</p>
             <ul>
-                <li>Para restricciones del tipo ≤: Se agrega una variable de holgura.</li>
-                <li>Para restricciones del tipo ≥: Resta una variable y agrega una variable artificial.</li>
-                <li>Para restricciones del tipo =: Agrega una variable artificial.</li>
+                <li>{{ translations.big_m_step_1_list_1 }}</li>
+                <li>{{ translations.big_m_step_1_list_2 }}</li>
+                <li>{{ translations.big_m_step_1_list_3 }}</li>
             </ul>
             
-            <h3>2. Modificar la función objetivo</h3>
-            <p>Agrega las variables artificiales con un costo muy grande (M):</p>
+            <h3>{{ translations.big_m_step_2 }}</h3>
+            <p>{{ translations.big_m_step_2_desc }}</p>
             <ul>
-                <li>Si es maximización: Resta M ⋅ A<sub>i</sub> en la función objetivo, porque queremos que esas variables desaparezcan: penalizando el valor.</li>
-                <li>Si es minimización: Suma M ⋅ A<sub>i</sub>.</li>
+                <li>{{ translations.big_m_step_2_list_1 }}</li>
+                <li>{{ translations.big_m_step_2_list_2 }}</li>
             </ul>
             
-            <h3>3. Construir la tabla inicial del método simplex</h3>
+            <h3>{{ translations.big_m_step_3 }}</h3>
             <ul>
-                <li>Usa las restricciones en formas de ecuación.</li>
-                <li>Coloca las variables básicas en columnas.</li>
-                <li>Incluye la fila Z (fila de diferencias) con los coeficientes modificados.</li>
+                <li>{{ translations.big_m_step_3_list_1 }}</li>
+                <li>{{ translations.big_m_step_3_list_2 }}</li>
+                <li>{{ translations.big_m_step_3_list_3 }}</li>
             </ul>
             
-            <h3>4. Aplicar el método simplex</h3>
+            <h3>{{ translations.big_m_step_4 }}</h3>
             <ol>
-                <li>Buscar la variable que entra a la base (La que tiene el valor más negativo en la fila Z)</li>
-                <li>Buscar la variable que sale de la base (usando la prueba razón mínima).</li>
-                <li>Pivoteo para obtener la nueva tabla.</li>
+                <li>{{ translations.big_m_step_4_list_1 }}</li>
+                <li>{{ translations.big_m_step_4_list_2 }}</li>
+                <li>{{ translations.big_m_step_4_list_3 }}</li>
             </ol>
             
-            <h3>5. Repetir iteraciones hasta que no haya más coeficientes negativos en la fila Z</h3>
-            <p>Cuando todos los valores en la Fila Z son mayores a 0, se ha llegado a una solución óptima.</p>
+            <h3>{{ translations.big_m_step_5 }}</h3>
+            <p>{{ translations.big_m_step_5_desc }}</p>
             
-            <h3>6. Revisar si las variables artificiales están en cero</h3>
+            <h3>{{ translations.big_m_step_6 }}</h3>
             <ul>
-                <li>Si todas las variables artificiales son 0 al final, entonces la solución es factible y válida.</li>
-                <li>Si alguna variable artificial queda con valor diferente a 0, el problema no tiene solución factible (es inconsistente con las restricciones).</li>
+                <li>{{ translations.big_m_step_6_list_1 }}</li>
+                <li>{{ translations.big_m_step_6_list_2 }}</li>
             </ul>
         </div>
         
         <div class="content-box">
-            <h2>Ejemplo</h2>
+            <h2>{{ translations.big_m_example_title }}</h2>
             
             <div class="math-formula">
-                <p><strong>Función objetivo:</strong></p>
-                <code>Minimizar Z = 3x₁ + 2x₂</code>
+                <p><strong>{{ translations.objective_function_doc }}</strong></p>
+                <code>{{ translations.big_m_minimize_z }}</code>
                 
-                <p><strong>Sujeto a:</strong></p>
+                <p><strong>{{ translations.subject_to_doc }}</strong></p>
                 <code>2x₁ - 2x₂ ≥ 3</code>
                 <code>2x₁ + 2x₂ ≥ 9</code>
                 <code>x₁, x₂ ≥ 0</code>
             </div>
             
-            <h3>Convertir a forma estándar</h3>
+            <h3>{{ translations.big_m_convert_standard }}</h3>
             <div class="math-formula">
                 <code>Z - 3x₁ - 2x₂ - MR₁ - MR₂ = 0</code>
                 <code>2x₁ - 2x₂ - x₃ + R₁ = 3</code>
                 <code>2x₁ + 2x₂ - x₄ + R₂ = 9</code>
             </div>
             
-            <h3>Tabla inicial</h3>
+            <h3>{{ translations.big_m_initial_table }}</h3>
             <table>
                 <thead>
                     <tr>
@@ -361,14 +361,14 @@
                 </tbody>
             </table>
             
-            <h4>Nueva fila z = Anterior fila z + (100) * (fila R₁ + fila R₂)</h4>
+            <h4>{{ translations.big_m_new_z_row }}</h4>
             <div class="math-formula">
                 <code>Nueva fila z = (-3, -2, 0, 0, -100, -100, 0) + (100)*(2+2, -2+2, -1+0, 0-1, 1+0, 0+1, 3+9)</code>
                 <code>Nueva fila z = (-3+400, -2+0, 0-100, 0-100, -100+100, -100+100, 0+1200)</code>
                 <code>Nueva fila z = (397, -2, -100, -100, 0, 0, 1200)</code>
             </div>
             
-            <h3>Iteración 1</h3>
+            <h3>{{ translations.big_m_iteration_1 }}</h3>
             <table>
                 <thead>
                     <tr>
@@ -463,7 +463,7 @@
                 </tbody>
             </table>
             
-            <h4>Para fila Z:</h4>
+            <h4>{{ translations.big_m_for_z_row }}</h4>
             <div class="math-formula">
                 <code>x₁ = 397 - (397*1) = 0</code>
                 <code>x₂ = -2 - (397)(-1) = 395</code>
@@ -474,7 +474,7 @@
                 <code>B(j) = 1200-(397)(3/2)=1209/2</code>
             </div>
             
-            <h4>Para fila x₁:</h4>
+            <h4>{{ translations.big_m_for_x1_row }}</h4>
             <div class="math-formula">
                 <code>x₁ = 2/2 = 1</code>
                 <code>x₂ = -2/2 = -1</code>
@@ -485,7 +485,7 @@
                 <code>B(j) = 3/2</code>
             </div>
             
-            <h4>Para fila R₂:</h4>
+            <h4>{{ translations.big_m_for_r2_row }}</h4>
             <div class="math-formula">
                 <code>x₁ = 2 - (2*1) = 0</code>
                 <code>x₂ = 2 - (2)(-1) = 4</code>
@@ -496,7 +496,7 @@
                 <code>B(j) = 9-(2)(3/2)=6</code>
             </div>
             
-            <h3>Iteración 2</h3>
+            <h3>{{ translations.big_m_iteration_2 }}</h3>
             <table>
                 <thead>
                     <tr>
@@ -590,7 +590,7 @@
                 </tbody>
             </table>
             
-            <h4>Para fila Z:</h4>
+            <h4>{{ translations.big_m_for_z_row }}</h4>
             <div class="math-formula">
                 <code>x₁ = 0 - (395*0) = 0</code>
                 <code>x₂ = 395 - (395)(1) = 0</code>
@@ -600,7 +600,7 @@
                 <code>R₂ = 0 - (395)(1/4) = -395/4</code>
                 <code>B(j) = 1209/2-(395)(3/2)=12</code>
             </div>
-             <h4>Para fila x₁:</h4>
+             <h4>{{ translations.big_m_for_x1_row }}</h4>
             <div class="math-formula">
                 <code>x₁ = 1 - (-1*0) = 1</code>
                 <code>x₂ = -1 - (-1)(1) = 0</code>
@@ -610,7 +610,7 @@
                 <code>R₂ = 0 - (-1)(1/4) = 1/4</code>
                 <code>B(j) = 3/2-(-1)(3/2)=3</code>
             </div>
-            <h4>Para fila x₂:</h4>
+            <h4>{{ translations.big_m_for_x2_row }}</h4>
             <div class="math-formula">
                 <code>x₁ = 0/4 = 0</code>
                 <code>x₂ = 4/4 = 1</code>
@@ -620,7 +620,7 @@
                 <code>R₂ = 1/4</code>
                 <code>B(j) = 6/4 = 3/2</code>
             </div>
-            <h3>Tabla final</h3>
+            <h3>{{ translations.big_m_final_table }}</h3>
             <table>
                 <thead>
                     <tr>
@@ -668,7 +668,7 @@
                 </tbody>
             </table>
             
-            <h3>Solución óptima:</h3>
+            <h3>{{ translations.big_m_optimal_solution }}</h3>
             <div class="math-formula">
                 <code>x₁ = 3, x₂ = 3/2, Z = 12</code>
             </div>

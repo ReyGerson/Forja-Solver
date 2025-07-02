@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 import re
 from typing import List, Tuple
 import pandas as pd
+from .context_processors import language_context
 import pandas as pd
 import os
 import time
@@ -1117,7 +1118,7 @@ def parse_latex_to_numbers_with_custom_vars(funcion_latex, restricciones_latex, 
         # Valores por defecto en caso de error
         return [20, 40], [[2, 3, 110], [4, 1, 130]]
 
-def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]], tipo_objetivo: str = "Maximizar", variables_nombres: List[str] = None) -> dict:
+def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_names: List[str], obj: List[float], constraints: List[List[float]], tipo_objetivo: str = "Maximizar", variables_nombres: List[str] = None, translations: dict = None) -> dict:
     """
     Genera la solución completa del método simplex adaptada para Django con variables personalizadas
     """
@@ -1190,7 +1191,7 @@ def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_na
     resultado['modelo_holgura'] = transformed_expr
     
     # Tabla inicial
-    tabla_inicial_html = generar_tabla_html(table, basis, 0, var_names, var_names)
+    tabla_inicial_html = generar_tabla_html(table, basis, 0, variables_nombres, var_names, translations)
     resultado['tabla_inicial'] = tabla_inicial_html
 
     # Iteraciones del algoritmo simplex
@@ -1199,7 +1200,7 @@ def generate_simplex_solution_with_custom_vars(matrix: List[List[float]], var_na
         # Crear datos de la iteración actual
         iteracion_data = {
             'numero': iteration,
-            'tabla_html': generar_tabla_html(table, basis, iteration, var_names, var_names),
+            'tabla_html': generar_tabla_html(table, basis, iteration, variables_nombres, var_names, translations),
             'es_optima': False,
             'variable_entra': None,
             'variable_sale': None,
@@ -1330,12 +1331,16 @@ def convertir_nombre_variable_a_personalizado(nombre_variable, var_names, variab
             pass
     return nombre_variable
 
-def generar_tabla_html(table, basis, iteration_num, variables_nombres=None, var_names=None):
+def generar_tabla_html(table, basis, iteration_num, variables_nombres=None, var_names=None, translations=None):
     """Genera HTML para una tabla del simplex con nombres de variables personalizados"""
+    # Usar traducciones si están disponibles, sino usar valores por defecto
+    iteration_label = translations.get('iteration', 'Iteración') if translations else 'Iteración'
+    base_label = translations.get('base', 'Base') if translations else 'Base'
+    
     html = f'<div class="tabla-iteracion">'
-    html += f'<h4>Iteración {iteration_num}</h4>'
+    html += f'<h4>{iteration_label} {iteration_num}</h4>'
     html += '<table class="simplex-table">'
-    html += '<thead><tr><th>Base</th>'
+    html += f'<thead><tr><th>{base_label}</th>'
     
     # Usar nombres personalizados para las columnas si están disponibles
     columnas = list(table.columns)
@@ -1436,8 +1441,12 @@ def simplex(request):
             # Preparar tabla inicial con variables personalizadas
             matrix, var_names = prepare_initial_table(objetivo, constraints, variables_nombres)
             
+            # Obtener traducciones
+            context_data = language_context(request)
+            translations = context_data.get('translations', {})
+            
             # Resolver el problema simplex con variables personalizadas
-            resultado = generate_simplex_solution_with_custom_vars(matrix, var_names, objetivo, constraints, tipo_objetivo, variables_nombres)
+            resultado = generate_simplex_solution_with_custom_vars(matrix, var_names, objetivo, constraints, tipo_objetivo, variables_nombres, translations)
             
             # Verificar si el usuario es premium
             is_premium = hasattr(request.user, 'userprofile') and request.user.userprofile.is_premium if request.user.is_authenticated else False

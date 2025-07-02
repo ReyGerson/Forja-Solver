@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación del Método Gráfico - Forja Solver</title>
+    <title>{{ translations.graphic_documentation }} - Forja Solver</title>
     <style>
         :root {
             --primary: #DCC9A9;
@@ -216,189 +216,187 @@
 
 <body>
     <div class="container">
-        <h1>Documentación del Método Gráfico</h1>
-        <a href="{% url 'index' %}" class="btn">Inicio</a>
+        <h1>{{ translations.graphic_documentation }}</h1>
+        <a href="{% url 'index' %}" class="btn">{{ translations.back_to_home }}</a>
         <div class="content-box">
-            <h2>Objetivo del método</h2>
-            <p>Solucionar problemas de <a href="https://ingenieriaindustrialonline.com/investigacion-de-operaciones/programacion-lineal/" target="_blank">programación lineal</a> que se utiliza principalmente para casos con dos variables. Aunque no es muy práctico para una gran cantidad de variables, es muy útil para interpretar y analizar los resultados y la sensibilidad del problema.</p>
+            <h2>{{ translations.method_objective }}</h2>
+            <p>{{ translations.graphic_method_objective }}</p>
         </div>
         
         <div class="content-box">
-            <h2>Ventajas</h2>
+            <h2>{{ translations.graphic_advantages_title }}</h2>
             <ul class="advantages-list">
-                <li><strong>Capacidad para encontrar la mejor solución:</strong> En situaciones donde los recursos son limitados.</li>
-                <li><strong>Optimización de recursos:</strong> Permite maximizar el uso de recursos limitados, como tiempo, dinero y materiales.</li>
-                <li><strong>Facilidad de implementación:</strong> Con el uso de <a href="https://programacionpro.com/ventajas-y-desventajas-de-la-programacion-lineal/" target="_blank">software</a> especializado, se puede implementar de manera eficiente en diversos escenarios.</li>
-                <li><strong>Flexibilidad:</strong> Es posible ajustar los parámetros y restricciones para adaptarse a diferentes situaciones y necesidades.</li>
+                <li><strong>{{ translations.graphic_adv_1 }}</strong></li>
+                <li><strong>{{ translations.graphic_adv_2 }}</strong></li>
+                <li><strong>{{ translations.graphic_adv_3 }}</strong></li>
+                <li><strong>{{ translations.graphic_adv_4 }}</strong></li>
             </ul>
             
-            <h2>Desventajas</h2>
+            <h2>{{ translations.graphic_disadvantages_title }}</h2>
             <ul class="disadvantages-list">
-                <li><strong>Complejidad computacional:</strong> En algunos casos, resolver problemas puede requerir una gran cantidad de recursos computacionales.</li>
-                <li><strong>Limitaciones en la modelización:</strong> Algunas situaciones del mundo real pueden no ajustarse perfectamente al modelo lineal, lo que puede llevar a soluciones subóptimas.</li>
-                <li><strong>Sensibilidad a los datos de entrada:</strong> Pequeños cambios en los datos de entrada pueden tener un impacto significativo en los resultados, lo que requiere un análisis cuidadoso.</li>
+                <li><strong>{{ translations.graphic_disadv_1 }}</strong></li>
+                <li><strong>{{ translations.graphic_disadv_2 }}</strong></li>
+                <li><strong>{{ translations.graphic_disadv_3 }}</strong></li>
             </ul>
         </div>
         
         <div class="content-box">
-            <h2>Situaciones de uso</h2>
-            <p>Esta herramienta es ampliamente utilizada en campos como la economía, la ingeniería, la logística y más. Las situaciones más comunes donde se aplica el método gráfico son:</p>
+            <h2>{{ translations.graphic_use_situations }}</h2>
+            <p>{{ translations.graphic_use_desc }}</p>
             
             <div class="use-cases">
                 <div class="use-case">
-                    <h4>Optimización de productos</h4>
-                    <p>Determinar la combinación óptima de productos para maximizar beneficios.</p>
+                    <h4>{{ translations.graphic_use_case_products }}</h4>
+                    <p>{{ translations.graphic_use_case_products_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Mezclas y formulaciones</h4>
-                    <p>Encontrar la combinación óptima de ingredientes o componentes.</p>
+                    <h4>{{ translations.graphic_use_case_mixtures }}</h4>
+                    <p>{{ translations.graphic_use_case_mixtures_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Asignación de recursos</h4>
-                    <p>Distribuir recursos limitados entre diferentes actividades o departamentos.</p>
+                    <h4>{{ translations.graphic_use_case_allocation }}</h4>
+                    <p>{{ translations.graphic_use_case_allocation_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Problemas de transporte</h4>
-                    <p>Optimizar rutas y costos de transporte.</p>
+                    <h4>{{ translations.graphic_use_case_transport }}</h4>
+                    <p>{{ translations.graphic_use_case_transport_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Planificación de la producción</h4>
-                    <p>Programar la producción para maximizar la eficiencia.</p>
+                    <h4>{{ translations.graphic_use_case_production }}</h4>
+                    <p>{{ translations.graphic_use_case_production_desc }}</p>
                 </div>
                 <div class="use-case">
-                    <h4>Optimización de costos</h4>
-                    <p>Minimizar costos mientras se cumplen los requisitos de producción.</p>
+                    <h4>{{ translations.graphic_use_case_costs }}</h4>
+                    <p>{{ translations.graphic_use_case_costs_desc }}</p>
                 </div>
             </div>
         </div>
         
         <div class="content-box">
-            <h2>Pasos para realizar el algoritmo</h2>
+            <h2>{{ translations.graphic_algorithm_steps }}</h2>
             
             <div class="step">
-                <h3>1. Formulación del problema</h3>
-                <p>Definir las variables de decisión, la función objetivo y las restricciones.</p>
+                <h3>{{ translations.graphic_step_1 }}</h3>
+                <p>{{ translations.graphic_step_1_desc }}</p>
             </div>
             
             <div class="step">
-                <h3>2. Gráfico de las restricciones</h3>
-                <p>Representar gráficamente cada una de las restricciones en un sistema de coordenadas.</p>
+                <h3>{{ translations.graphic_step_2 }}</h3>
+                <p>{{ translations.graphic_step_2_desc }}</p>
             </div>
             
             <div class="step">
-                <h3>3. Identificación de la región factible</h3>
-                <p>Determinar el área donde se satisfacen todas las restricciones simultáneamente.</p>
+                <h3>{{ translations.graphic_step_3 }}</h3>
+                <p>{{ translations.graphic_step_3_desc }}</p>
             </div>
             
             <div class="step">
-                <h3>4. Búsqueda de la solución óptima</h3>
-                <p>Encontrar el punto (o puntos) en la región factible que maximiza o minimiza la función objetivo.</p>
+                <h3>{{ translations.graphic_step_4 }}</h3>
+                <p>{{ translations.graphic_step_4_desc }}</p>
             </div>
             
             <div class="step">
-                <h3>5. Análisis de la solución</h3>
-                <p>Interpretar los resultados y verificar su validez en el contexto del problema.</p>
+                <h3>{{ translations.graphic_step_5 }}</h3>
+                <p>{{ translations.graphic_step_5_desc }}</p>
             </div>
         </div>
         
         <div class="content-box">
-            <h2>Ejemplo</h2>
+            <h2>{{ translations.graphic_example_title }}</h2>
             
             <div class="step">
-                <h3>Paso 1: Formulación del problema</h3>
-                <p>La fábrica de hilados y tejidos Salazar requiere fabricar dos tejidos de calidad diferente, estándar y premium; se dispone de:</p>
+                <h3>{{ translations.graphic_step_1 }}</h3>
+                <p>{{ translations.graphic_example_company }}</p>
                 <ul>
-                    <li>500 kg de hilo A</li>
-                    <li>300 kg de hilo B</li>
-                    <li>108 kg de hilo C</li>
+                    <li>{{ translations.graphic_materials_available }}</li>
                 </ul>
                 
-                <p><strong>Requisitos por metro de tejido:</strong></p>
+                <p><strong>{{ translations.graphic_requirements_title }}</strong></p>
                 <ul>
-                    <li><strong>Estándar:</strong> 125 gr de A, 150 gr de B y 75 gr de C</li>
-                    <li><strong>Premium:</strong> 200 gr de A, 100 gr de B y 27 gr de C</li>
+                    <li><strong>{{ translations.graphic_standard_req }}</strong></li>
+                    <li><strong>{{ translations.graphic_premium_req }}</strong></li>
                 </ul>
                 
-                <p><strong>Precios de venta:</strong></p>
+                <p><strong>{{ translations.graphic_prices_title }}</strong></p>
                 <ul>
-                    <li>Estándar: $4,000 por metro</li>
-                    <li>Premium: $5,000 por metro</li>
+                    <li>{{ translations.graphic_standard_price }}</li>
+                    <li>{{ translations.graphic_premium_price }}</li>
                 </ul>
                 
-                <p><strong>Variables:</strong></p>
+                <p><strong>{{ translations.graphic_variables_title }}</strong></p>
                 <div class="math-formula">
-                    <code>X: cantidad de metros diarios de tejido tipo estándar</code>
-                    <code>Y: cantidad de metros diarios de tejido tipo premium</code>
+                    <code>{{ translations.graphic_var_x }}</code>
+                    <code>{{ translations.graphic_var_y }}</code>
                 </div>
                 
-                <p><strong>Restricciones:</strong></p>
+                <p><strong>{{ translations.graphic_constraints_title }}</strong></p>
                 <div class="math-formula">
-                    <code>0.12x + 0.2y ≤ 500  (kg de hilo A)</code>
-                    <code>0.15x + 0.1y ≤ 300  (kg de hilo B)</code>
-                    <code>0.075x + 0.027y ≤ 108  (kg de hilo C)</code>
-                    <code>x, y ≥ 0  (restricciones de no negatividad)</code>
+                    <code>{{ translations.graphic_constraint_a }}</code>
+                    <code>{{ translations.graphic_constraint_b }}</code>
+                    <code>{{ translations.graphic_constraint_c }}</code>
+                    <code>{{ translations.graphic_non_negativity }}</code>
                 </div>
                 
-                <p><strong>Función objetivo:</strong></p>
+                <p><strong>{{ translations.graphic_objective_function }}</strong></p>
                 <div class="math-formula">
-                    <code>Z<sub>max</sub> = 4000x + 5000y  (máximos ingresos totales)</code>
+                    <code>{{ translations.graphic_obj_func }}</code>
                 </div>
             </div>
             
             <div class="step">
-                <h3>Paso 2: Gráfico de las restricciones</h3>
-                <p>Igualamos las restricciones a 0 para encontrar los puntos de corte:</p>
+                <h3>{{ translations.graphic_step2_title }}</h3>
+                <p>{{ translations.graphic_step2_desc }}</p>
                 
-                <p><strong>Restricción 1 (Hilo A):</strong></p>
+                <p><strong>{{ translations.graphic_restriction_1 }}</strong></p>
                 <div class="math-formula">
-                    <code>0.12x + 0.2y = 500</code>
-                    <code>Cuando x = 0 → y = 2500 → (0, 2500)</code>
-                    <code>Cuando y = 0 → x ≈ 4167 → (4167, 0)</code>
+                    <code>{{ translations.graphic_equation_1 }}</code>
+                    <code>{{ translations.when_x_equals_zero }} → y = 2500 → (0, 2500)</code>
+                    <code>{{ translations.when_y_equals_zero }} → x ≈ 4167 → (4167, 0)</code>
                 </div>
                 
-                <p><strong>Restricción 2 (Hilo B):</strong></p>
+                <p><strong>{{ translations.graphic_restriction_2 }}</strong></p>
                 <div class="math-formula">
                     <code>0.15x + 0.1y = 300</code>
-                    <code>Cuando x = 0 → y = 3000 → (0, 3000)</code>
-                    <code>Cuando y = 0 → x = 2000 → (2000, 0)</code>
+                    <code>{{ translations.when_x_equals_zero }} → y = 3000 → (0, 3000)</code>
+                    <code>{{ translations.when_y_equals_zero }} → x = 2000 → (2000, 0)</code>
                 </div>
                 
-                <p><strong>Restricción 3 (Hilo C):</strong></p>
+                <p><strong>{{ translations.graphic_restriction_3 }}</strong></p>
                 <div class="math-formula">
                     <code>0.075x + 0.027y = 108</code>
-                    <code>Cuando x = 0 → y ≈ 4000 → (0, 4000)</code>
-                    <code>Cuando y = 0 → x = 1440 → (1440, 0)</code>
+                    <code>{{ translations.when_x_equals_zero }} → y ≈ 4000 → (0, 4000)</code>
+                    <code>{{ translations.when_y_equals_zero }} → x = 1440 → (1440, 0)</code>
                 </div>
             </div>
             
             <div class="step">
-                <h3>Paso 3: Identificación de la región factible</h3>
-                <p>Con las coordenadas encontradas anteriormente:</p>
+                <h3>{{ translations.graphic_step3_title }}</h3>
+                <p>{{ translations.graphic_step3_desc }}</p>
                 <ul>
-                    <li>Restricción 1 (Hilo A): (0, 2500) y (4167, 0)</li>
-                    <li>Restricción 2 (Hilo B): (0, 3000) y (2000, 0)</li>
-                    <li>Restricción 3 (Hilo C): (0, 4000) y (1440, 0)</li>
+                    <li>{{ translations.graphic_restriction_1 }} (0, 2500) y (4167, 0)</li>
+                    <li>{{ translations.graphic_restriction_2 }} (0, 3000) y (2000, 0)</li>
+                    <li>{{ translations.graphic_restriction_3 }} (0, 4000) y (1440, 0)</li>
                 </ul>
                 
                 <div class="graph-container">
-                    <img src="{% static 'img/grafico.png' %}" alt="Gráfico de restricciones y región factible">
-                    <p><em>Gráfico que muestra las restricciones y la región factible</em></p>
+                    <img src="{% static 'img/grafico.png' %}" alt="{{ translations.graphic_chart_caption }}">
+                    <p><em>{{ translations.graphic_chart_caption }}</em></p>
                 </div>
             </div>
             
             <div class="step">
-                <h3>Paso 4: Búsqueda de la solución óptima</h3>
-                <p>Encontramos la intersección de las restricciones 1 y 2:</p>
+                <h3>{{ translations.graphic_step4_title }}</h3>
+                <p>{{ translations.graphic_step4_desc }}</p>
                 
                 <div class="math-formula">
-                    <code>Ecuación 1: 0.12x + 0.2y = 500</code>
-                    <code>Ecuación 2: 0.15x + 0.1y = 300 (multiplicamos por -2)</code>
-                    <code>Ecuación 2 modificada: -0.30x - 0.2y = -600</code>
-                    <code>Sumamos 1 y 2 modificada: -0.18x = -100</code>
-                    <code>Despejamos x: x = -100 / -0.18 ≈ 555.55</code>
+                    <code>{{ translations.graphic_equation_1 }}</code>
+                    <code>{{ translations.graphic_equation_2 }}</code>
+                    <code>{{ translations.graphic_equation_2_mod }}</code>
+                    <code>{{ translations.graphic_sum_equations }}</code>
+                    <code>{{ translations.graphic_solve_x }}</code>
                 </div>
                 
-                <p>Reemplazamos x = 555.55 en la ecuación 1 para encontrar y:</p>
+                <p>{{ translations.graphic_solve_y_desc }}</p>
                 <div class="math-formula">
                     <code>0.12(555.55) + 0.2y = 500</code>
                     <code>66.666 + 0.2y = 500</code>
@@ -408,23 +406,23 @@
             </div>
             
             <div class="step">
-                <h3>Paso 5: Análisis de la solución</h3>
+                <h3>{{ translations.graphic_step5_title }}</h3>
                 <div class="solution-box">
-                    <p>La contribución obtenida (reemplazando las variables en la función objetivo) es de:</p>
+                    <p>{{ translations.graphic_contribution_desc }}</p>
                     <div class="math-formula">
                         <code>Z<sub>max</sub> = 4000x + 5000y</code>
                         <code>Z<sub>max</sub> = 4000(555.55) + 5000(2166.67)</code>
                         <code>Z<sub>max</sub> ≈ $13,055,550</code>
                     </div>
                     
-                    <p><strong>Solución óptima:</strong></p>
+                    <p><strong>{{ translations.graphic_optimal_solution }}</strong></p>
                     <ul>
-                        <li>Tejido estándar (x): ≈ 556 metros</li>
-                        <li>Tejido premium (y): ≈ 2167 metros</li>
-                        <li>Máxima ganancia: ≈ $13,055,550</li>
+                        <li>{{ translations.graphic_standard_result }}</li>
+                        <li>{{ translations.graphic_premium_result }}</li>
+                        <li>{{ translations.graphic_max_profit }}</li>
                     </ul>
                     
-                    <p>Esto significa que deben producir aproximadamente 556 metros de estándar y 2167 metros de premium para obtener la máxima ganancia.</p>
+                    <p>{{ translations.graphic_conclusion }}</p>
                 </div>
             </div>
         </div>

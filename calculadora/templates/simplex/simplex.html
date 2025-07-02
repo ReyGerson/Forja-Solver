@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Método Simplex - Forja Solver</title>
+    <title>{{ translations.simplex_title }} - Forja Solver</title>
     <style>
         :root {
             --primary: #DCC9A9;
@@ -282,12 +282,12 @@
     </style>
 </head>
 <body>
-    <a href="{% url 'index' %}">Inicio</a>
+    <a href="{% url 'index' %}">{{ translations.back_to_home }}</a>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1>Método Simplex</h1>
+            <h1>{{ translations.simplex_title }}</h1>
             {% if user.is_authenticated %}
-            <a href="{% url 'simplex_historial' %}" class="btn">📋 Ver Historial</a>
+            <a href="{% url 'simplex_historial' %}" class="btn">📋 {{ translations.view_history }}</a>
             {% endif %}
         </div>
         
@@ -303,56 +303,56 @@
                 {% endif %}
                 
                 <div class="alert alert-warning">
-                    <h4>⚠️ Limitaciones del Método Simplex General</h4>
+                    <h4>⚠️ {{ translations.simplex_limitations }}</h4>
                     <ul>
-                        <li><strong>Maximización:</strong> Solo restricciones del tipo ≤ (menor o igual)</li>
-                        <li><strong>Minimización:</strong> Requiere métodos avanzados (Gran M o Dos Fases)</li>
-                        <li><strong>Valores Bj:</strong> Deben ser no negativos</li>
+                        <li><strong>{{ translations.maximization }}:</strong> {{ translations.only_le_constraints }}</li>
+                        <li><strong>{{ translations.minimization }}:</strong> {{ translations.requires_advanced }}</li>
+                        <li><strong>{{ translations.bj_values }}:</strong> {{ translations.non_negative }}</li>
                     </ul>
-                    <p><strong>💡 Si su problema no cumple estas condiciones, use el Método de la Gran M.</strong></p>
+                    <p><strong>💡 {{ translations.conditions_note }}</strong></p>
                 </div>
 
                 <!-- Ejemplos Precargados -->
                 <div style="margin-bottom: 20px;">
-                    <label><strong>📝 Ejemplos Precargados:</strong></label>
+                    <label><strong>📝 {{ translations.preloaded_examples }}:</strong></label>
                     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
                         <button type="button" id="ejemplo1" style="background-color: var(--success); flex: 1; min-width: 200px;">
-                            📦 Ejemplo 1: Producción
+                            📦 {{ translations.production_example }}
                         </button>
                         <button type="button" id="ejemplo2" style="background-color: var(--info); flex: 1; min-width: 200px;">
-                            🚚 Ejemplo 2: Transporte
+                            🚚 {{ translations.transport_example }}
                         </button>
                         <button type="button" id="ejemplo3" style="background-color: var(--warning); color: var(--secondary); flex: 1; min-width: 200px;">
-                            🏭 Ejemplo 3: Manufactura
+                            🏭 {{ translations.manufacturing_example }}
                         </button>
                     </div>
                     <div class="alert alert-info" style="font-size: 0.9em; margin-top: 10px;">
-                        <strong>💡 Tip:</strong> Haz clic en cualquier ejemplo para cargar los datos automáticamente. Luego puedes editarlos antes de resolver.
+                        <strong>💡 Tip:</strong> {{ translations.tip_examples }}
                     </div>
                 </div>
                 
                 <!-- Configuración de Variables -->
                 <div style="margin-bottom: 20px;">
-                    <label><strong>Variables del problema (máximo 10):</strong></label>
+                    <label><strong>{{ translations.problem_variables }}:</strong></label>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button type="button" id="agregarVariable" style="background-color: var(--success);">➕ Agregar Variable</button>
-                        <button type="button" id="quitarVariable" style="background-color: var(--danger);">➖ Quitar Variable</button>
+                        <button type="button" id="agregarVariable" style="background-color: var(--success);">➕ {{ translations.add_variable }}</button>
+                        <button type="button" id="quitarVariable" style="background-color: var(--danger);">➖ {{ translations.remove_variable }}</button>
                     </div>
                     <div id="listaVariables" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
                         <!-- Variables se agregan dinámicamente -->
                     </div>
                     <div class="alert alert-info" style="font-size: 0.9em;">
-                        <strong>💡 Ejemplos de nombres:</strong> perros, camiones, h, producto_A, x1, etc. Solo letras, números y guiones bajos.
+                        <strong>💡 {{ translations.variable_examples }}</strong>
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <label><strong>Función objetivo (Z):</strong></label>
+                    <label><strong>{{ translations.objective_function }}:</strong></label>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <select name="tipo_objetivo" id="tipo_objetivo" required style="flex: 0 0 auto; width: auto;" disabled>
-                            <option value="Maximizar" selected>Maximizar</option>
+                            <option value="Maximizar" selected>{{ translations.maximize }}</option>
                         </select>
-                        <span id="texto_objetivo" style="font-weight: 600;">Maximizar Z = </span>
+                        <span id="texto_objetivo" style="font-weight: 600;">{{ translations.maximize }} Z = </span>
                         <math-field id="campoFuncionObjetivo" style="flex-grow: 1;" placeholder="20*perros + 40*camiones"></math-field>
                     </div>
                     <input type="hidden" name="funcion_objetivo" id="funcion_objetivo_hidden">
@@ -360,19 +360,19 @@
                 </div>
 
                 <div id="restricciones" style="margin-bottom: 20px;">
-                    <label><strong>Sujeto a (máximo 10 restricciones):</strong></label>
+                    <label><strong>{{ translations.subject_to }}:</strong></label>
                     <div style="margin-bottom: 10px;">
-                        <button type="button" id="agregarRestricciones">➕ Agregar Restricción</button>
-                        <button type="button" id="quitarRestricciones">➖ Quitar Restricción</button>
-                        <span id="contadorRestricciones" style="margin-left: 15px; font-weight: bold; color: var(--info);">0/10 restricciones</span>
+                        <button type="button" id="agregarRestricciones">➕ {{ translations.add_constraint }}</button>
+                        <button type="button" id="quitarRestricciones">➖ {{ translations.remove_constraint }}</button>
+                        <span id="contadorRestricciones" style="margin-left: 15px; font-weight: bold; color: var(--info);">0/10 {{ translations.constraints_counter }}</span>
                     </div>
                     <ul id="listaRestricciones" style="list-style: none; padding: 0; margin: 10px 0;"></ul>
                     <input type="hidden" name="restricciones" id="restricciones_hidden">
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: center; margin: 20px auto 0; max-width: 450px;">
-                    <button type="submit" style="flex: 1; max-width: 200px;">Resolver</button>
-                    <button onclick="window.location.href=`{% url 'simplex' %}`" type="button" id="nuevoProblema" style="flex: 1; max-width: 200px; background-color: var(--warning); color: var(--secondary);"> Nuevo Problema</button>
+                    <button type="submit" style="flex: 1; max-width: 200px;">{{ translations.solve }}</button>
+                    <button onclick="window.location.href=`{% url 'simplex' %}`" type="button" id="nuevoProblema" style="flex: 1; max-width: 200px; background-color: var(--warning); color: var(--secondary);">{{ translations.new_problem }}</button>
                 </div>
             </form>
         </div>
@@ -383,27 +383,27 @@
             
             {% if not is_premium %}
             <div class="alert alert-warning">
-                <h4>⚠️ Versión Gratuita - Solo Resultado Final</h4>
-                <p>Estás viendo la versión limitada. Con <strong>Premium</strong> puedes acceder a:</p>
+                <h4>⚠️ {{ translations.free_version_warning }}</h4>
+                <p>{{ translations.premium_benefits }}</p>
                 <ul>
-                    <li>📊 Todas las iteraciones detalladas del algoritmo</li>
-                    <li>🔧 Modelo matemático completo con variables de holgura</li>
-                    <li>📝 Proceso paso a paso de cada operación</li>
-                    <li>📋 Tabla inicial y todas las tablas intermedias</li>
+                    <li>📊 {{ translations.detailed_iterations }}</li>
+                    <li>🔧 {{ translations.complete_model }}</li>
+                    <li>📝 {{ translations.step_by_step }}</li>
+                    <li>📋 {{ translations.all_tables }}</li>
                 </ul>
-                <a href="{% url 'tienda' %}" class="btn" style="background: var(--warning); color: var(--secondary);">🔓 Actualizar a Premium</a>
+                <a href="{% url 'tienda' %}" class="btn" style="background: var(--warning); color: var(--secondary);">🔓 {{ translations.upgrade_premium }}</a>
             </div>
             {% endif %}
             
             {% if is_premium %}
-            <h3>📋 Modelo Matemático Original:</h3>
+            <h3>📋 {{ translations.original_mathematical_model_title }}:</h3>
             <div class="alert alert-info">
-                <p><strong>Función objetivo:</strong></p>
+                <p><strong>{{ translations.original_objective_function }}:</strong></p>
                 <div style="text-align: center; margin: 10px 0;">
                     <math-field read-only>{{ resultado.modelo_matematico.funcion_objetivo }}</math-field>
                 </div>
 
-                <p><strong>Restricciones:</strong></p>
+                <p><strong>{{ translations.restrictions_label_colon }}:</strong></p>
                 <ul style="list-style-type: none; padding-left: 0;">
                     {% for restriccion in resultado.modelo_matematico.restricciones %}
                     <li style="margin: 5px 0; text-align: center;">
@@ -416,15 +416,15 @@
                 </ul>
             </div>
             
-            <h3>⚖️ Función Objetivo en Forma General:</h3>
+            <h3>⚖️ {{ translations.general_objective_function }}:</h3>
             <div class="alert alert-success">
-                <p><strong>Función Z igualada a cero:</strong></p>
+                <p><strong>{{ translations.function_z_zero }}:</strong></p>
                 <div style="text-align: center; margin: 10px 0;">
                     <math-field read-only>{{ resultado.modelo_matematico.funcion_z_estandar }}</math-field>
                 </div>
             </div>
             
-            <h3>🔧 Modelo con Variables de Holgura:</h3>
+            <h3>🔧 {{ translations.model_with_slack_variables }}:</h3>
             <div class="alert alert-warning">
                 <ul style="list-style-type: none; padding-left: 0;">
                     {% for restriccion in resultado.modelo_holgura %}
@@ -435,12 +435,12 @@
                 </ul>
             </div>
             
-            <h3>📊 Tabla Inicial del Método Simplex:</h3>
+            <h3>📊 {{ translations.initial_table_title }}:</h3>
             <div class="table-responsive">
                 {{ resultado.tabla_inicial|safe }}
             </div>
             
-            <h3>🔄 Iteraciones del Algoritmo:</h3>
+            <h3>🔄 {{ translations.algorithm_iterations }}:</h3>
             <div>
                 {% for iteracion in resultado.iteraciones %}
                 <div style="margin: 20px 0; padding: 15px; border: 1px solid var(--primary); border-radius: 8px;">
@@ -450,16 +450,16 @@
                     
                     {% if not iteracion.es_optima %}
                     <div style="background: rgba(227, 242, 253, 0.5); padding: 10px; border-radius: 5px; margin: 10px 0;">
-                        <p><strong>🎯 Variable que entra:</strong> {{ iteracion.variable_entra }}</p>
-                        <p><strong>🔄 Variable que sale:</strong> {{ iteracion.variable_sale }}</p>
-                        <p><strong>⚡ Elemento pivote:</strong> {{ iteracion.elemento_pivote }}</p>
+                        <p><strong>🎯 {{ translations.entering_variable }}:</strong> {{ iteracion.variable_entra }}</p>
+                        <p><strong>🔄 {{ translations.leaving_variable }}:</strong> {{ iteracion.variable_sale }}</p>
+                        <p><strong>⚡ {{ translations.pivot_element }}:</strong> {{ iteracion.elemento_pivote }}</p>
                     </div>
                     
-                    <h5>📝 Operaciones realizadas:</h5>
+                    <h5>📝 {{ translations.operations_performed }}:</h5>
                     {% for operacion in iteracion.operaciones %}
                         {% if operacion.tipo == 'normalizacion' %}
                         <div style="background: rgba(240, 248, 255, 0.7); padding: 10px; margin: 5px 0; border-radius: 5px;">
-                            <strong>Normalización de {{ operacion.fila }}:</strong>
+                            <strong>{{ translations.normalization_of }} {{ operacion.fila }}:</strong>
                             <ul style="margin: 5px 0;">
                                 {% for detalle in operacion.detalles %}
                                 <li>{{ detalle.variable }}: {{ detalle.operacion }}</li>
@@ -468,7 +468,7 @@
                         </div>
                         {% elif operacion.tipo == 'actualizacion' %}
                         <div style="background: rgba(255, 245, 245, 0.7); padding: 10px; margin: 5px 0; border-radius: 5px;">
-                            <strong>Actualización de {{ operacion.fila }} (factor: {{ operacion.factor }}):</strong>
+                            <strong>{{ translations.update_of }} {{ operacion.fila }} ({{ translations.factor }}: {{ operacion.factor }}):</strong>
                             <ul style="margin: 5px 0;">
                                 {% for detalle in operacion.detalles %}
                                 <li>{{ detalle.variable }}: {{ detalle.operacion }}</li>
@@ -479,8 +479,8 @@
                     {% endfor %}
                     {% else %}
                     <div class="alert alert-success">
-                        <h4>🎉 ¡Solución Óptima Encontrada!</h4>
-                        <p>Todos los coeficientes en la fila Z son no negativos.</p>
+                        <h4>🎉 {{ translations.optimal_solution_found }}</h4>
+                        <p>{{ translations.all_coefficients_non_negative }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -488,7 +488,7 @@
             </div>
             {% endif %}
             
-            <h3>🏆 Solución Óptima:</h3>
+            <h3>🏆 {{ translations.optimal_solution_title }}:</h3>
             <div class="alert alert-success">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
                     {% for variable, valor in resultado.solucion_optima.items %}
@@ -499,31 +499,31 @@
                 </div>
                 <div style="text-align: center; font-size: 18px; font-weight: bold; color: var(--success);">
                     {% if resultado.tipo_objetivo == "Minimizar" %}
-                    <strong>Valor mínimo de Z = {{ resultado.valor_z|floatformat:2 }}</strong>
+                    <strong>{{ translations.minimum_value_z }} = {{ resultado.valor_z|floatformat:2 }}</strong>
                     {% else %}
-                    <strong>Valor máximo de Z = {{ resultado.valor_z|floatformat:2 }}</strong>
+                    <strong>{{ translations.maximum_value_z }} = {{ resultado.valor_z|floatformat:2 }}</strong>
                     {% endif %}
                 </div>
             </div>
             
             <div class="alert alert-info">
-                <h4>ℹ️ Interpretación de los Resultados:</h4>
+                <h4>ℹ️ {{ translations.results_interpretation }}:</h4>
                 <ul>
-                    <li><strong>Variables de decisión:</strong> Los valores óptimos de las variables originales del problema</li>
-                    <li><strong>Variables de holgura:</strong> Representan los recursos no utilizados en cada restricción</li>
+                    <li><strong>{{ translations.decision_variables }}:</strong> {{ translations.decision_variables_desc }}</li>
+                    <li><strong>{{ translations.slack_variables }}:</strong> {{ translations.slack_variables_desc }}</li>
                     {% if resultado.tipo_objetivo == "Minimizar" %}
-                    <li><strong>Valor de Z:</strong> El valor mínimo alcanzado por la función objetivo</li>
+                    <li><strong>{{ translations.z_value }}:</strong> {{ translations.z_value_min_desc }}</li>
                     {% else %}
-                    <li><strong>Valor de Z:</strong> El valor máximo alcanzado por la función objetivo</li>
+                    <li><strong>{{ translations.z_value }}:</strong> {{ translations.z_value_max_desc }}</li>
                     {% endif %}
-                    <li><strong>Iteraciones:</strong> Cada paso del algoritmo muestra cómo se mejora la solución</li>
+                    <li><strong>{{ translations.algorithm_iterations }}:</strong> {{ translations.iterations_desc }}</li>
                 </ul>
             </div>
         </div>
         
         {% elif error %}
         <div class="alert alert-danger">
-            <h4>❌ Error:</h4>
+            <h4>❌ {{ translations.error_title }}:</h4>
             <p>{{ error }}</p>
         </div>
         {% endif %}
@@ -533,6 +533,30 @@
     <script src='{% static "js/simplex.js" %}'></script>
 
     <script>
+        // Traducciones para JavaScript
+        const translations = {
+            please_enter_objective_function: "{{ translations.please_enter_objective_function }}",
+            min_two_variables_required: "{{ translations.min_two_variables_required }}",
+            max_variables_reached: "{{ translations.max_variables_reached }}",
+            min_two_constraints_required: "{{ translations.min_two_constraints_required }}",
+            max_constraints_reached: "{{ translations.max_constraints_reached }}",
+            variable_name_placeholder: "{{ translations.variable_name_placeholder }}",
+            enter_constraint: "{{ translations.enter_constraint }}",
+            constraints_counter: "{{ translations.constraints_counter }}",
+            maximize: "{{ translations.maximize }}",
+            variable_name_invalid: "{{ translations.variable_name_invalid }}",
+            variable_name_exists: "{{ translations.variable_name_exists }}",
+            must_have_two_variables: "{{ translations.must_have_two_variables }}",
+            must_add_one_constraint: "{{ translations.must_add_one_constraint }}",
+            complete_all_constraints: "{{ translations.complete_all_constraints }}",
+            confirm_clear_problem: "{{ translations.confirm_clear_problem }}",
+            constraint_label: "{{ translations.constraint_label }}",
+            production_problem: "{{ translations.production_problem }}",
+            transport_problem: "{{ translations.transport_problem }}",
+            manufacturing_problem: "{{ translations.manufacturing_problem }}",
+            example_loaded_successfully: "{{ translations.example_loaded_successfully }}"
+        };
+        
         // Variables globales
         let variablesPersonalizadas = [];
         let contadorRestricciones = 0;
@@ -682,7 +706,7 @@
             // Validar nombre
             const regex = /^[a-zA-Z][a-zA-Z0-9_]*$/;
             if (!regex.test(nuevoNombre)) {
-                alert('El nombre de la variable debe comenzar con una letra y solo puede contener letras, números y guiones bajos.');
+                alert(translations.variable_name_invalid);
                 document.getElementById(`nombreVariable${index}`).value = variablesPersonalizadas[index - 1];
                 return;
             }
@@ -690,7 +714,7 @@
             // Verificar que no se repita
             const nombreExistente = variablesPersonalizadas.find((v, i) => v === nuevoNombre && i !== index - 1);
             if (nombreExistente) {
-                alert('Ya existe una variable con ese nombre. Elige otro nombre.');
+                alert(translations.variable_name_exists);
                 document.getElementById(`nombreVariable${index}`).value = variablesPersonalizadas[index - 1];
                 return;
             }
@@ -730,7 +754,7 @@
         // Agregar variable
         document.getElementById('agregarVariable').addEventListener('click', function() {
             if (variablesPersonalizadas.length >= MAX_VARIABLES) {
-                alert(`Máximo ${MAX_VARIABLES} variables permitidas.`);
+                alert(translations.max_variables_reached);
                 return;
             }
             
@@ -745,7 +769,7 @@
         // Quitar variable
         document.getElementById('quitarVariable').addEventListener('click', function() {
             if (variablesPersonalizadas.length <= 2) {
-                alert('Debe haber al menos 2 variables.');
+                alert(translations.min_two_variables_required);
                 return;
             }
             
@@ -763,7 +787,7 @@
         // Agregar restricción con límite
         document.getElementById('agregarRestricciones').addEventListener('click', function() {
             if (contadorRestricciones >= MAX_RESTRICCIONES) {
-                alert(`Máximo ${MAX_RESTRICCIONES} restricciones permitidas.`);
+                alert(translations.max_constraints_reached);
                 return;
             }
             
@@ -774,7 +798,7 @@
             li.style.cssText = 'margin: 10px 0; padding: 10px; background: var(--light); border-radius: 5px;';
             
             li.innerHTML = `
-                <label style="margin-bottom: 5px; font-size: 0.9em;">Restricción ${contadorRestricciones}:</label>
+                <label style="margin-bottom: 5px; font-size: 0.9em;">${translations.constraint_label} ${contadorRestricciones}:</label>
                 <math-field id="restriccion${contadorRestricciones}" placeholder=""></math-field>
             `;
             
@@ -787,7 +811,7 @@
         // Quitar restricción
         document.getElementById('quitarRestricciones').addEventListener('click', function() {
             if (contadorRestricciones <= 0) {
-                alert('No hay restricciones para quitar.');
+                alert(translations.min_two_constraints_required);
                 return;
             }
             
@@ -803,7 +827,7 @@
         // Actualizar contador de restricciones
         function actualizarContadorRestricciones() {
             const contador = document.getElementById('contadorRestricciones');
-            contador.textContent = `${contadorRestricciones}/${MAX_RESTRICCIONES} restricciones`;
+            contador.textContent = `${contadorRestricciones}/${MAX_RESTRICCIONES} ${translations.constraints_counter}`;
             contador.style.color = contadorRestricciones >= MAX_RESTRICCIONES ? 'var(--danger)' : 'var(--info)';
         }
         
@@ -818,7 +842,7 @@
         
         // Función para limpiar todos los campos y reiniciar la página
         document.getElementById('nuevoProblema').addEventListener('click', function() {
-            if (confirm('¿Estás seguro de que quieres limpiar todos los campos y comenzar un nuevo problema?')) {
+            if (confirm(translations.confirm_clear_problem)) {
                 // Limpiar función objetivo
                 const campoFuncion = document.getElementById('campoFuncionObjetivo');
                 if (campoFuncion) {
@@ -876,14 +900,14 @@
             // Validar que haya al menos 2 variables
             if (variablesPersonalizadas.length < 2) {
                 e.preventDefault();
-                alert('Debe tener al menos 2 variables.');
+                alert(translations.must_have_two_variables);
                 return;
             }
             
             // Validar que haya al menos 1 restricción
             if (contadorRestricciones < 1) {
                 e.preventDefault();
-                alert('Debe agregar al menos 1 restricción.');
+                alert(translations.must_add_one_constraint);
                 return;
             }
             
@@ -891,7 +915,7 @@
             const campoFuncion = document.getElementById('campoFuncionObjetivo');
             if (!campoFuncion || !campoFuncion.value || campoFuncion.value.trim() === '') {
                 e.preventDefault();
-                alert('Por favor, ingrese la función objetivo.');
+                alert(translations.please_enter_objective_function);
                 return;
             }
             
@@ -906,7 +930,7 @@
             
             if (restriccionesVacias > 0) {
                 e.preventDefault();
-                alert(`Por favor, complete todas las restricciones. Hay ${restriccionesVacias} restricción(es) vacía(s).`);
+                alert(translations.complete_all_constraints.replace('{count}', restriccionesVacias));
                 return;
             }
             
@@ -937,7 +961,7 @@
         // Ejemplos precargados
         const ejemplos = {
             ejemplo1: {
-                nombre: "Problema de Producción",
+                nombre: translations.production_problem,
                 variables: ["x1", "x2"],
                 funcionObjetivo: "3*x1 + 2*x2",
                 restricciones: [
@@ -946,7 +970,7 @@
                 ]
             },
             ejemplo2: {
-                nombre: "Problema de Transporte",
+                nombre: translations.transport_problem,
                 variables: ["camiones", "barcos"],
                 funcionObjetivo: "40*camiones + 30*barcos",
                 restricciones: [
@@ -956,7 +980,7 @@
                 ]
             },
             ejemplo3: {
-                nombre: "Problema de Manufactura",
+                nombre: translations.manufacturing_problem,
                 variables: ["producto_A", "producto_B", "producto_C"],
                 funcionObjetivo: "50*producto_A + 40*producto_B + 30*producto_C",
                 restricciones: [
@@ -1036,7 +1060,7 @@
                     z-index: 1000;
                     font-weight: bold;
                 `;
-                mensaje.textContent = `✅ ${ejemplo.nombre} cargado exitosamente`;
+                mensaje.textContent = `✅ ${ejemplo.nombre} ${translations.example_loaded_successfully}`;
                 document.body.appendChild(mensaje);
 
                 setTimeout(function() {

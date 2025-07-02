@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial Simplex - Forja Solver</title>
+    <title>{{ translations.simplex_history }} - Forja Solver</title>
     <style>
         :root {
             --primary: #DCC9A9;
@@ -249,22 +249,22 @@
 <body>
     <div class="container">
         <div class="header-container">
-            <h1>📊 Historial del Método Simplex</h1>
-            <a href="{% url 'simplex' %}" class="btn">Nuevo Problema</a>
-            <a href="{% url 'index' %}" class="btn">Inicio</a>
+            <h1>📊 {{ translations.simplex_history }}</h1>
+            <a href="{% url 'simplex' %}" class="btn">{{ translations.new_problem }}</a>
+            <a href="{% url 'index' %}" class="btn">{{ translations.back_to_home }}</a>
         </div>
         
         {% if not is_premium %}
         <div class="notice-box">
-            <h4>⚠️ Funcionalidad Limitada</h4>
-            <p>Como usuario gratuito, solo puedes ver los resultados finales de tus problemas anteriores.</p>
-            <p><strong>Con Premium puedes:</strong></p>
+            <h4>⚠️ {{ translations.free_version_warning }}</h4>
+            <p>{{ translations.premium_history_note }}</p>
+            <p><strong>{{ translations.premium_benefits }}</strong></p>
             <ul>
-                <li>Ver todas las iteraciones paso a paso</li>
-                <li>Acceder al proceso completo de resolución</li>
-                <li>Análisis detallado de cada tabla</li>
+                <li>{{ translations.detailed_iterations }}</li>
+                <li>{{ translations.complete_model }}</li>
+                <li>{{ translations.step_by_step }}</li>
             </ul>
-            <a href="{% url 'tienda' %}" class="btn btn-secondary">Actualizar a Premium</a>
+            <a href="{% url 'tienda' %}" class="btn btn-secondary">{{ translations.upgrade_premium }}</a>
         </div>
         {% endif %}
         
@@ -273,9 +273,13 @@
             <div class="historial-item">
                 <div class="historial-header">
                     <div class="historial-titulo">
-                        {{ item.tipo_objetivo }} Z
+                        {% if item.tipo_objetivo == "Minimizar" %}
+                            {{ translations.minimization }} Z
+                        {% else %}
+                            {{ translations.maximization }} Z
+                        {% endif %}
                         {% if is_premium %}
-                        <span class="premium-badge">PREMIUM</span>
+                        <span class="premium-badge">{{ translations.premium_badge }}</span>
                         {% endif %}
                     </div>
                     <div class="historial-fecha">{{ item.fecha|date:"d/m/Y H:i" }}</div>
@@ -283,24 +287,24 @@
                 
                 <div class="historial-detalles">
                     <div class="detalle-item">
-                        <div class="detalle-label">Función Objetivo:</div>
+                        <div class="detalle-label">{{ translations.objective_function_label }}:</div>
                         <math-field read-only style="width: 100%;">{{ item.funcion_objetivo }}</math-field>
                     </div>
                     
                     <div class="detalle-item">
-                        <div class="detalle-label">Resultado:</div>
+                        <div class="detalle-label">{{ translations.result }}:</div>
                         <div style="font-size: 16px; font-weight: bold; color: var(--success);">
                             {% if item.tipo_objetivo == "Minimizar" %}
-                            Valor mínimo: Z = {{ item.valor_z|floatformat:2 }}
+                            {{ translations.minimization }}: Z = {{ item.valor_z|floatformat:2 }}
                             {% else %}
-                            Valor máximo: Z = {{ item.valor_z|floatformat:2 }}
+                            {{ translations.maximization }}: Z = {{ item.valor_z|floatformat:2 }}
                             {% endif %}
                         </div>
                     </div>
                 </div>
                 
                 <div style="margin-top: 15px;">
-                    <div class="detalle-label">Variables Óptimas:</div>
+                    <div class="detalle-label">{{ translations.optimal_variables }}:</div>
                     <div style="margin-top: 10px;">
                         {% for var, valor in item.solucion_optima.items %}
                         <span class="var-optima"><strong>{{ var }} = {{ valor|floatformat:2 }}</strong></span>
@@ -309,20 +313,20 @@
                 </div>
                 
                 <div style="margin-top: 20px; text-align: right;">
-                    <a href="{% url 'cargar_simplex_historial' item.id %}" class="btn">🔄 Cargar Problema</a>
+                    <a href="{% url 'cargar_simplex_historial' item.id %}" class="btn">🔄 {{ translations.load_problem }}</a>
                     {% if is_premium %}
-                    <a href="{% url 'exportar_simplex_pdf' item.id %}" class="btn" style="background-color: var(--danger);">📄 Exportar PDF</a>
+                    <a href="{% url 'exportar_simplex_pdf' item.id %}" class="btn" style="background-color: var(--danger);">📄 {{ translations.export_pdf }}</a>
                     {% else %}
-                    <button class="btn" style="background-color: #ccc; cursor: not-allowed;" disabled title="Funcionalidad Premium">🔒 Exportar PDF</button>
+                    <button class="btn" style="background-color: #ccc; cursor: not-allowed;" disabled title="{{ translations.premium_feature_locked }}">🔒 {{ translations.export_pdf }}</button>
                     {% endif %}
                 </div>
             </div>
             {% endfor %}
         {% else %}
             <div class="empty-message">
-                <h3>📋 No hay problemas en el historial</h3>
-                <p>Resuelve tu primer problema del método simplex para ver el historial aquí.</p>
-                <a href="{% url 'simplex' %}" class="btn">Resolver Primer Problema</a>
+                <h3>📋 {{ translations.no_problems_history }}</h3>
+                <p>{{ translations.solve_first_problem }}</p>
+                <a href="{% url 'simplex' %}" class="btn">{{ translations.solve_first_problem_btn }}</a>
             </div>
         {% endif %}
     </div>
