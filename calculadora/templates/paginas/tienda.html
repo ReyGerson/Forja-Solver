@@ -1,38 +1,84 @@
 
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ translations.forja_solver_premium }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/themes.css' %}">
+    <style>
+        a {
+            color: var(--info);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 5px;
+        }
+
+        a:hover {
+            color: var(--success);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="{% url 'index' %}">{{ translations.back_to_home }}</a>
+
 <div class="premium-container">
     <div class="premium-card">
         <div class="premium-header">
-            <h2>Forja Solver Premium</h2>
-            <p>Desbloquea todo el potencial de nuestros modelos matemáticos</p>
+            <h2>{{ translations.forja_solver_premium }}</h2>
+            <p>{{ translations.unlock_full_potential }}</p>
         </div>
         
         <div class="premium-features">
             <div class="feature">
                 <span class="feature-icon">✓</span>
-                <span>Procesos matemáticos completos</span>
+                <span>{{ translations.complete_math_processes }}</span>
             </div>
             <div class="feature">
                 <span class="feature-icon">✓</span>
-                <span>Visualización paso a paso</span>
+                <span>{{ translations.step_by_step_visualization }}</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">✓</span>
+                <span>{{ translations.interactive_graphs }}</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">✓</span>
+                <span>{{ translations.detailed_explanations }}</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">✓</span>
+                <span>{{ translations.export_to_pdf }}</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">✓</span>
+                <span>{{ translations.priority_support }}</span>
             </div>
         </div>
 
         {% if user.is_authenticated and user.userprofile.is_premium %}
         <div class="premium-active">
-            <p>¡Ya disfrutas de Forja Solver Premium!</p>
-            <a href="{% url 'index' %}" class="btn-primary">Volver al inicio</a>
+            <p>{{ translations.already_premium }}</p>
+            <a href="{% url 'index' %}" class="btn-primary">{{ translations.back_to_home }}</a>
         </div>
         {% else %}
         <div class="premium-actions">
             <div class="price">
                 <span class="amount">$2.99</span>
-                <span class="period">/mes</span>
+                <span class="period">{{ translations.monthly }}</span>
             </div>
             <form method="post" action="{% url 'comprar_premium' %}">
                 {% csrf_token %}
-                <button type="submit" class="btn-subscribe">Obtener Premium</button>
+                <button type="submit" class="btn-subscribe">{{ translations.get_premium }}</button>
             </form>
-            <a href="{% url 'index' %}" class="btn-back">Volver al inicio</a>
+            <a href="{% url 'index' %}" class="btn-back">{{ translations.back_to_home }}</a>
         </div>
         {% endif %}
     </div>
@@ -196,3 +242,18 @@
         }
     }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/theme-manager.js' %}"></script>
+<script>
+    // Pasar traducciones al JavaScript
+    if (typeof window.updateThemeTranslations === 'function') {
+        window.updateThemeTranslations({
+            light_mode: '{{ translations.light_mode }}',
+            dark_mode: '{{ translations.dark_mode }}',
+            theme: '{{ translations.theme }}'
+        });
+    }
+</script>
+</body>
+</html>

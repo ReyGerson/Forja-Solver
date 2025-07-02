@@ -6,6 +6,8 @@
     <title>{{ translations.graphic_method_nav }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/themes.css' %}">
     <style>
         :root {
             --primary: #4B848A;
@@ -308,19 +310,24 @@
     </style>
 </head>
 <body>
-<<<<<<< HEAD
+    <!-- Botón de tema en la esquina superior derecha -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+        <button id="theme-toggle" class="btn btn-outline-secondary btn-sm theme-toggle-btn" title="{{ translations.theme }}">
+            <i class="fas fa-sun theme-icon-light"></i>
+            <i class="fas fa-moon theme-icon-dark d-none"></i>
+            <span class="ms-1 theme-text">{{ translations.light_mode }}</span>
+        </button>
+    </div>
+
     <a href="{% url 'index' %}">{{ translations.back_to_home }}</a>
-=======
-     <a href="{% url 'index' %}">Inicio</a>
->>>>>>> 10c770fb27aca4ece63cc52569f3c6886811ace1
     <div class="container">
         {% if modo_repetir %}
         <div class="alert alert-info mb-4 d-flex align-items-center">
             <i class="fas fa-info-circle me-2"></i>
             <div>
-                Estás viendo una repetición de un cálculo del historial.
+                {{ translations.viewing_history_calculation }}
                 <a href="{% url 'historialMetodoGrafico' %}" class="btn btn-sm btn-info ms-2">
-                    <i class="fas fa-arrow-left me-1"></i> Volver al Historial
+                    <i class="fas fa-arrow-left me-1"></i> {{ translations.back_to_history }}
                 </a>
             </div>
         </div>
@@ -328,15 +335,15 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0 text-primary">
-                <i class="fas fa-chart-line me-2"></i> Método Gráfico
-                {% if modo_repetir %}<small class="text-muted fs-6">(Modo Repetición)</small>{% endif %}
+                <i class="fas fa-chart-line me-2"></i> {{ translations.graphic_method_nav }}
+                {% if modo_repetir %}<small class="text-muted fs-6">({{ translations.history_mode }})</small>{% endif %}
             </h2>
             <div class="d-flex gap-2">
                 <a href="{% url 'historialMetodoGrafico' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-history me-1"></i> Ver Historial
+                    <i class="fas fa-history me-1"></i> {{ translations.view_history }}
                 </a>
                 <a href="{% url 'metodoGrafico' %}" class="btn btn-outline-primary">
-                    <i class="fas fa-plus me-1"></i> Nuevo ejercicio
+                    <i class="fas fa-plus me-1"></i> {{ translations.new_exercise }}
                 </a>
             </div>
         </div>
@@ -344,7 +351,7 @@
         {% if errors %}
         <div class="alert alert-danger">
             <h4 class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle me-2"></i> Errores:
+                <i class="fas fa-exclamation-triangle me-2"></i> {{ translations.errors }}:
             </h4>
             <ul class="mb-0">
                 {% for error in errors %}
@@ -357,7 +364,7 @@
         <div class="card shadow">
             <div class="card-header bg-primary">
                 <h5 class="mb-0 d-flex align-items-center">
-                    <i class="fas fa-edit me-2"></i> Datos de Entrada
+                    <i class="fas fa-edit me-2"></i> {{ translations.input_data }}
                 </h5>
             </div>
             <div class="card-body">
@@ -366,44 +373,44 @@
                     {% csrf_token %}
                     
                     <div class="mb-4">
-                        <label for="objective" class="form-label fw-medium">Función Objetivo (Z):</label>
+                        <label for="objective" class="form-label fw-medium">{{ translations.objective_function }}:</label>
                         <input type="text" class="form-control" id="objective" name="objective" value="{% if modo_repetir and historial_data and historial_data.objective %}{{ historial_data.objective }}{% elif objective %}{{ objective }}{% else %}{% endif %}" required>
-                        <small class="form-text text-muted">Ejemplo: 3*x + 2*y</small>
+                        <small class="form-text text-muted">{{ translations.example_objective }}</small>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-medium">Tipo de Optimización:</label>
+                        <label class="form-label fw-medium">{{ translations.optimization_type }}:</label>
                         <div class="d-flex gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="optimization" id="optimization_max" value="max"
                                     {% if modo_repetir and historial_data %}{% if historial_data.optimization == 'max' %}checked{% endif %}{% else %}{% if optimization == 'max' %}checked{% endif %}{% endif %}>
                                 <label class="form-check-label" for="optimization_max">
-                                    <i class="fas fa-arrow-up me-1"></i> Maximizar
+                                    <i class="fas fa-arrow-up me-1"></i> {{ translations.maximize }}
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="optimization" id="optimization_min" value="min"
                                     {% if modo_repetir and historial_data %}{% if historial_data.optimization == 'min' %}checked{% endif %}{% else %}{% if optimization == 'min' %}checked{% endif %}{% endif %}>
                                 <label class="form-check-label" for="optimization_min">
-                                    <i class="fas fa-arrow-down me-1"></i> Minimizar
+                                    <i class="fas fa-arrow-down me-1"></i> {{ translations.minimize }}
                                 </label>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label for="restrictions" class="form-label fw-medium">Restricciones (una por línea):</label>
+                        <label for="restrictions" class="form-label fw-medium">{{ translations.constraints }}:</label>
                         <textarea class="form-control" id="restrictions" name="restrictions" rows="5" required>{% if modo_repetir and historial_data and historial_data.restrictions %}{{ historial_data.restrictions }}{% elif restrictions_text %}{{ restrictions_text }}{% else %}{% endif %}</textarea>
-                        <small class="form-text text-muted">Ejemplo: 2*x + y &lt;= 100</small>
+                        <small class="form-text text-muted">{{ translations.example_constraint }}</small>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-calculator me-1"></i> Calcular Solución
+                            <i class="fas fa-calculator me-1"></i> {{ translations.calculate_solution }}
                         </button>
                         
                         <div class="form-text">
-                            <i class="fas fa-lightbulb me-1"></i> Ingresa tus restricciones y obtén la solución óptima
+                            <i class="fas fa-lightbulb me-1"></i> {{ translations.enter_constraints_tip }}
                         </div>
                     </div>
                 </form>
@@ -414,7 +421,7 @@
         <div class="card shadow">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0 d-flex align-items-center">
-                    <i class="fas fa-chart-bar me-2"></i> Resultados {% if modo_repetir %}(Historial){% endif %}
+                    <i class="fas fa-chart-bar me-2"></i> {{ translations.results }} {% if modo_repetir %}({{ translations.historial }}){% endif %}
                 </h5>
             </div>
             <div class="card-body">
@@ -422,26 +429,26 @@
                     <div class="col-lg-6 mb-4 mb-lg-0">
                         <div class="p-4 bg-light rounded-3 shadow-sm">
                             <h4 class="text-success d-flex align-items-center mb-3">
-                                <i class="fas fa-trophy me-2"></i> Solución Óptima
+                                <i class="fas fa-trophy me-2"></i> {{ translations.optimal_solution }}
                             </h4>
                             <div class="d-flex flex-column gap-3">
                                 <div>
-                                    <h6 class="fw-medium mb-1">Valor de Z:</h6>
+                                    <h6 class="fw-medium mb-1">{{ translations.z_value }}:</h6>
                                     <div class="optimal-value">{{ optimal.z|floatformat:4 }}</div>
                                 </div>
                                 <div>
-                                    <h6 class="fw-medium mb-1">Punto Óptimo:</h6>
+                                    <h6 class="fw-medium mb-1">{{ translations.optimal_point }}:</h6>
                                     <div class="optimal-point">
                                         ({{ optimal.x|floatformat:4 }}, {{ optimal.y|floatformat:4 }})
                                     </div>
                                 </div>
                                 <div>
-                                    <h6 class="fw-medium mb-1">Tipo:</h6>
+                                    <h6 class="fw-medium mb-1">{{ translations.type }}:</h6>
                                     <div>
                                         {% if optimization == 'max' %}
-                                            <span class="badge bg-primary">Maximización</span>
+                                            <span class="badge bg-primary">{{ translations.maximization }}</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">Minimización</span>
+                                            <span class="badge bg-secondary">{{ translations.minimization }}</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -453,16 +460,16 @@
                     <div class="col-lg-6">
                         <div class="h-100">
                             <h4 class="text-primary d-flex align-items-center mb-3">
-                                <i class="fas fa-map-marker-alt me-2"></i> Puntos Factibles Evaluados
+                                <i class="fas fa-map-marker-alt me-2"></i> {{ translations.feasible_points_evaluated }}
                             </h4>
                             <div class="table-responsive">
                                 <table class="table table-solutions table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Punto</th>
-                                            <th>Coordenada X</th>
-                                            <th>Coordenada Y</th>
-                                            <th>Valor Z</th>
+                                            <th>{{ translations.point }}</th>
+                                            <th>{{ translations.x_coordinate }}</th>
+                                            <th>{{ translations.y_coordinate }}</th>
+                                            <th>{{ translations.z_value }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -681,13 +688,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{% static 'js/theme-manager.js' %}"></script>
     <script>
+        // Pasar traducciones al JavaScript
+        if (typeof window.updateThemeTranslations === 'function') {
+            window.updateThemeTranslations({
+                light_mode: '{{ translations.light_mode }}',
+                dark_mode: '{{ translations.dark_mode }}',
+                theme: '{{ translations.theme }}'
+            });
+        }
+
         $(document).ready(function() {
             // Validación básica en cliente
             $('form').submit(function() {
                 const restrictions = $('#restrictions').val().trim();
                 if (!restrictions) {
-                    alert('Por favor ingresa al menos una restricción');
+                    alert('{{ translations.client_validation_message }}');
                     return false;
                 }
                 return true;

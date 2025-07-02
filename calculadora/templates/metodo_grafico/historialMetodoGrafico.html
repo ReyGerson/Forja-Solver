@@ -1,11 +1,13 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial - Método Gráfico</title>
+    <title>{{ translations.graphic_method_history }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/themes.css' %}">
     <style>
         body {
             background-color: #f8f9fa;
@@ -130,15 +132,24 @@
     </style>
 </head>
 <body>
-         <a href="{% url 'index' %}">Inicio</a>
-
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'index' %}" class="me-3">{{ translations.back_to_home }}</a>
+                <button class="btn btn-outline-secondary theme-toggle-btn" onclick="toggleTheme()">
+                    <i class="fas fa-sun theme-icon-light"></i>
+                    <i class="fas fa-moon theme-icon-dark" style="display: none;"></i>
+                    <span class="theme-text">{{ translations.light_mode }}</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-primary">
-                <i class="fas fa-history"></i> Historial - Método Gráfico
+                <i class="fas fa-history"></i> {{ translations.graphic_method_history }}
             </h1>
             <a href="{% url 'metodoGrafico' %}" class="btn btn-primary">
-                <i class="fas fa-arrow-left"></i> Volver al Método
+                <i class="fas fa-arrow-left"></i> {{ translations.back_to_method }}
             </a>
         </div>
 
@@ -148,14 +159,14 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Fecha</th>
-                        <th>Función Objetivo</th>
-                        <th>Optimización</th>
-                        <th>Restricciones</th>
-                        <th>Límites</th>
-                        <th>Solución</th>
-                        <th>Punto Óptimo</th>
-                        <th>Acciones</th>
+                        <th>{{ translations.creation_date }}</th>
+                        <th>{{ translations.objective_function }}</th>
+                        <th>{{ translations.optimization }}</th>
+                        <th>{{ translations.constraints }}</th>
+                        <th>{{ translations.limits }}</th>
+                        <th>{{ translations.solution }}</th>
+                        <th>{{ translations.optimal_point }}</th>
+                        <th>{{ translations.actions }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -164,7 +175,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td>{{ item.fecha_creacion|date:'Y-m-d H:i' }}</td>
                         <td>{{ item.funcion }}</td>
-                        <td>{% if item.optimizacion == 'max' %}Maximizar{% else %}Minimizar{% endif %}</td>
+                        <td>{% if item.optimizacion == 'max' %}{{ translations.maximize }}{% else %}{{ translations.minimize }}{% endif %}</td>
                         <td style="white-space: pre-line;">
                             {{ item.restricciones|linebreaksbr|safe|cut:'\nLímites:' }}
                         </td>
@@ -178,8 +189,8 @@
                         <td>{{ item.solucion }}</td>
                         <td>{{ item.punto_optimo }}</td>
                         <td>
-                            <a href="{% url 'pdfMetodoGrafico' item.id %}" class="btn btn-sm btn-danger" title="Descargar PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>
-                            <a href="{% url 'repetirMetodoGrafico' item.id %}" class="btn btn-sm btn-primary" title="Repetir"><i class="fa fa-refresh"></i> Repetir</a>
+                            <a href="{% url 'pdfMetodoGrafico' item.id %}" class="btn btn-sm btn-danger" title="{{ translations.download_pdf }}"><i class="fa fa-file-pdf-o"></i> PDF</a>
+                            <a href="{% url 'repetirMetodoGrafico' item.id %}" class="btn btn-sm btn-primary" title="{{ translations.repeat }}"><i class="fa fa-refresh"></i> {{ translations.repeat }}</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -188,12 +199,12 @@
         </div>
 
         <div class="mt-5">
-          <h3 class="text-primary mb-4"><i class="fas fa-list-ol me-2"></i> Procedimiento Detallado</h3>
+          <h3 class="text-primary mb-4"><i class="fas fa-list-ol me-2"></i> {{ translations.detailed_procedure }}</h3>
           {% for item in historial %}
             <div class="mb-5">
               <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white d-flex align-items-center">
-                  <span class="fw-bold">Ejercicio #{{ forloop.counter }}</span>
+                  <span class="fw-bold">{{ translations.exercise_number }}{{ forloop.counter }}</span>
                   <span class="ms-3">{{ item.fecha_creacion|date:'Y-m-d H:i' }}</span>
                 </div>
                 <div class="card-body" style="background: #f8f9fa;">
@@ -202,7 +213,7 @@
                     {% for paso in item.procedimiento_steps %}
                       <li class="procedimiento-step mb-3">
                         <h5 class="step-title">
-                          <span class="badge bg-primary me-2" style="font-size:1em;">Paso {{ forloop.counter }}</span>
+                          <span class="badge bg-primary me-2" style="font-size:1em;">{{ translations.step }} {{ forloop.counter }}</span>
                           <i class="fas fa-arrow-right"></i>
                         </h5>
                         <div class="step-content" style="white-space: pre-line;">
@@ -211,7 +222,7 @@
                               <div class="accordion-item" style="border-radius: 6px; overflow: hidden;">
                                 <h2 class="accordion-header" id="headingHist{{ forloop.parentloop.counter }}{{ forloop.counter }}">
                                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" aria-expanded="false" aria-controls="collapseHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" style="background:#f4f6fa;">
-                                    Ver desarrollo del sistema
+                                    {{ translations.see_system_development }}
                                   </button>
                                 </h2>
                                 <div id="collapseHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="headingHist{{ forloop.parentloop.counter }}{{ forloop.counter }}" data-bs-parent="#accordionHistInterseccion{{ forloop.parentloop.counter }}{{ forloop.counter }}">
@@ -233,7 +244,7 @@
                   {% elif item.procedimiento %}
                     <div class="procedimiento-step mb-3">
                       <h5 class="step-title">
-                        <span class="badge bg-primary me-2" style="font-size:1em;">Procedimiento</span>
+                        <span class="badge bg-primary me-2" style="font-size:1em;">{{ translations.stored_procedure }}</span>
                         <i class="fas fa-arrow-right"></i>
                       </h5>
                       <div class="step-content" style="white-space: pre-line;">
@@ -241,14 +252,14 @@
                       </div>
                     </div>
                   {% else %}
-                    <div class="alert alert-warning mb-0">No hay procedimiento detallado guardado para este ejercicio.</div>
+                    <div class="alert alert-warning mb-0">{{ translations.no_detailed_procedure }}</div>
                   {% endif %}
 
                   {# Mostrar la gráfica si existe #}
                   {% if item.grafico %}
                   <div class="mt-4">
                     <h5 class="text-primary d-flex align-items-center mb-3">
-                      <i class="fas fa-chart-area me-2"></i> Representación Gráfica
+                      <i class="fas fa-chart-area me-2"></i> {{ translations.graphic_representation }}
                     </h5>
                     <div class="graph-container">
                       {{ item.grafico|safe }}
@@ -262,22 +273,32 @@
         </div>
         {% else %}
         <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> No hay registros en el historial.
+            <i class="fas fa-info-circle"></i> {{ translations.no_history_records }}
         </div>
         {% endif %}
 
         {% if not is_premium %}
         <div class="alert alert-warning mt-4">
-            <i class="fas fa-crown"></i> ¿Quieres ver más detalles y gráficas en tus cálculos? 
+            <i class="fas fa-crown"></i> {{ translations.want_more_details }}
             <a href="{% url 'tienda' %}" class="btn btn-sm btn-warning ms-2">
-                Actualiza a Premium
+                {{ translations.upgrade_to_premium }}
             </a>
         </div>
         {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/theme-manager.js' %}"></script>
     <script>
+        // Pasar traducciones al JavaScript
+        if (typeof window.updateThemeTranslations === 'function') {
+            window.updateThemeTranslations({
+                light_mode: '{{ translations.light_mode }}',
+                dark_mode: '{{ translations.dark_mode }}',
+                theme: '{{ translations.theme }}'
+            });
+        }
+
         // Inicializar tooltips
         document.addEventListener('DOMContentLoaded', function() {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
