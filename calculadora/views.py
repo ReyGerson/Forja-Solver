@@ -3101,76 +3101,63 @@ def exportar_word(request):
     )
 
 
-from django.utils.html import escape
-import json
+# views.py (solo fragmento nuevo para editar Gran M)
+from django.utils import timezone
+from .models import GranMHistorial
+from .mop import GranMSimplexExtended
+import ast
 
 @login_required
-@csrf_exempt
 def editar_gran_m(request, pk):
-    registro = get_object_or_404(GranMHistorial, pk=pk, user=request.user)
-    resultado_html = None
+    historial = get_object_or_404(GranMHistorial, pk=pk)
 
-    if request.method == 'POST':
-        tipo = request.POST.get('tipo', 'min')
-        objetivo = request.POST.get('objetivo', '')
-        minimizar = (tipo == 'min')
+    if request.method == 'GET':
+        # Precargar valores al formulario HTML para editar
+        restricciones_lista = ast.literal_eval(historial.restricciones)
+        signos_lista = ast.literal_eval(historial.signos)
 
-        try:
-            obj_raw = objetivo.split(',')
-            if len(obj_raw) > 10:
-                raise ValueError("Máximo 10 variables permitidas.")
+        return render(request, 'metodoGranM.html', {
+            'precarga': {
+                'tipo_objetivo': historial.tipo,
+                'funcion_objetivo': historial.funcion_objetivo,
+                'restricciones_json': restricciones_lista,
+                'signos': signos_lista,
+            },
+            'nuevo': True,
+        })
 
-            obj = [float(v.strip()) for v in obj_raw if v.strip()]
-            restricciones = []
-            tipos = []
+    elif request.method == 'POST':
+        tipo = request.POST.get("tipo")
+        funcion_objetivo = request.POST.get("objetivo")
 
-            for i in range(10):
-                restr = request.POST.get(f'restriccion_{i}')
-                signo = request.POST.get(f'signo_{i}')
-                if restr and signo:
-                    partes = [x.strip() for x in restr.split(',')]
-                    if len(partes) != len(obj) + 1:
-                        raise ValueError(f"Restricción {i+1} inválida.")
-                    restricciones.append([float(x) for x in partes])
-                    tipos.append(signo)
+        restricciones = []
+        signos = []
+        i = 0
+        while True:
+            coef = request.POST.get(f"restriccion_{i}")
+            signo = request.POST.get(f"signo_{i}")
+            b = request.POST.get(f"b_{i}")
+            if coef and b and signo:
+                coef_str = coef.strip().split(',')
+                coef_nums = [float(x.strip()) for x in coef_str]
+                coef_nums.append(float(b.strip()))
+                restricciones.append(coef_nums)
+                signos.append(signo.strip())
+                i += 1
+            else:
+                break
 
-            if not restricciones:
-                raise ValueError("Al menos una restricción es requerida.")
+        solver = GranMSimplexExtended()
+        resultado_html = solver.resolver(funcion_objetivo, restricciones, signos, tipo == "min")
 
-            solver = GranMSimplexExtended()
-            resultado_html = solver.solve(obj, restricciones, tipos, minimizar)
+        GranMHistorial.objects.create(
+            user=request.user,
+            tipo=tipo,
+            funcion_objetivo=funcion_objetivo,
+            restricciones=str(restricciones),
+            signos=str(signos),
+            resultado_html=resultado_html,
+            fecha=timezone.now()
+        )
 
-            GranMHistorial.objects.create(
-                user=request.user,
-                tipo=tipo,
-                funcion_objetivo=objetivo,
-                restricciones=json.dumps(restricciones),  
-                signos=json.dumps(tipos),                
-                resultado_html=resultado_html
-            )
-
-            soup = BeautifulSoup(resultado_html, "html.parser")
-            for tag in soup(["style", "script"]): tag.decompose()
-            request.session['resultado_exportable'] = str(soup)
-
-        except Exception as e:
-            resultado_html = f"<p style='color:red;'>Error: {str(e)}</p>"
-
-    try:
-        restricciones_parseadas = json.loads(registro.restricciones)
-        signos_parseados = json.loads(registro.signos)
-    except json.JSONDecodeError as e:
-        restricciones_parseadas = []
-        signos_parseados = []
-        resultado_html = f"<p style='color:red;'>Error cargando historial: {str(e)}</p>"
-
-    return render(request, 'paginas/metodoGranM.html', {
-        'resultado': resultado_html if request.method == 'POST' else None,
-        'editar': True,
-        'registro': {
-            'tipo': registro.tipo,
-            'funcion_objetivo': registro.funcion_objetivo,
-            'restricciones': restricciones_parseadas,
-            'signos': signos_parseados
-        }
-    })
+        return redirect('historial_gran_m')
