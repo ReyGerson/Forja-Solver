@@ -2944,7 +2944,7 @@ def metodo_gran_m(request):
             'resultado': resultado_html
         })
 
-    # ✅ GET (nuevo ejercicio): activa modo_nuevo en la plantilla
+   
     return render(request, 'paginas/metodoGranM.html', {
         'nuevo': True
     })

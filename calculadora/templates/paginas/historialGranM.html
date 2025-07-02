@@ -105,9 +105,7 @@
           <div>{{ item.resultado_html|safe }}</div>
         </details>
 
-        <form method="get" action="{% url 'editar_gran_m' item.id %}">
-          <button type="submit" class="editar-btn">✏️ Volver a editar</button>
-        </form>
+        
       </li>
       {% endfor %}
     </ul>
