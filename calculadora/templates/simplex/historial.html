@@ -17,6 +17,79 @@
             --light: #F9F2F2;
             --alert: #BB3A2D;
         }
+        [data-theme="dark"] {
+            --primary: #4B848A;
+            --secondary: #F9F2F2;
+            --success: #7cdba0;
+            --info: #7cb7c3;
+            --warning: #fcd471;
+            --danger: #ff5c62;
+            --light: #121212;
+            --alert: #E57373;
+        }
+
+        [data-theme="dark"] body {
+            color: var(--secondary);
+            background-color: var(--light);
+        }
+
+        [data-theme="dark"] .historial-container,
+        [data-theme="dark"] .notice-box,
+        [data-theme="dark"] .detalle-item {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="dark"] .historial-item {
+            background: #2b2b2b;
+            border-left: 4px solid var(--info);
+        }
+
+        [data-theme="dark"] .historial-titulo,
+        [data-theme="dark"] .detalle-label,
+        [data-theme="dark"] h1,
+        [data-theme="dark"] h2,
+        [data-theme="dark"] h3,
+        [data-theme="dark"] h4 {
+            color: var(--info);
+        }
+
+        [data-theme="dark"] .historial-fecha,
+        [data-theme="dark"] .nav-card-content p {
+            color: #cccccc;
+        }
+
+        [data-theme="dark"] .btn-secondary {
+            background: var(--warning);
+            color: var(--secondary);
+        }
+
+        [data-theme="dark"] .notice-box {
+            background-color: #3a3a3a;
+            border-left: 4px solid var(--warning);
+        }
+
+        [data-theme="dark"] .notice-box h4 {
+            color: var(--alert);
+        }
+
+        [data-theme="dark"] .var-optima {
+            background: #2d523d;
+        }
+
+        [data-theme="dark"] code {
+            background-color: #2d2d2d;
+            border-left: 3px solid var(--warning);
+            color: var(--danger);
+        }
+
+        [data-theme="dark"] a {
+            color: var(--info);
+        }
+
+        [data-theme="dark"] a:hover {
+            color: var(--success);
+        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -328,5 +401,23 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js"></script>
+    <script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute("data-theme");
+        const newTheme = current === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const saved = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", saved);
+        const icon = document.getElementById("theme-icon");
+        if (icon) icon.textContent = saved === "dark" ? "☀️" : "🌙";
+    });
+</script>
+
 </body>
 </html>

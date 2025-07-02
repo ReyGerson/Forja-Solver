@@ -11,6 +11,66 @@
             background-color: #f8f9fa;
             padding-top: 20px;
         }
+         [data-theme="dark"] body {
+            background-color: #1a1a1a;
+            color: #f1f1f1;
+        }
+
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(124, 183, 195, 0.15);
+        }
+
+        [data-theme="dark"] .table th {
+            background-color: #4B848A;
+            color: white;
+        }
+
+        [data-theme="dark"] .badge-optimization {
+            background-color: #7cdba0;
+            color: black;
+        }
+
+        [data-theme="dark"] .hist-proc-block,
+        [data-theme="dark"] .procedimiento-step {
+            background-color: #2b2b2b;
+            border-left: 5px solid #4B848A;
+            box-shadow: 0 2px 8px rgba(255,255,255,0.03);
+            color: #e0e0e0;
+        }
+
+        [data-theme="dark"] .hist-proc-block strong,
+        [data-theme="dark"] .hist-proc-block .proc-title {
+            color: #7cb7c3;
+        }
+
+        [data-theme="dark"] .hist-proc-block .check,
+        [data-theme="dark"] .optimal-value,
+        [data-theme="dark"] .step-point {
+            color: #9fc8a8;
+        }
+
+        [data-theme="dark"] .step-title {
+            color: #7cb7c3;
+        }
+
+        [data-theme="dark"] .step-items li:before {
+            color: #7cb7c3;
+        }
+
+        [data-theme="dark"] .step-equation {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
+        [data-theme="dark"] .step-point {
+            background-color: rgba(159, 200, 168, 0.1);
+        }
+
+        [data-theme="dark"] .optimal-value {
+            color: #9fc8a8;
+        }
+
+
         .table-hover tbody tr:hover {
             background-color: rgba(75, 132, 138, 0.1);
         }
@@ -243,5 +303,23 @@
             })
         });
     </script>
+    <script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute("data-theme");
+        const newTheme = current === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const saved = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", saved);
+        const icon = document.getElementById("theme-icon");
+        if (icon) icon.textContent = saved === "dark" ? "☀️" : "🌙";
+    });
+</script>
+
 </body>
 </html>

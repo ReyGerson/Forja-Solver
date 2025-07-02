@@ -16,6 +16,235 @@
             --white: #ffffff;
             --transition: all 0.3s ease;
         }
+
+        /* MODO OSCURO */
+        [data-theme="dark"] {
+            --primary: #7cb7c3;
+            --primary-light: #93c8ce;
+            --secondary: #b49a6b;
+            --light: #121212;
+            --dark: #f9f9f9;
+            --gray: #444;
+            --white: #1e1e1e;
+            --text: #f0f0f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .creditos-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .creditos-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .creditos-title {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .creditos-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        .team-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .team-member {
+            background: var(--white);
+            border-radius: 15px;
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            border: 1px solid var(--gray);
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .member-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray);
+            padding-bottom: 20px;
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary);
+            font-size: 2.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-info h3 {
+            color: var(--dark);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .member-role {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .member-responsibilities {
+            padding-left: 20px;
+        }
+
+        .member-responsibilities h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .member-responsibilities h4 i {
+            margin-right: 10px;
+        }
+
+        .responsibilities-list {
+            list-style-type: none;
+        }
+
+        .responsibilities-list li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .responsibilities-list li::before {
+            content: '•';
+            color: var(--secondary);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .creditos-title {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                top: -50px;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .team-member {
+                padding: 25px;
+            }
+
+            .member-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .member-avatar {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .creditos-title {
+                font-size: 1.8rem;
+            }
+
+            .creditos-subtitle {
+                font-size: 1rem;
+            }
+
+            .back-button {
+                top: -45px;
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+
+            .team-member {
+                padding: 20px;
+            }
+        }
+
         
         * {
             margin: 0;
@@ -291,5 +520,23 @@
             </div>
         </div>
     </div>
+    <script>
+  function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const newTheme = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      document.getElementById("theme-icon").textContent = newTheme === "dark" ? "☀️" : "🌙";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", saved);
+      const icon = document.getElementById("theme-icon");
+      if (icon) icon.textContent = saved === "dark" ? "☀️" : "🌙";
+  });
+</script>
+
 </body>
 </html>

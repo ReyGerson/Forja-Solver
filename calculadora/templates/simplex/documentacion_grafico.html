@@ -17,6 +17,78 @@
             --light: #F9F2F2;
             --alert: #BB3A2D;
         }
+                [data-theme="dark"] {
+            --primary: #4B848A;
+            --secondary: #F9F2F2;
+            --success: #7cdba0;
+            --info: #7cb7c3;
+            --warning: #fcd471;
+            --danger: #ff5c62;
+            --light: #121212;
+            --alert: #E57373;
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--light);
+            color: var(--secondary);
+        }
+
+        [data-theme="dark"] .content-box,
+        [data-theme="dark"] .use-case {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="dark"] .math-formula {
+            background-color: #2a2a2a;
+        }
+
+        [data-theme="dark"] .math-formula code {
+            color: var(--secondary);
+        }
+
+        [data-theme="dark"] .use-case {
+            border-left-color: var(--warning);
+        }
+
+        [data-theme="dark"] .use-case h4 {
+            color: var(--info);
+        }
+
+        [data-theme="dark"] .solution-box {
+            background-color: #2d4e2d;
+            border-left-color: var(--success);
+        }
+
+        [data-theme="dark"] .historial-item {
+            background: #2a2a2a;
+        }
+
+        [data-theme="dark"] .detalle-item {
+            background: #1e1e1e;
+            border-color: var(--primary);
+        }
+
+        [data-theme="dark"] button,
+        [data-theme="dark"] .btn {
+            background-color: var(--info);
+            color: white;
+        }
+
+        [data-theme="dark"] button:hover,
+        [data-theme="dark"] .btn:hover {
+            background-color: #2f5e64;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] a {
+            color: var(--info);
+        }
+
+        [data-theme="dark"] a:hover {
+            color: var(--success);
+        }
+
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -429,6 +501,24 @@
             </div>
         </div>
     </div>
+    <script>
+     function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const newTheme = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      document.getElementById("theme-icon").textContent = newTheme === "dark" ? "☀️" : "🌙";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", saved);
+      const icon = document.getElementById("theme-icon");
+      if (icon) icon.textContent = saved === "dark" ? "☀️" : "🌙";
+  });
+</script>
+
 </body>
 
 </html>

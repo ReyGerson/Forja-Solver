@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="{{ request.session.theme|default:'light' }}"
 
 <head>
     <meta charset="UTF-8" />
@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/gh/Mixgyt/RetroSci-Fi_library/dist/js/retrosci-fi.js" defer></script>
     <link rel="stylesheet" href='{% static "css/style.css" %}'>
 
+
 </head>
 {% if user.is_authenticated %}
 
@@ -19,8 +20,12 @@
 
   {% endif %}
 <body>
+
     {% csrf_token %} 
     <nav class="navbar bg-secondary estilo-brillo border rounded border-white hover-neon p-1">
+        <div class="modo" id="modo">
+            <i class="fas fa-toggle-on"></i>
+        </div>
         <div class="navbar-header">
             <div class="navbar-brand">
                 <img src="/static/img/logo.png" alt="" style="width: 50px; height: 50px" />Forja Solver
@@ -30,6 +35,9 @@
             </button>
         </div>
         <div class="navbar-nav">
+            <button onclick="toggleTheme()">
+            <span id="theme-icon">🌙</span> Tema
+            </button>
             <a class="nav-item rounded-pill" href="{% url 'index' %}">Inicio</a>
             <a class="nav-item rounded-pill" href="{% url 'logout' %}">Logout</a>
         </div>
@@ -37,6 +45,30 @@
     <div class="main-grid">
         {% block contenido %} {% endblock %}
     </div>
+    <script>
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme");
+        const newTheme = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+
+        const icon = document.getElementById("theme-icon");
+        if (icon) {
+            icon.textContent = newTheme === "dark" ? "☀️" : "🌙";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const saved = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", saved);
+
+        const icon = document.getElementById("theme-icon");
+        if (icon) {
+            icon.textContent = saved === "dark" ? "☀️" : "🌙";
+        }
+    });
+</script>
+
 </body>
 
 </html>

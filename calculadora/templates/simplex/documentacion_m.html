@@ -16,6 +16,81 @@
             --light: #F9F2F2;
             --alert: #BB3A2D;
         }
+        [data-theme="dark"] {
+            --primary: #4B848A;
+            --secondary: #F9F2F2;
+            --success: #7cdba0;
+            --info: #7cb7c3;
+            --warning: #fcd471;
+            --danger: #ff5c62;
+            --light: #121212;
+            --alert: #E57373;
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--light);
+            color: var(--secondary);
+        }
+
+        [data-theme="dark"] .content-box,
+        [data-theme="dark"] .use-case,
+        [data-theme="dark"] table {
+            background-color: #1e1e1e;
+            color: var(--secondary);
+            box-shadow: 0 1px 3px rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="dark"] th {
+            background-color: var(--info);
+            color: white;
+        }
+
+        [data-theme="dark"] td {
+            border-bottom: 1px solid var(--primary);
+            color: var(--secondary);
+        }
+
+        [data-theme="dark"] tr:nth-child(even) {
+            background-color: #181818;
+        }
+
+        [data-theme="dark"] .math-formula {
+            background-color: #2a2a2a;
+            border-left-color: var(--info);
+        }
+
+        [data-theme="dark"] .math-formula code {
+            color: var(--secondary);
+        }
+
+        [data-theme="dark"] .advantages-list li::before {
+            color: var(--success);
+        }
+
+        [data-theme="dark"] .disadvantages-list li::before {
+            color: var(--danger);
+        }
+
+        [data-theme="dark"] .use-case {
+            border-left-color: var(--warning);
+        }
+
+        [data-theme="dark"] .use-case h4 {
+            color: var(--info);
+        }
+
+        [data-theme="dark"] button,
+        [data-theme="dark"] .btn {
+            background-color: var(--info);
+            color: white;
+        }
+
+        [data-theme="dark"] button:hover,
+        [data-theme="dark"] .btn:hover {
+            background-color: #2f5e64;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -674,6 +749,24 @@
             </div>
         </div>
     </div>
+    <script>
+  function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const newTheme = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      document.getElementById("theme-icon").textContent = newTheme === "dark" ? "☀️" : "🌙";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", saved);
+      const icon = document.getElementById("theme-icon");
+      if (icon) icon.textContent = saved === "dark" ? "☀️" : "🌙";
+  });
+</script>
+
 </body>
 
 </html>

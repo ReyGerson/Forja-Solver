@@ -36,6 +36,24 @@
         </div>
         {% endif %}
     </div>
+    <script>
+  function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      const newTheme = current === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      document.getElementById("theme-icon").textContent = newTheme === "dark" ? "☀️" : "🌙";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("theme") || "light";
+      document.documentElement.setAttribute("data-theme", saved);
+      const icon = document.getElementById("theme-icon");
+      if (icon) icon.textContent = saved === "dark" ? "☀️" : "🌙";
+  });
+</script>
+
 </div>
 
 <style>
@@ -52,6 +70,62 @@
         overflow: hidden;
         border: 1px solid #eaeaea;
     }
+    [data-theme="dark"] .premium-card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+    [data-theme="dark"] .premium-header {
+        background: linear-gradient(135deg, #4B848A, #2a4e53);
+        color: #fff;
+    }
+
+    [data-theme="dark"] .premium-features {
+        background-color: #1e1e1e;
+    }
+
+    [data-theme="dark"] .feature {
+        border-bottom: 1px solid #2c2c2c;
+        color: #e0e0e0;
+    }
+
+    [data-theme="dark"] .feature-icon {
+        background: #4B848A;
+        color: #fff;
+    }
+
+    [data-theme="dark"] .premium-active p {
+        color: #7cb7c3;
+    }
+
+    [data-theme="dark"] .amount {
+        color: #7cb7c3;
+    }
+
+    [data-theme="dark"] .period {
+        color: #bbb;
+    }
+
+    [data-theme="dark"] .btn-subscribe,
+    [data-theme="dark"] .btn-primary {
+        background: #4B848A;
+        color: #fff;
+    }
+
+    [data-theme="dark"] .btn-subscribe:hover,
+    [data-theme="dark"] .btn-primary:hover {
+        background: #2f5e64;
+    }
+
+    [data-theme="dark"] .btn-back {
+        color: #7cb7c3;
+    }
+
+    [data-theme="dark"] .btn-back:hover {
+        color: #a0dee7;
+    }
+
 
     .premium-header {
         padding: 2rem;
